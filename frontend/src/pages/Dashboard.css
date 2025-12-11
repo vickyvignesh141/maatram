@@ -1,0 +1,151 @@
+:root {
+  --primary-color: #1e3a8a;
+  --accent-color: #1e3a8a;
+  --card-bg: rgba(255,255,255,0.9);
+}
+
+/* Wrapper */
+.dashboard-wrapper {
+  font-family: "Poppins", sans-serif;
+  background: url('../imgs/whiteimage.jpeg') no-repeat center center fixed;
+  background-size: cover;
+  color: #333;
+}
+
+/* Header */
+/* Header */
+.dashboard-header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 20px 40px;
+}
+
+/* Top row: logo, titles, buttons */
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap; /* For responsiveness */
+  gap: 20px;
+}
+
+/* Logo */
+.header-logo {
+  height: 80px;
+  flex-shrink: 0;
+  
+}
+
+/* Titles */
+.header-titles {
+  text-align: center;
+  flex: 1; /* Take available space */
+}
+.header-title {
+  font-size: 2rem;
+  margin: 0;
+}
+.header-subtitle {
+  font-size: 1rem;
+  font-weight: normal;
+  margin: 5px 0 0 0;
+}
+
+/* Auth buttons */
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+/* .btn-login {
+  border: 2px solid #1e3a8a;
+  color: #1e3a8a;
+  padding: 6px 16px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+}
+.btn-login:hover {
+  background: #1e3a8a;
+  color: white;
+} */
+
+.btn-login {
+  background: transparent;
+  border: 2px solid #4a90e2;
+  color: #4a90e2;
+  padding: 8px 16px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: 0.3s ease;
+
+}
+
+.btn-login:hover {
+  background: #4a90e2;
+  color: white;
+}
+/* Responsive */
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    text-align: center;
+  }
+  .auth-buttons {
+    margin-top: 10px;
+  }
+}
+
+/* Main Content */
+.dashboard-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+/* Cards */
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 100%;
+  max-width: 1000px;
+}
+.info-card {
+  background: var(--card-bg);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+}
+.card-heading {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+.card-text {
+  line-height: 1.7;
+}
+
+/* Footer */
+.dashboard-footer {
+  background: var(--primary-color);
+  color: white;
+  text-align: center;
+  padding: 25px 20px;
+  margin-top: 40px;
+}
+.dashboard-footer p {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

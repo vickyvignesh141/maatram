@@ -1,0 +1,233 @@
+:root {
+  --accent: #1e3a8a;
+  --accent-2: #2e6be6;
+  --yellow: #ffd54a;
+  --bg: #f4f7fb;
+  --muted: #6b7280;
+}
+
+
+/* Body */
+
+/* Wrapper */
+/* Wrapper */
+.wrap {
+  font-family: "Poppins", system-ui, sans-serif;
+  background: var(--bg);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 95%;
+  max-width: 1000px;
+  padding: 28px;
+  min-height: 100vh;
+  padding-left: 15vw;
+  overflow: hidden;
+}
+
+
+/* Cards */
+.card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(16, 24, 40, 0.06);
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Left card */
+.left {
+  flex: 0.85;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 500px;
+  padding: 28px;
+}
+
+.brand h1 {
+  font-size: 34px;
+  margin-bottom: 6px;
+}
+
+.brand .muted {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.brand-foot {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.intro h2 {
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.intro p {
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+}
+
+/* CTA buttons */
+.cta {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.btn {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn.active {
+  background: var(--yellow);
+  color: #081226;
+  border: none;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* Right card */
+.right {
+  flex: 1.25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+}
+
+/* Form container */
+.form-container {
+  width: 100%;
+  min-height: 460px;
+  position: relative;
+}
+
+/* Forms */
+.form {
+  display: none;
+  margin-top: -50px;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.form.active {
+  display: flex;
+  padding-top: 6vh;
+}
+
+.form h2 {
+  color: var(--accent);
+  margin-bottom: 0;
+}
+
+.form label {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.form input,
+.form select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.form input:focus,
+.form select:focus {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 6px rgba(46, 107, 230, 0.2);
+}
+
+/* Submit button */
+.btn-submit {
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent-2);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.btn-submit:hover {
+  background: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* User type radio buttons */
+.user-type {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.user-type label {
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  background: #16a34a;
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: none;
+  z-index: 1000;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  .wrap {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .left,
+  .right {
+    flex: 1;
+    min-height: auto;
+  }
+
+  .cta {
+    flex-direction: column;
+  }
+}
