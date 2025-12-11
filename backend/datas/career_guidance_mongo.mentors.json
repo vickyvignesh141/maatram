@@ -1,0 +1,80 @@
+[{
+  "_id": {
+    "$oid": "693ae0bf6adcbe5b601e4806"
+  },
+  "id": 1,
+  "name": "Esakki muthu S",
+  "username": "MAA100001",
+  "password": "29/07/2005",
+  "phone": "9876543210"
+},
+{
+  "_id": {
+    "$oid": "693ae0bf6adcbe5b601e4807"
+  },
+  "id": 2,
+  "name": "Essaiki rajan G",
+  "username": "MAA100002",
+  "password": "01/10/2005",
+  "phone": "9123456780"
+},
+{
+  "_id": {
+    "$oid": "693ae0bf6adcbe5b601e4808"
+  },
+  "id": 3,
+  "name": "Vikram P",
+  "username": "MAA100003",
+  "password": "23/03/1988",
+  "phone": "9988776655"
+},
+{
+  "_id": {
+    "$oid": "693ae0bf6adcbe5b601e4809"
+  },
+  "id": 4,
+  "name": "Sneha K",
+  "username": "MAA100004",
+  "password": "15/04/1992",
+  "phone": "9012345678"
+},
+{
+  "_id": {
+    "$oid": "693ae0bf6adcbe5b601e480a"
+  },
+  "id": 5,
+  "name": "Chithirai Selvan G",
+  "username": "MAA100007",
+  "password": "03/05/2005",
+  "phone": ""
+},
+{
+  "_id": {
+    "$oid": "693ae0bf6adcbe5b601e480b"
+  },
+  "id": 6,
+  "name": "VICKYYYY S",
+  "username": "MAA100015",
+  "password": "04/12/2007",
+  "phone": ""
+},
+{
+  "_id": {
+    "$oid": "693ae0bf6adcbe5b601e480c"
+  },
+  "id": 7,
+  "name": "chandru",
+  "username": "MAA002424",
+  "password": "01/08/2001",
+  "phone": ""
+},
+{
+  "_id": {
+    "$oid": "693ae0bf6adcbe5b601e480d"
+  },
+  "id": 8,
+  "name": "giri r",
+  "username": "MAA002425",
+  "password": "00/00/0000",
+  "phone": ""
+}]
