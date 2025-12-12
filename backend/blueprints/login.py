@@ -1,11 +1,10 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from pymongo import MongoClient
 
-login = Blueprint("login", __name__)
+app = Flask(__name__)
+CORS(app)
 
-# -------------------------------
-# MongoDB Setup
-# -------------------------------
 client = MongoClient("mongodb://localhost:27017/")
 mongo_db = client["career_guidance_mongo"]
 
@@ -13,66 +12,53 @@ users_collection = mongo_db["users"]
 mentors_collection = mongo_db["mentors"]
 admin_collection = mongo_db["admin"]
 
-# -------------------------------
-# LOGIN ROUTE
-# -------------------------------
-@login.route('/login', methods=['POST'])
-def login_user():
-    data = request.get_json() or {}
+
+# Helper function to validate login
+def verify_login(collection, username, password):
+    user = collection.find_one({"username": username})
+    
+    if user and user.get("password") == password:
+        return True
+    return False
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.json
+
     username = data.get("username")
-    password = data.get("dob")  # as per your code
-    user_type = data.get("user_type")
+    password = data.get("password")
+    user_type = data.get("userType")
 
     if not username or not password or not user_type:
-        return jsonify({"success": False, "message": "All fields required"}), 400
+        return jsonify({"success": False, "msg": "Missing fields"}), 400
 
-    try:
-        user = None
-        redirect_url = "/"
+    # Select collection based on user type
+    if user_type == "Student":
+        col = users_collection
+    elif user_type == "Mentor":
+        col = mentors_collection
+    elif user_type == "Admin":
+        col = admin_collection
+    else:
+        return jsonify({"success": False, "msg": "Invalid user type"}), 400
 
-        # ---------------------------
-        # STUDENT LOGIN
-        # ---------------------------
-        if user_type == "student":
-            user = users_collection.find_one({"username": username, "password": password})
-            redirect_url = "/student"
+    # Verify login
+    if verify_login(col, username, password):
+        return jsonify({"success": True, "msg": "Login successful"}), 200
+    else:
+        return jsonify({"success": False, "msg": "Invalid credentials"}), 401
+    
+@app.route("/get_student/<username>", methods=["GET"])
+def get_student(username):
+    user = users_collection.find_one({"username": username}, {"_id": 0})
+    
+    if user:
+        return jsonify({"success": True, "data": user}), 200
+    else:
+        return jsonify({"success": False, "msg": "Student not found"}), 404
 
-        # ---------------------------
-        # MENTOR LOGIN
-        # ---------------------------
-        elif user_type == "mentor":
-            user = mentors_collection.find_one({"username": username, "password": password})
-            redirect_url = "/mentor"
 
-        # ---------------------------
-        # ADMIN LOGIN
-        # ---------------------------
-        elif user_type == "admin":
-            user = admin_collection.find_one({"username": username, "password": password})
-            redirect_url = "/admin"
 
-        # ---------------------------
-        if user:
-            # Save session
-            session['username'] = user.get("username")
-            session['user_type'] = user_type
-            session['name'] = user.get("name")
-            session['phno'] = user.get("phno") or user.get("phone", "")
-
-            return jsonify({
-                "success": True,
-                "message": f"{user_type.capitalize()} login successful",
-                "redirect": redirect_url,
-                "user": {
-                    "name": user.get("name"),
-                    "username": user.get("username"),
-                    "phno": user.get("phno") or user.get("phone", ""),
-                    "type": user_type
-                }
-            })
-
-        return jsonify({"success": False, "message": "Invalid credentials"}), 401
-
-    except Exception as e:
-        print("MongoDB error:", e)
-        return jsonify({"success": False, "message": "Database query failed"}), 500
+if __name__ == "__main__":
+    app.run(debug=True)
