@@ -1,0 +1,1247 @@
+/* Mentor Dashboard CSS - Scoped to prevent conflicts */
+.mentor-dashboard {
+  --primary-color: #4361ee;
+  --primary-light: #eef2ff;
+  --secondary-color: #3a0ca3;
+  --success-color: #4cc9f0;
+  --warning-color: #f8961e;
+  --danger-color: #f72585;
+  --dark-color: #1a1a2e;
+  --light-color: #f8f9fa;
+  --gray-color: #6c757d;
+  --gray-light: #e9ecef;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease;
+}
+
+/* Loading State */
+.mentor-dashboard .loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.mentor-dashboard .loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--gray-light);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: mentor-spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes mentor-spin {
+  to { transform: rotate(360deg); }
+}
+
+.mentor-dashboard .loading-container h2 {
+  color: var(--dark-color);
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+/* Error State */
+.mentor-dashboard .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.mentor-dashboard .error-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.mentor-dashboard .error-container h2 {
+  color: var(--dark-color);
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.mentor-dashboard .error-container p {
+  color: var(--gray-color);
+  margin-bottom: 2rem;
+}
+
+.mentor-dashboard .retry-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .retry-btn:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+/* Header */
+.mentor-dashboard .dashboard-header {
+  background: white;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.mentor-dashboard .header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mentor-dashboard .menu-toggle {
+  background: none;
+  border: none;
+  color: var(--dark-color);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .menu-toggle:hover {
+  background: var(--gray-light);
+}
+
+.mentor-dashboard .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mentor-dashboard .logo-icon {
+  font-size: 1.5rem;
+}
+
+.mentor-dashboard .logo h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dark-color);
+}
+
+.mentor-dashboard .logo span {
+  color: var(--primary-color);
+}
+
+.mentor-dashboard .header-center {
+  flex: 1;
+  max-width: 600px;
+  margin: 0 2rem;
+}
+
+.mentor-dashboard .search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mentor-dashboard .search-icon {
+  position: absolute;
+  left: 15px;
+  color: var(--gray-color);
+}
+
+.mentor-dashboard .search-input {
+  width: 100%;
+  padding: 12px 45px 12px 45px;
+  border: 2px solid var(--gray-light);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.mentor-dashboard .search-filter {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--gray-color);
+  cursor: pointer;
+  padding: 5px;
+}
+
+.mentor-dashboard .header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mentor-dashboard .notification-btn,
+.mentor-dashboard .calendar-btn,
+.mentor-dashboard .messages-btn {
+  background: none;
+  border: none;
+  color: var(--dark-color);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  position: relative;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .notification-btn:hover,
+.mentor-dashboard .calendar-btn:hover,
+.mentor-dashboard .messages-btn:hover {
+  background: var(--gray-light);
+}
+
+.mentor-dashboard .notification-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--danger-color);
+  color: white;
+  font-size: 0.7rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mentor-dashboard .user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 10px;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.mentor-dashboard .user-profile:hover {
+  background: var(--gray-light);
+}
+
+.mentor-dashboard .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mentor-dashboard .avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mentor-dashboard .avatar-placeholder {
+  color: var(--primary-color);
+}
+
+.mentor-dashboard .user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.mentor-dashboard .user-name {
+  font-weight: 600;
+  color: var(--dark-color);
+  font-size: 0.9rem;
+}
+
+.mentor-dashboard .user-role {
+  font-size: 0.8rem;
+  color: var(--gray-color);
+}
+
+/* Sidebar */
+.mentor-dashboard .sidebar {
+  position: fixed;
+  left: -300px;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  background: white;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: var(--transition);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.mentor-dashboard .sidebar.open {
+  left: 0;
+}
+
+.mentor-dashboard .sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.mentor-dashboard .sidebar-header h3 {
+  color: var(--dark-color);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.mentor-dashboard .sidebar-nav {
+  flex: 1;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mentor-dashboard .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 1.5rem;
+  background: none;
+  border: none;
+  color: var(--gray-color);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  text-align: left;
+}
+
+.mentor-dashboard .nav-item:hover {
+  background: var(--gray-light);
+  color: var(--dark-color);
+}
+
+.mentor-dashboard .nav-item.active {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  border-right: 3px solid var(--primary-color);
+}
+
+.mentor-dashboard .nav-item span:not(.nav-badge) {
+  flex: 1;
+}
+
+.mentor-dashboard .nav-badge {
+  background: var(--primary-color);
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.mentor-dashboard .sidebar-footer {
+  padding: 1.5rem;
+  border-top: 1px solid var(--gray-light);
+}
+
+.mentor-dashboard .profile-quick-view {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mentor-dashboard .quick-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mentor-dashboard .quick-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mentor-dashboard .quick-avatar-placeholder {
+  color: var(--primary-color);
+}
+
+.mentor-dashboard .quick-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mentor-dashboard .quick-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--dark-color);
+}
+
+.mentor-dashboard .quick-status {
+  font-size: 0.75rem;
+  color: var(--success-color);
+}
+
+.mentor-dashboard .settings-btn {
+  background: none;
+  border: none;
+  color: var(--gray-color);
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 6px;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .settings-btn:hover {
+  background: var(--gray-light);
+  color: var(--dark-color);
+}
+
+/* Main Content */
+.mentor-dashboard .dashboard-content {
+  padding: 2rem;
+  background: #f5f7fb;
+  min-height: calc(100vh - 80px);
+}
+
+/* Welcome Banner */
+.mentor-dashboard .welcome-banner {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mentor-dashboard .welcome-content h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.mentor-dashboard .welcome-content p {
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.mentor-dashboard .action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .action-btn.primary {
+  background: white;
+  color: var(--primary-color);
+}
+
+.mentor-dashboard .action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Stats Grid */
+.mentor-dashboard .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.mentor-dashboard .stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.mentor-dashboard .stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mentor-dashboard .stat-icon.students {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.mentor-dashboard .stat-icon.active {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.mentor-dashboard .stat-icon.tasks {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.mentor-dashboard .stat-icon.rating {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.mentor-dashboard .stat-content h3 {
+  font-size: 0.9rem;
+  color: var(--gray-color);
+  margin-bottom: 5px;
+}
+
+.mentor-dashboard .stat-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--dark-color);
+  margin-bottom: 5px;
+}
+
+.mentor-dashboard .stat-change {
+  font-size: 0.8rem;
+  color: var(--success-color);
+}
+
+/* Content Grid */
+.mentor-dashboard .content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .mentor-dashboard .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Left Column */
+.mentor-dashboard .left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Profile Card */
+.mentor-dashboard .profile-overview-card,
+.mentor-dashboard .students-card,
+.mentor-dashboard .tasks-card,
+.mentor-dashboard .meetings-card,
+.mentor-dashboard .progress-card {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+}
+
+.mentor-dashboard .card-header {
+  padding: 1.5rem 1.5rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.mentor-dashboard .card-header h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+.mentor-dashboard .edit-btn,
+.mentor-dashboard .view-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .edit-btn:hover,
+.mentor-dashboard .view-all-btn:hover {
+  background: var(--primary-light);
+}
+
+.mentor-dashboard .profile-content {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.mentor-dashboard .profile-avatar-large {
+  position: relative;
+}
+
+.mentor-dashboard .profile-avatar-large img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.mentor-dashboard .avatar-large-placeholder {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+}
+
+.mentor-dashboard .online-status {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 15px;
+  height: 15px;
+  background: var(--success-color);
+  border: 2px solid white;
+  border-radius: 50%;
+}
+
+.mentor-dashboard .profile-details {
+  flex: 1;
+}
+
+.mentor-dashboard .profile-details h4 {
+  font-size: 1.4rem;
+  color: var(--dark-color);
+  margin-bottom: 5px;
+}
+
+.mentor-dashboard .profile-title {
+  color: var(--gray-color);
+  margin-bottom: 1rem;
+}
+
+.mentor-dashboard .contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.mentor-dashboard .contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--dark-color);
+  font-size: 0.9rem;
+}
+
+.mentor-dashboard .contact-item svg {
+  color: var(--gray-color);
+}
+
+.mentor-dashboard .profile-stats {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem;
+  background: var(--gray-light);
+  border-radius: var(--border-radius);
+}
+
+.mentor-dashboard .profile-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mentor-dashboard .stat-label {
+  font-size: 0.8rem;
+  color: var(--gray-color);
+  margin-bottom: 5px;
+}
+
+.mentor-dashboard .stat-value {
+  font-weight: 700;
+  color: var(--dark-color);
+}
+
+/* Students List */
+.mentor-dashboard .students-list {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mentor-dashboard .student-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .student-item:hover {
+  background: var(--gray-light);
+}
+
+.mentor-dashboard .student-avatar {
+  position: relative;
+}
+
+.mentor-dashboard .student-avatar-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.mentor-dashboard .status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.mentor-dashboard .status-dot.active {
+  background: var(--success-color);
+}
+
+.mentor-dashboard .status-dot.inactive {
+  background: var(--gray-color);
+}
+
+.mentor-dashboard .student-info {
+  flex: 1;
+}
+
+.mentor-dashboard .student-info h4 {
+  font-size: 1rem;
+  color: var(--dark-color);
+  margin-bottom: 3px;
+}
+
+.mentor-dashboard .student-info p {
+  font-size: 0.85rem;
+  color: var(--gray-color);
+  margin-bottom: 8px;
+}
+
+.mentor-dashboard .student-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mentor-dashboard .progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--gray-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mentor-dashboard .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  border-radius: 3px;
+}
+
+.mentor-dashboard .progress-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  min-width: 40px;
+}
+
+.mentor-dashboard .message-btn {
+  background: none;
+  border: none;
+  color: var(--gray-color);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .message-btn:hover {
+  background: var(--gray-light);
+  color: var(--primary-color);
+}
+
+/* Right Column */
+.mentor-dashboard .right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Tasks Card */
+.mentor-dashboard .task-count {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.mentor-dashboard .tasks-list {
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mentor-dashboard .task-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.mentor-dashboard .task-item:hover {
+  background: var(--gray-light);
+}
+
+.mentor-dashboard .task-checkbox {
+  position: relative;
+}
+
+.mentor-dashboard .task-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.mentor-dashboard .task-checkbox label {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--gray-color);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .task-checkbox input[type="checkbox"]:checked + label {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.mentor-dashboard .task-checkbox input[type="checkbox"]:checked + label::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+}
+
+.mentor-dashboard .task-content {
+  flex: 1;
+}
+
+.mentor-dashboard .task-content h4 {
+  font-size: 0.95rem;
+  color: var(--dark-color);
+  margin-bottom: 5px;
+}
+
+.mentor-dashboard .task-content h4.completed {
+  text-decoration: line-through;
+  color: var(--gray-color);
+}
+
+.mentor-dashboard .task-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mentor-dashboard .priority-badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mentor-dashboard .priority-badge.high {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.mentor-dashboard .priority-badge.medium {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.mentor-dashboard .priority-badge.low {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.mentor-dashboard .due-date {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--gray-color);
+}
+
+.mentor-dashboard .task-action {
+  background: none;
+  border: none;
+  color: var(--gray-color);
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 6px;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .task-action:hover {
+  background: var(--gray-light);
+}
+
+.mentor-dashboard .add-task-btn {
+  width: calc(100% - 3rem);
+  margin: 1rem 1.5rem;
+  padding: 12px;
+  background: none;
+  border: 2px dashed var(--gray-light);
+  color: var(--gray-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .add-task-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* Meetings Card */
+.mentor-dashboard .schedule-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .schedule-btn:hover {
+  background: var(--primary-light);
+}
+
+.mentor-dashboard .meetings-list {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mentor-dashboard .meeting-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  background: var(--gray-light);
+  transition: var(--transition);
+}
+
+.mentor-dashboard .meeting-item:hover {
+  transform: translateY(-2px);
+}
+
+.mentor-dashboard .meeting-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.mentor-dashboard .meeting-hour {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--dark-color);
+}
+
+.mentor-dashboard .meeting-period {
+  font-size: 0.8rem;
+  color: var(--gray-color);
+  text-transform: uppercase;
+}
+
+.mentor-dashboard .meeting-details {
+  flex: 1;
+}
+
+.mentor-dashboard .meeting-details h4 {
+  font-size: 0.95rem;
+  color: var(--dark-color);
+  margin-bottom: 3px;
+}
+
+.mentor-dashboard .meeting-details p {
+  font-size: 0.85rem;
+  color: var(--gray-color);
+  margin-bottom: 8px;
+}
+
+.mentor-dashboard .meeting-tags {
+  display: flex;
+  gap: 8px;
+}
+
+.mentor-dashboard .tag {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.mentor-dashboard .tag.video {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.mentor-dashboard .tag.in-person {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.mentor-dashboard .tag.duration {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.mentor-dashboard .join-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mentor-dashboard .join-btn:hover {
+  background: var(--secondary-color);
+}
+
+/* Progress Card */
+.mentor-dashboard .progress-overall {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.mentor-dashboard .progress-chart {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 200px;
+}
+
+.mentor-dashboard .chart-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.mentor-dashboard .chart-bar-container {
+  width: 40px;
+  height: 150px;
+  background: var(--gray-light);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mentor-dashboard .chart-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, var(--primary-color), var(--secondary-color));
+  border-radius: 8px;
+  transition: height 0.5s ease;
+}
+
+.mentor-dashboard .chart-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+/* Quick Actions */
+.mentor-dashboard .quick-actions {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 100;
+}
+
+.mentor-dashboard .quick-actions .action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 12px;
+  background: white;
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 80px;
+}
+
+.mentor-dashboard .quick-actions .action-btn:hover {
+  transform: translateY(-5px);
+}
+
+.mentor-dashboard .quick-actions .action-btn span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+/* Sidebar Overlay */
+.mentor-dashboard .sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mentor-dashboard .dashboard-header {
+    padding: 1rem;
+  }
+  
+  .mentor-dashboard .header-center {
+    display: none;
+  }
+  
+  .mentor-dashboard .dashboard-content {
+    padding: 1rem;
+  }
+  
+  .mentor-dashboard .welcome-banner {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  
+  .mentor-dashboard .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .mentor-dashboard .content-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mentor-dashboard .profile-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .mentor-dashboard .contact-info,
+  .mentor-dashboard .profile-stats {
+    width: 100%;
+  }
+  
+  .mentor-dashboard .quick-actions {
+    bottom: 1rem;
+    right: 1rem;
+  }
+  
+  .mentor-dashboard .quick-actions .action-btn {
+    min-width: 60px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mentor-dashboard .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mentor-dashboard .header-right .user-info {
+    display: none;
+  }
+  
+  .mentor-dashboard .sidebar {
+    width: 100%;
+    left: -100%;
+  }
+}
