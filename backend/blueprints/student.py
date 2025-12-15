@@ -7,24 +7,10 @@ client = MongoClient("mongodb://localhost:27017/")
 mongo_db = client["career_guidance_mongo"]
 users_collection = mongo_db["users"]
 
-@student.route("/student/profile", methods=["GET"])
-def student_profile():
-    if "username" not in session:
-        return jsonify({"success": False, "message": "Not logged in"}), 401
-
-    username = session["username"]
-    user = users_collection.find_one({"username": username})
-
-    if not user:
-        return jsonify({"success": False, "message": "User not found"}), 404
-
-    return jsonify({
-        "success": True,
-        "user": {
-            "name": user.get("name"),
-            "username": user.get("username"),
-            "assigned_mentor": user.get("assigned_mentor", ""),
-            "phno": user.get("phno", ""),
-            "photo": user.get("photo", "")
-        }
-    })
+# Get student info
+@student.route("/get_student/<username>", methods=["GET"])
+def get_student(username):
+    user = users_collection.find_one({"username": username}, {"_id": 0})
+    if user:
+        return jsonify({"success": True, "data": user}), 200
+    return jsonify({"success": False, "msg": "Student not found"}), 404

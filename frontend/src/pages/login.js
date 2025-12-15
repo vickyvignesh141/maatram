@@ -97,7 +97,7 @@ export default function Login() {
  
             <div>
               {/* <h1 className="brand-title">Maatram</h1> */}
-              <img src={logo} alt="Maatram Logo" className="header-logo" />
+              <img src={logo} alt="Maatram Logo" className="header1-logo" />
               <p className="brand-subtitle">Student Profiling Platform</p>
             </div>
           </div>
@@ -136,8 +136,8 @@ export default function Login() {
         </div>
 
         <div className="brand-footer">
-          <ShieldCheck size={14} style={{ marginRight: '8px' }} />
-          © {new Date().getFullYear()} Maatram Foundation. All rights reserved.
+          {/* <ShieldCheck size={14} style={{ marginRight: '8px' }} />
+          © {new Date().getFullYear()} Maatram Foundation. All rights reserved. */}
         </div>
       </div>
 
@@ -237,10 +237,10 @@ export default function Login() {
           )}
 
           <div className="form-footer">
-            <p>
+            {/* <p>
               <HelpCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
               Need help? <a href="/support">Contact Support</a> or <a href="/forgot-password">Reset Password</a>
-            </p>
+            </p> */}
           </div>
         </form>
       </div>
