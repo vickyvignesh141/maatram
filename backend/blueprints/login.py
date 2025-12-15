@@ -43,10 +43,10 @@ def login():
         return jsonify({"success": True, "msg": "Login successful"}), 200
     return jsonify({"success": False, "msg": "Invalid credentials"}), 401
 
-# Get student info
-@auth_bp.route("/get_student/<username>", methods=["GET"])
-def get_student(username):
-    user = users_collection.find_one({"username": username}, {"_id": 0})
-    if user:
-        return jsonify({"success": True, "data": user}), 200
-    return jsonify({"success": False, "msg": "Student not found"}), 404
+# # Get student info
+# @auth_bp.route("/get_student/<username>", methods=["GET"])
+# def get_student(username):
+#     user = users_collection.find_one({"username": username}, {"_id": 0})
+#     if user:
+#         return jsonify({"success": True, "data": user}), 200
+#     return jsonify({"success": False, "msg": "Student not found"}), 404

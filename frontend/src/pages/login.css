@@ -8,6 +8,7 @@
 }
 .login-container {
   display: flex;
+  height: 60vh;
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -75,10 +76,10 @@
   margin: 0.25rem 0 0.5rem 0;
 }
 
-.header-logo {
-  height: 90px;
+.header1-logo {
+  height: 100px;
   margin-top: 0.5rem;
-  filter: brightness(0) invert(1);
+  /* filter: brightness(0) invert(1); */
 }
 
 .welcome-content {
