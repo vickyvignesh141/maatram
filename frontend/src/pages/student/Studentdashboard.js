@@ -81,7 +81,7 @@ export default function StudentDashboard() {
     { 
       name: "Progress Update", 
       icon: <Edit size={24} />, 
-      route: "/update-progress",
+      route: "/student/update-progress",
       description: "Update your learning progress",
       color: "var(--warning)",
       bgColor: "rgba(245, 158, 11, 0.1)"

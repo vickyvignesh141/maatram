@@ -1,0 +1,632 @@
+:root {
+  --progress-primary: #1e3a8a;
+  --progress-primary-light: #2e6be6;
+  --progress-success: #10b981;
+  --progress-warning: #f59e0b;
+  --progress-danger: #ef4444;
+  --progress-info: #3b82f6;
+  --progress-bg: #f4f7fb;
+  --progress-card-bg: #ffffff;
+  --progress-text: #374151;
+  --progress-text-light: #6b7280;
+  --progress-border: #e5e7eb;
+  --progress-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --progress-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --progress-radius: 0.5rem;
+  --progress-radius-lg: 0.75rem;
+  --progress-transition: all 0.3s ease;
+}
+
+/* Main Container */
+.progress-container {
+  background: var(--progress-bg);
+  min-height: 100vh;
+}
+
+.progress-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Loading State */
+.progress-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--progress-border);
+  border-top-color: var(--progress-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Header */
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--progress-primary) 0%, var(--progress-primary-light) 100%);
+  border-radius: var(--progress-radius-lg);
+  color: white;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.progress-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.progress-subtitle {
+  margin: 0.5rem 0 0 0;
+  opacity: 0.9;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.action-btn {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: var(--progress-radius);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: var(--progress-transition);
+}
+
+.action-btn.primary {
+  background: white;
+  color: var(--progress-primary);
+}
+
+.action-btn.primary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+}
+
+.action-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.action-btn.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Error Message */
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--progress-danger);
+  padding: 1rem;
+  border-radius: var(--progress-radius);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--progress-card-bg);
+  border-radius: var(--progress-radius);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--progress-shadow);
+  transition: var(--progress-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--progress-shadow-lg);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.stat-card-primary::before { background: var(--progress-primary); }
+.stat-card-success::before { background: var(--progress-success); }
+.stat-card-warning::before { background: var(--progress-warning); }
+.stat-card-info::before { background: var(--progress-info); }
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-card-primary .stat-icon {
+  background: rgba(30, 58, 138, 0.1);
+  color: var(--progress-primary);
+}
+
+.stat-card-success .stat-icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--progress-success);
+}
+
+.stat-card-warning .stat-icon {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--progress-warning);
+}
+
+.stat-card-info .stat-icon {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--progress-info);
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-content h3 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: var(--progress-text);
+}
+
+.stat-content p {
+  margin: 0.25rem 0 0 0;
+  color: var(--progress-text-light);
+  font-size: 0.9rem;
+}
+
+.stat-trend {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.trend-up {
+  color: var(--progress-success);
+}
+
+.trend-down {
+  color: var(--progress-danger);
+}
+
+/* Controls Section */
+.controls-section {
+  background: var(--progress-card-bg);
+  border-radius: var(--progress-radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--progress-shadow);
+}
+
+.filters-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.filter-item label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--progress-text);
+}
+
+.filter-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--progress-border);
+  border-radius: var(--progress-radius);
+  background: white;
+  color: var(--progress-text);
+  font-size: 0.95rem;
+  transition: var(--progress-transition);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--progress-primary);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.chart-type-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chart-type-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: var(--progress-bg);
+  border: 2px solid var(--progress-border);
+  border-radius: var(--progress-radius);
+  color: var(--progress-text-light);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--progress-transition);
+}
+
+.chart-type-btn:hover:not(:disabled) {
+  background: var(--progress-border);
+}
+
+.chart-type-btn.active {
+  background: var(--progress-primary);
+  border-color: var(--progress-primary);
+  color: white;
+}
+
+.chart-type-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--progress-card-bg);
+  border-radius: var(--progress-radius);
+  box-shadow: var(--progress-shadow);
+}
+
+.empty-state svg {
+  margin-bottom: 1rem;
+  color: var(--progress-text-light);
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--progress-text);
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--progress-text-light);
+}
+
+/* Charts Section */
+.charts-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 1200px) {
+  .charts-section {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.chart-container {
+  background: var(--progress-card-bg);
+  border-radius: var(--progress-radius);
+  box-shadow: var(--progress-shadow);
+  overflow: hidden;
+}
+
+.main-chart {
+  grid-column: 1;
+}
+
+.chart-header {
+  padding: 1.5rem 1.5rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-header h3 {
+  margin: 0;
+  color: var(--progress-text);
+}
+
+.chart-summary {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--progress-text-light);
+}
+
+.chart-wrapper {
+  height: 400px;
+  padding: 1.5rem;
+}
+
+/* Table Container */
+.table-container {
+  background: var(--progress-card-bg);
+  border-radius: var(--progress-radius);
+  box-shadow: var(--progress-shadow);
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--progress-border);
+}
+
+.table-header h3 {
+  margin: 0;
+  color: var(--progress-text);
+}
+
+.table-header span {
+  font-size: 0.875rem;
+  color: var(--progress-text-light);
+}
+
+.table-scroll {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.progress-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.progress-table th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--progress-text-light);
+  background: var(--progress-bg);
+  border-bottom: 1px solid var(--progress-border);
+  position: sticky;
+  top: 0;
+}
+
+.progress-table td {
+  padding: 1rem 1rem;
+  border-bottom: 1px solid var(--progress-border);
+}
+
+.progress-table tr:hover {
+  background: var(--progress-bg);
+}
+
+.subject-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.subject-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--progress-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.score-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--progress-success);
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.level-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.level-beginner {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--progress-success);
+}
+
+.level-intermediate {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--progress-warning);
+}
+
+.level-hard {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--progress-danger);
+}
+
+.level-unknown {
+  background: var(--progress-bg);
+  color: var(--progress-text-light);
+}
+
+.date-cell {
+  color: var(--progress-text-light);
+  font-size: 0.875rem;
+}
+
+.performance-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--progress-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.performance-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--progress-primary) 0%, var(--progress-primary-light) 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Insights Section */
+.insights-section {
+  background: var(--progress-card-bg);
+  border-radius: var(--progress-radius);
+  padding: 1.5rem;
+  box-shadow: var(--progress-shadow);
+}
+
+.insights-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1.5rem 0;
+  color: var(--progress-text);
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.insight-card {
+  padding: 1.25rem;
+  background: var(--progress-bg);
+  border-radius: var(--progress-radius);
+  transition: var(--progress-transition);
+}
+
+.insight-card:hover {
+  background: var(--progress-border);
+}
+
+.insight-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--progress-text);
+  font-size: 1rem;
+}
+
+.insight-card p {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--progress-primary);
+}
+
+.insight-card small {
+  color: var(--progress-text-light);
+  font-size: 0.75rem;
+}
+
+.insight-positive {
+  color: var(--progress-success) !important;
+}
+
+.insight-negative {
+  color: var(--progress-danger) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .progress-content {
+    padding: 1rem;
+  }
+  
+  .progress-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .progress-table {
+    display: block;
+  }
+  
+  .progress-table th,
+  .progress-table td {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+}

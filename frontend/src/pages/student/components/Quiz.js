@@ -7,143 +7,126 @@ import {
   BookOpen,
   Clock,
   Award,
-  ChevronRight,
-  ChevronLeft,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  RefreshCw,
   BarChart3,
   History,
   Shield,
-  Lock,
-  Maximize2,
-  Minimize2,
   AlertTriangle,
+  CheckCircle,
+  XCircle,
+  RefreshCw,
+  ChevronRight,
   Home,
-  Flag,
   Zap
 } from "lucide-react";
 
-export default function SubjectSkillTest() {
+export default function StudentQuiz() {
   const studentId = localStorage.getItem("loggedUser");
-  const [fullScreen, setFullScreen] = useState(false);
-  const [warningCount, setWarningCount] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(1800); // 30 minutes in seconds
-  const [timerActive, setTimerActive] = useState(false);
-  const [tabSwitchCount, setTabSwitchCount] = useState(0);
-  const [copyAttemptCount, setCopyAttemptCount] = useState(0);
   
-  const [subject, setSubject] = useState("");
-  const [level, setLevel] = useState("Beginner");
-  const [mcqs, setMcqs] = useState([]);
-  const [answers, setAnswers] = useState({});
-  const [result, setResult] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const testContainerRef = useRef(null);
+  // Quiz state
+  const [quizSubject, setQuizSubject] = useState("");
+  const [quizLevel, setQuizLevel] = useState("Beginner");
+  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizResult, setQuizResult] = useState(null);
+  const [quizHistory, setQuizHistory] = useState([]);
+  const [quizStep, setQuizStep] = useState(1); // 1: Setup, 2: Test, 3: Results
+  
+  // Security state
+  const [securityWarning, setSecurityWarning] = useState("");
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(1800); // 30 minutes
+  const [timerActive, setTimerActive] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  const quizContainerRef = useRef(null);
   const timerRef = useRef(null);
 
-  const levels = [
-    { value: "Beginner", label: "Beginner", questions: 10, time: 1800 },
-    { value: "Intermediate", label: "Intermediate", questions: 15, time: 2700 },
-    { value: "Advanced", label: "Advanced", questions: 20, time: 3600 }
+  // Quiz levels configuration
+  const quizLevels = [
+    { value: "Beginner", label: "Beginner", questions: 10, time: 1800, color: "var(--success)" },
+    { value: "Intermediate", label: "Intermediate", questions: 10, time: 2700, color: "var(--warning)" },
+    { value: "Hard", label: "Hard", questions: 10, time: 3600, color: "var(--error)" }
   ];
 
-  /* ================= FULLSCREEN HANDLING ================= */
-  const enterFullScreen = () => {
-    const elem = testContainerRef.current;
-    if (elem.requestFullscreen) {
-      elem.requestFullscreen();
-    } else if (elem.webkitRequestFullscreen) {
-      elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) {
-      elem.msRequestFullscreen();
-    }
-    setFullScreen(true);
-  };
-
-  const exitFullScreen = () => {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
-    }
-    setFullScreen(false);
-  };
-
+  /* ================= QUIZ HISTORY ================= */
   useEffect(() => {
-    const handleFullScreenChange = () => {
-      setFullScreen(!!document.fullscreenElement);
+    if (!studentId) return;
+
+    const fetchQuizHistory = async () => {
+      try {
+        const response = await fetch(`${baseurl}/subject-test/history/${studentId}`);
+        const data = await response.json();
+        if (data.success) setQuizHistory(data.history || []);
+      } catch (error) {
+        console.error("Failed to fetch quiz history:", error);
+      }
     };
 
-    document.addEventListener('fullscreenchange', handleFullScreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
-  }, []);
+    fetchQuizHistory();
+  }, [studentId]);
 
-  /* ================= ANTI-CHEAT PROTECTIONS ================= */
+  /* ================= QUIZ SECURITY FEATURES ================= */
   useEffect(() => {
-    if (!timerActive || step !== 2) return;
+    if (quizStep !== 2) return;
 
-    // Prevent copy/paste
-    const handleCopy = (e) => {
-      e.preventDefault();
-      setCopyAttemptCount(prev => {
-        const newCount = prev + 1;
-        if (newCount >= 3) {
-          submitTestEarly("Disqualified for multiple copy attempts");
-        }
-        return newCount;
-      });
-      return false;
+    // Block keyboard shortcuts
+    const handleKeyDown = (e) => {
+      // Block F5, F12, Ctrl+R, Ctrl+Shift+R
+      if (e.key === "F5" || e.key === "F12" || 
+          (e.ctrlKey && e.key === "r") || 
+          (e.ctrlKey && e.shiftKey && e.key === "r")) {
+        e.preventDefault();
+        setSecurityWarning("⚠️ Refresh/DevTools disabled during quiz");
+      }
+      
+      // Block Ctrl+C, Ctrl+V, Ctrl+X
+      if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+        setSecurityWarning("⚠️ Copy/Paste disabled during quiz");
+      }
     };
 
-    // Prevent context menu (right-click)
-    const handleContextMenu = (e) => {
-      e.preventDefault();
-      return false;
-    };
-
-    // Detect tab switching
+    // Detect tab/window switching
     const handleVisibilityChange = () => {
       if (document.hidden) {
         const newCount = tabSwitchCount + 1;
         setTabSwitchCount(newCount);
         
         if (newCount >= 2) {
-          submitTestEarly("Disqualified for multiple tab switches");
+          handleDisqualify("Multiple tab switches detected");
         } else {
-          alert("⚠️ Warning: Switching tabs during test is not allowed!");
+          setSecurityWarning(`⚠️ Warning: Tab switch detected (${newCount}/2)`);
         }
       }
     };
 
-    document.addEventListener('copy', handleCopy);
-    document.addEventListener('cut', handleCopy);
-    document.addEventListener('contextmenu', handleContextMenu);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('copy', handleCopy);
-      document.removeEventListener('cut', handleCopy);
-      document.removeEventListener('contextmenu', handleContextMenu);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    // Prevent context menu (right-click)
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+      setSecurityWarning("⚠️ Right-click disabled during quiz");
+      return false;
     };
-  }, [timerActive, step, tabSwitchCount]);
 
-  /* ================= TIMER ================= */
-  useEffect(() => {
-    if (timerActive && timeLeft > 0) {
+    // Block page leave
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "You have an active quiz in progress. Leaving will submit your quiz.";
+    };
+
+    // Apply security features
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("contextmenu", handleContextMenu);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.body.classList.add("quiz-active");
+
+    // Start timer
+    if (timerActive && remainingTime > 0) {
       timerRef.current = setInterval(() => {
-        setTimeLeft(prev => {
+        setRemainingTime(prev => {
           if (prev <= 1) {
             clearInterval(timerRef.current);
-            submitTestEarly("Time's up!");
+            handleTimeUp();
             return 0;
           }
           return prev - 1;
@@ -152,189 +135,241 @@ export default function SubjectSkillTest() {
     }
 
     return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("contextmenu", handleContextMenu);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.body.classList.remove("quiz-active");
+      
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
-  }, [timerActive]);
+  }, [quizStep, timerActive, remainingTime, tabSwitchCount]);
 
+  /* ================= QUIZ TIMER FUNCTIONS ================= */
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  /* ================= HISTORY ================= */
-  useEffect(() => {
-    if (!studentId) return;
+  const handleTimeUp = () => {
+    setSecurityWarning("⏰ Time's up! Submitting your quiz...");
+    setTimeout(() => submitQuiz("Time's up"), 2000);
+  };
 
-    fetch(`${baseurl}/subject-test/history/${studentId}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setHistory(data.history || []);
-      })
-      .catch(() => setHistory([]));
-  }, [studentId]);
-
-  /* ================= START TEST ================= */
-  const startTest = async () => {
-    if (!subject.trim()) {
-      setError("Please enter a subject");
+  /* ================= QUIZ ACTIONS ================= */
+  const startQuiz = async () => {
+    if (!quizSubject.trim()) {
+      setSecurityWarning("Please enter a subject");
       return;
     }
 
-    setLoading(true);
-    setError("");
-
     try {
-      const res = await fetch(`${baseurl}/subject-test/mcq`, {
+      const response = await fetch(`${baseurl}/subject-test/mcq`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, level })
+        body: JSON.stringify({ subject: quizSubject, level: quizLevel })
       });
 
-      const data = await res.json();
-      
+      const data = await response.json();
+
       if (data.success) {
-        setMcqs(data.mcqs || []);
-        setAnswers({});
+        setQuizQuestions(data.mcqs || []);
+        setQuizAnswers({});
         setTimerActive(true);
-        setTimeLeft(levels.find(l => l.value === level)?.time || 1800);
-        setStep(2);
-        enterFullScreen();
+        setRemainingTime(
+          quizLevels.find(l => l.value === quizLevel)?.time || 1800
+        );
+        setQuizStep(2);
+
+        // Enter fullscreen
+        setTimeout(() => {
+          const elem = quizContainerRef.current || document.documentElement;
+          if (elem.requestFullscreen) {
+            elem.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+          }
+        }, 100);
       } else {
-        setError(data.message || "Failed to load test questions");
+        setSecurityWarning("Failed to load quiz");
       }
-    } catch (err) {
-      setError("Unable to connect to server");
-    } finally {
-      setLoading(false);
+    } catch {
+      setSecurityWarning("Unable to connect to quiz server");
     }
   };
 
-  /* ================= SUBMIT TEST ================= */
-  const submitTest = async (disqualificationReason = "") => {
-    const isDisqualified = !!disqualificationReason;
+  const submitQuiz = async (disqualifyReason = "") => {
+    const isDisqualified = !!disqualifyReason;
     
     try {
-      const res = await fetch(`${baseurl}/subject-test/submit`, {
+      const response = await fetch(`${baseurl}/subject-test/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           student_id: studentId,
-          subject,
-          level,
-          mcqs,
-          answers,
-          time_spent: levels.find(l => l.value === level)?.time - timeLeft,
+          subject: quizSubject,
+          level: quizLevel,
+          mcqs: quizQuestions,
+          answers: quizAnswers,
+          time_spent: (quizLevels.find(l => l.value === quizLevel)?.time || 1800) - remainingTime,
           disqualified: isDisqualified,
-          disqualification_reason: disqualificationReason
+          disqualification_reason: disqualifyReason
         })
       });
 
-      const data = await res.json();
+      const data = await response.json();
+      
       if (data.success) {
-        setResult({
+        setQuizResult({
           ...data,
           disqualified: isDisqualified,
-          disqualificationReason
+          disqualificationReason: disqualifyReason
         });
         setTimerActive(false);
-        setStep(3);
-        exitFullScreen();
+        setQuizStep(3);
+        
+        // Exit fullscreen
+        if (document.fullscreenElement) {
+          document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+        }
         
         // Refresh history
         if (!isDisqualified) {
-          fetch(`${baseurl}/subject-test/history/${studentId}`)
-            .then(res => res.json())
-            .then(data => {
-              if (data.success) setHistory(data.history || []);
-            });
+          const historyResponse = await fetch(`${baseurl}/subject-test/history/${studentId}`);
+          const historyData = await historyResponse.json();
+          if (historyData.success) setQuizHistory(historyData.history || []);
         }
       }
-    } catch (err) {
-      setError("Failed to submit test");
+    } catch (error) {
+      setSecurityWarning("Failed to submit quiz");
     }
   };
 
-  const submitTestEarly = (reason) => {
-    if (window.confirm(`⚠️ ${reason}. Submit test now?`)) {
-      submitTest(reason);
+  const handleDisqualify = (reason) => {
+    if (window.confirm(`${reason}. Submit quiz now?`)) {
+      submitQuiz(reason);
     }
   };
 
-  /* ================= QUESTION NAVIGATION ================= */
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-
-  const handleNext = () => {
-    if (currentQuestion < mcqs.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
-    }
+  const resetQuiz = () => {
+    setQuizSubject("");
+    setQuizLevel("Beginner");
+    setQuizQuestions([]);
+    setQuizAnswers({});
+    setQuizResult(null);
+    setQuizStep(1);
+    setSecurityWarning("");
+    setTabSwitchCount(0);
+    setTimerActive(false);
   };
 
   const handleAnswerSelect = (questionIndex, optionIndex) => {
-    const optionLetter = String.fromCharCode(65 + optionIndex); // A, B, C, D
-    setAnswers(prev => ({
+    const optionLetter = String.fromCharCode(65 + optionIndex);
+    setQuizAnswers(prev => ({
       ...prev,
       [questionIndex]: optionLetter
     }));
   };
 
   /* ================= RENDER FUNCTIONS ================= */
-  const renderHistory = () => (
-    <div className="history-section">
-      <div className="section-header">
-        <History size={24} />
-        <h2>Test History</h2>
-        <button 
-          className="icon-btn" 
-          onClick={() => setHistory([])}
-        >
-          <RefreshCw size={18} />
-        </button>
+  const renderQuizSetup = () => (
+    <div className="quiz-setup">
+      <div className="quiz-setup-header">
+        <BookOpen size={32} />
+        <div>
+          <h1 className="quiz-title">Subject Skill Assessment</h1>
+          <p className="quiz-subtitle">Test your knowledge and track progress</p>
+        </div>
       </div>
 
-      {history.length === 0 ? (
-        <div className="empty-state">
+      <div className="quiz-setup-card">
+        <div className="quiz-input-group">
+          <label className="quiz-label">
+            <BookOpen size={18} />
+            Subject
+          </label>
+          <input
+            type="text"
+            className="quiz-input"
+            placeholder="Enter subject (e.g., Python, Mathematics, Physics)"
+            value={quizSubject}
+            onChange={(e) => setQuizSubject(e.target.value)}
+          />
+        </div>
+
+        <div className="quiz-input-group">
+          <label className="quiz-label">
+            <Award size={18} />
+            Difficulty Level
+          </label>
+          <div className="quiz-level-selector">
+            {quizLevels.map((level) => (
+              <button
+                key={level.value}
+                className={`quiz-level-btn ${quizLevel === level.value ? 'quiz-level-active' : ''}`}
+                onClick={() => setQuizLevel(level.value)}
+                style={{ '--level-color': level.color }}
+              >
+                <Zap size={20} />
+                <div className="quiz-level-info">
+                  <h4>{level.label}</h4>
+                  <p>{level.questions} questions • {level.time / 60} min</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="quiz-security-notice">
+          <Shield size={20} />
+          <div>
+            <h4>Quiz Security Features</h4>
+            <ul className="quiz-security-list">
+              <li>Full-screen mode required</li>
+              <li>Tab switching monitored</li>
+              <li>Copy/paste disabled</li>
+              <li>Right-click disabled</li>
+            </ul>
+          </div>
+        </div>
+
+        <button
+          className="quiz-start-btn"
+          onClick={startQuiz}
+          disabled={!quizSubject.trim()}
+        >
+          Start Quiz
+          <ChevronRight size={20} />
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderQuizHistory = () => (
+    <div className="quiz-history">
+      <div className="quiz-history-header">
+        <History size={24} />
+        <h2>Quiz History</h2>
+      </div>
+
+      {quizHistory.length === 0 ? (
+        <div className="quiz-empty-state">
           <BookOpen size={48} />
-          <p>No tests taken yet</p>
+          <p>No quizzes taken yet</p>
         </div>
       ) : (
-        <div className="history-grid">
-          {history.slice(0, 5).map((test, index) => (
-            <div key={index} className="history-card">
-              <div className="history-header">
-                <div className="subject-badge">
-                  {test.subject.substring(0, 2).toUpperCase()}
-                </div>
-                <div className="history-meta">
-                  <span className="level-badge">{test.level}</span>
-                  <span className="date">{new Date(test.date).toLocaleDateString()}</span>
-                </div>
+        <div className="quiz-history-grid">
+          {quizHistory.slice(0, 6).map((quiz, index) => (
+            <div key={index} className="quiz-history-card">
+              <div className="quiz-history-subject">{quiz.subject}</div>
+              <div className="quiz-history-level">{quiz.level}</div>
+              <div className="quiz-history-score">
+                <Award size={20} />
+                <span>{quiz.score}/{quiz.total_questions || 10}</span>
               </div>
-              
-              <div className="history-score">
-                <div className="score-circle">
-                  <span>{test.percentage}%</span>
-                </div>
-                <div className="score-details">
-                  <p><b>Score:</b> {test.score}/{test.total_questions || 10}</p>
-                  <p><b>Time:</b> {test.time_spent ? `${Math.floor(test.time_spent / 60)}m ${test.time_spent % 60}s` : 'N/A'}</p>
-                </div>
-              </div>
-
-              {test.disqualified && (
-                <div className="disqualified-badge">
-                  <AlertTriangle size={14} />
-                  Disqualified
-                </div>
-              )}
+              <div className="quiz-history-percentage">{quiz.percentage}%</div>
+              <div className="quiz-history-date">{quiz.date}  {quiz.time}</div>
             </div>
           ))}
         </div>
@@ -342,351 +377,199 @@ export default function SubjectSkillTest() {
     </div>
   );
 
-  const renderStep1 = () => (
-    <div className="setup-section">
-      <div className="setup-header">
-        <BookOpen size={32} />
-        <h2>Subject Skill Test</h2>
-        <p>Assess your knowledge and track progress</p>
+const renderQuizTest = () => (
+  <div className={`quiz-test-container ${isFullscreen ? 'quiz-fullscreen' : ''}`} ref={quizContainerRef}>
+    <div className="quiz-test-header">
+      <div className="quiz-test-info">
+        <h3>{quizSubject} • {quizLevel} Level</h3>
+        <p>{quizQuestions.length} Questions</p>
+      </div>
+      
+      <div className="quiz-test-timer">
+        <Clock size={20} />
+        <span className={remainingTime < 300 ? 'quiz-time-warning' : ''}>
+          {formatTime(remainingTime)}
+        </span>
       </div>
 
-      <div className="setup-card">
-        <div className="input-group">
-          <label>
-            <BookOpen size={18} />
-            Subject
-          </label>
-          <input
-            type="text"
-            className="subject-input"
-            placeholder="Enter subject (e.g., Python, Mathematics, Physics)"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-          />
-        </div>
-
-        <div className="input-group">
-          <label>
-            <Award size={18} />
-            Difficulty Level
-          </label>
-          <div className="level-options">
-            {levels.map((lvl) => (
-              <button
-                key={lvl.value}
-                className={`level-btn ${level === lvl.value ? 'active' : ''}`}
-                onClick={() => setLevel(lvl.value)}
-              >
-                <div className="level-icon">
-                  {lvl.value === 'Beginner' && <Zap size={20} />}
-                  {lvl.value === 'Intermediate' && <BarChart3 size={20} />}
-                  {lvl.value === 'Advanced' && <Award size={20} />}
-                </div>
-                <div className="level-info">
-                  <h4>{lvl.label}</h4>
-                  <p>{lvl.questions} questions • {lvl.time / 60} mins</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="security-notice">
-          <Shield size={20} />
-          <div>
-            <h4>Test Security</h4>
-            <ul>
-              <li>Full-screen mode required</li>
-              <li>Tab switching is monitored</li>
-              <li>Copy/paste is disabled</li>
-              <li>Time-limited assessment</li>
-            </ul>
-          </div>
-        </div>
-
-        {error && <div className="error-message">{error}</div>}
-
-        <button
-          className="start-test-btn"
-          onClick={startTest}
-          disabled={loading || !subject.trim()}
-        >
-          {loading ? (
-            <>
-              <RefreshCw size={20} className="spinner" />
-              Preparing Test...
-            </>
-          ) : (
-            <>
-              Start Test
-              <ChevronRight size={20} />
-            </>
-          )}
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderStep2 = () => (
-    <div className={`test-container ${fullScreen ? 'fullscreen' : ''}`} ref={testContainerRef}>
-      {/* Test Header */}
-      <div className="test-header">
-        <div className="test-info">
-          <h3>{subject} • {level} Level</h3>
-          <p>Question {currentQuestion + 1} of {mcqs.length}</p>
-        </div>
-        
-        <div className="test-controls">
-          <div className="timer">
-            <Clock size={20} />
-            <span className={timeLeft < 300 ? 'warning' : ''}>
-              {formatTime(timeLeft)}
-            </span>
-          </div>
-          
-          <div className="security-indicators">
-            {tabSwitchCount > 0 && (
-              <span className="warning-badge">
-                <AlertTriangle size={16} />
-                Tab Switches: {tabSwitchCount}
-              </span>
-            )}
-            {copyAttemptCount > 0 && (
-              <span className="warning-badge">
-                <Lock size={16} />
-                Copy Attempts: {copyAttemptCount}
-              </span>
-            )}
-          </div>
-
-          <button className="icon-btn" onClick={exitFullScreen}>
-            <Minimize2 size={20} />
-            Exit Fullscreen
-          </button>
-        </div>
-      </div>
-
-      {/* Question Navigation */}
-      <div className="question-nav">
-        {mcqs.map((_, index) => (
-          <button
-            key={index}
-            className={`nav-btn ${index === currentQuestion ? 'active' : ''} ${answers[index] ? 'answered' : ''}`}
-            onClick={() => setCurrentQuestion(index)}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
-
-      {/* Current Question */}
-      <div className="question-card">
-        <div className="question-header">
-          <span className="question-number">Question {currentQuestion + 1}</span>
-          <button 
-            className="flag-btn"
-            onClick={() => {
-              // Mark question for review
-              setAnswers(prev => ({
-                ...prev,
-                [`flag_${currentQuestion}`]: !prev[`flag_${currentQuestion}`]
-              }));
-            }}
-          >
-            <Flag size={18} />
-            {answers[`flag_${currentQuestion}`] ? 'Unflag' : 'Flag'}
-          </button>
-        </div>
-
-        <div className="question-text" onCopy={(e) => e.preventDefault()}>
-          {mcqs[currentQuestion]?.question}
-        </div>
-
-        <div className="options-grid">
-          {mcqs[currentQuestion]?.options?.map((option, optIndex) => {
-            const optionLetter = String.fromCharCode(65 + optIndex);
-            const isSelected = answers[currentQuestion] === optionLetter;
-            
-            return (
-              <div
-                key={optIndex}
-                className={`option-card ${isSelected ? 'selected' : ''}`}
-                onClick={() => handleAnswerSelect(currentQuestion, optIndex)}
-              >
-                <div className="option-selector">
-                  {isSelected ? (
-                    <CheckCircle size={20} />
-                  ) : (
-                    <div className="option-letter">{optionLetter}</div>
-                  )}
-                </div>
-                <div className="option-text">{option}</div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Question Navigation Buttons */}
-        <div className="question-actions">
-          <button
-            className="nav-action-btn"
-            onClick={handlePrev}
-            disabled={currentQuestion === 0}
-          >
-            <ChevronLeft size={20} />
-            Previous
-          </button>
-          
-          <div className="progress-indicator">
-            {Math.round(((currentQuestion + 1) / mcqs.length) * 100)}% Complete
-          </div>
-          
-          {currentQuestion < mcqs.length - 1 ? (
-            <button
-              className="nav-action-btn primary"
-              onClick={handleNext}
-            >
-              Next
-              <ChevronRight size={20} />
-            </button>
-          ) : (
-            <button
-              className="nav-action-btn submit"
-              onClick={() => {
-                if (window.confirm("Are you sure you want to submit the test?")) {
-                  submitTest();
-                }
-              }}
-            >
-              Submit Test
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Warning Overlay */}
-      {warningCount > 0 && (
-        <div className="warning-overlay">
-          <AlertTriangle size={32} />
-          <h3>⚠️ Warning {warningCount}</h3>
-          <p>Please focus on the test. Further violations may result in disqualification.</p>
+      {securityWarning && (
+        <div className="quiz-security-warning">
+          <AlertTriangle size={16} />
+          {securityWarning}
         </div>
       )}
     </div>
-  );
 
-  const renderStep3 = () => (
-    <div className="result-section">
-      <div className="result-header">
-        {result?.disqualified ? (
-          <div className="disqualified-header">
-            <XCircle size={48} />
-            <h2>Test Disqualified</h2>
+    <div className="quiz-questions-container">
+      {quizQuestions.map((question, index) => (
+        <div key={index} className="quiz-question-card">
+          <div className="quiz-question-header">
+            <span className="quiz-question-number">Q{index + 1}</span>
+            {quizAnswers[index] && (
+              <span className="quiz-answered-badge">
+                <CheckCircle size={14} />
+                Answered
+              </span>
+            )}
+            {/* Show correct/wrong indicator in results */}
+            {quizStep === 3 && quizAnswers[index] && (
+              <span className={`quiz-result-indicator ${
+                quizAnswers[index] === question.correct ? 'correct' : 'wrong'
+              }`}>
+                {quizAnswers[index] === question.correct ? '✓ Correct' : '✗ Wrong'}
+              </span>
+            )}
           </div>
+          
+          <div 
+            className="quiz-question-text"
+            onCopy={(e) => e.preventDefault()}
+            onCut={(e) => e.preventDefault()}
+          >
+            {question.question}
+          </div>
+
+          <div className="quiz-options-grid">
+            {question.options.map((option, optIndex) => {
+              const optionLetter = String.fromCharCode(65 + optIndex);
+              const correctAnswer = question.correct;
+              const userAnswer = quizAnswers[index];
+
+              let optionClass = "quiz-option-card";
+
+              if (quizStep === 3) {
+                // Show correct answer in green
+                if (optionLetter === correctAnswer) {
+                  optionClass += " quiz-option-correct";
+                } 
+                // Show user's wrong answer in red
+                else if (optionLetter === userAnswer && userAnswer !== correctAnswer) {
+                  optionClass += " quiz-option-wrong";
+                }
+                // Show user's correct answer with both styles
+                else if (optionLetter === userAnswer && userAnswer === correctAnswer) {
+                  optionClass += " quiz-option-correct quiz-option-selected-correct";
+                }
+              } else if (userAnswer === optionLetter) {
+                optionClass += " quiz-option-selected";
+              }
+
+              return (
+                <div
+                  key={optIndex}
+                  className={optionClass}
+                  onClick={() =>
+                    quizStep !== 3 && handleAnswerSelect(index, optIndex)
+                  }
+                >
+                  <div className="quiz-option-selector">
+                    {userAnswer === optionLetter ? (
+                      <CheckCircle size={16} />
+                    ) : (
+                      <span className="quiz-option-letter">{optionLetter}</span>
+                    )}
+                    {quizStep === 3 && optionLetter === correctAnswer && (
+                      <span className="correct-answer-marker">✓ Correct Answer</span>
+                    )}
+                  </div>
+
+                  <div className="quiz-option-text">{option}</div>
+                  
+                  {/* Explanation in results mode */}
+                  {quizStep === 3 && optionLetter === correctAnswer && question.explanation && (
+                    <div className="answer-explanation">
+                      <strong>Explanation:</strong> {question.explanation}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Question score in results */}
+          {quizStep === 3 && (
+            <div className="question-score-display">
+              {quizAnswers[index] === question.correct ? (
+                <span className="score-correct">+1 point</span>
+              ) : (
+                <span className="score-wrong">0 points</span>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+
+      <button
+        className="quiz-submit-btn quiz-submit-danger"
+        onClick={() => {
+          if (window.confirm("Are you sure you want to submit the quiz?")) {
+            submitQuiz();
+          }
+        }}
+      >
+        Submit Quiz
+      </button>
+    </div>
+  </div>
+);
+
+  const renderQuizResults = () => (
+    <div className="quiz-results">
+      <div className="quiz-results-header">
+        {quizResult?.disqualified ? (
+          <>
+            <XCircle size={48} className="quiz-disqualified-icon" />
+            <h2>Quiz Disqualified</h2>
+            <p>{quizResult.disqualificationReason}</p>
+          </>
         ) : (
-          <div className="success-header">
-            <Award size={48} />
-            <h2>Test Completed</h2>
-          </div>
+          <>
+            <Award size={48} className="quiz-success-icon" />
+            <h2>Quiz Completed</h2>
+            <p>Great job completing the assessment!</p>
+          </>
         )}
-        
-        <p>{result?.disqualified ? result.disqualificationReason : 'Great job completing the test!'}</p>
       </div>
 
-      {!result?.disqualified && (
-        <div className="result-stats">
-          <div className="stat-card">
-            <div className="stat-icon score">
+      {!quizResult?.disqualified && (
+        <div className="quiz-results-stats">
+          <div className="quiz-stat-card">
+            <div className="quiz-stat-icon quiz-stat-score">
               <Award size={24} />
             </div>
-            <div className="stat-content">
-              <h3>{result?.score || 0}/{mcqs.length}</h3>
+            <div className="quiz-stat-content">
+              <h3>{quizResult?.score || 0}/{quizQuestions.length}</h3>
               <p>Score</p>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon percentage">
+          <div className="quiz-stat-card">
+            <div className="quiz-stat-icon quiz-stat-percentage">
               <BarChart3 size={24} />
             </div>
-            <div className="stat-content">
-              <h3>{result?.percentage || 0}%</h3>
+            <div className="quiz-stat-content">
+              <h3>{quizResult?.percentage || 0}%</h3>
               <p>Percentage</p>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon time">
+          <div className="quiz-stat-card">
+            <div className="quiz-stat-icon quiz-stat-time">
               <Clock size={24} />
             </div>
-            <div className="stat-content">
-              <h3>{formatTime(levels.find(l => l.value === level)?.time - timeLeft)}</h3>
-              <p>Time Taken</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon level">
-              <Zap size={24} />
-            </div>
-            <div className="stat-content">
-              <h3>{level}</h3>
-              <p>Difficulty</p>
+            <div className="quiz-stat-content">
+              <h3>{formatTime(remainingTime)}</h3>
+              <p>Time Remaining</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Detailed Results */}
-      <div className="detailed-results">
-        <h3>Question Review</h3>
-        <div className="results-grid">
-          {mcqs.map((q, index) => {
-            const userAnswer = answers[index];
-            const correctAnswer = q.correct;
-            const isCorrect = userAnswer === correctAnswer;
-            
-            return (
-              <div key={index} className="result-item">
-                <div className="result-question">
-                  <span className="question-num">Q{index + 1}</span>
-                  <p>{q.question}</p>
-                </div>
-                <div className="result-answers">
-                  <div className="user-answer">
-                    <span>Your Answer:</span>
-                    <span className={isCorrect ? 'correct' : 'incorrect'}>
-                      {userAnswer || 'Not answered'}
-                    </span>
-                  </div>
-                  {!isCorrect && (
-                    <div className="correct-answer">
-                      <span>Correct Answer:</span>
-                      <span className="correct">{correctAnswer}</span>
-                    </div>
-                  )}
-                </div>
-                {answers[`flag_${index}`] && (
-                  <div className="flagged-note">
-                    <Flag size={14} />
-                    You flagged this question
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="result-actions">
+      <div className="quiz-results-actions">
         <button
-          className="action-btn primary"
+          className="quiz-action-btn quiz-action-primary"
           onClick={() => {
-            setStep(1);
-            setSubject("");
-            setResult(null);
-            setMcqs([]);
-            setAnswers({});
+            resetQuiz();
           }}
         >
           <Home size={20} />
@@ -694,99 +577,33 @@ export default function SubjectSkillTest() {
         </button>
         
         <button
-          className="action-btn secondary"
+          className="quiz-action-btn quiz-action-secondary"
           onClick={() => {
-            setStep(1);
-            setResult(null);
-            setMcqs([]);
-            setAnswers({});
+            setQuizStep(1);
+            setQuizResult(null);
           }}
         >
           <RefreshCw size={20} />
-          Take Another Test
+          Take Another Quiz
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="subject-skill-test">
-      <StudentTopBar />
+    <div className="quiz-container">
+      {quizStep !== 2 && <StudentTopBar />}
       
-      <div className="container">
-        {/* Main Content */}
-        <div className="main-content">
-          {step === 1 && (
-            <>
-              {renderStep1()}
-              {history.length > 0 && renderHistory()}
-            </>
-          )}
-          {step === 2 && renderStep2()}
-          {step === 3 && renderStep3()}
-        </div>
-
-        {/* Test Rules Sidebar (Only in step 1) */}
-        {step === 1 && (
-          <div className="rules-sidebar">
-            <div className="rules-header">
-              <Shield size={24} />
-              <h3>Test Rules</h3>
-            </div>
-            
-            <div className="rules-list">
-              <div className="rule-item">
-                <Maximize2 size={20} />
-                <div>
-                  <h4>Full Screen Mode</h4>
-                  <p>Test will automatically enter full screen</p>
-                </div>
-              </div>
-              
-              <div className="rule-item">
-                <Clock size={20} />
-                <div>
-                  <h4>Time Limit</h4>
-                  <p>Timer starts immediately. No extra time</p>
-                </div>
-              </div>
-              
-              <div className="rule-item">
-                <AlertCircle size={20} />
-                <div>
-                  <h4>No Tab Switching</h4>
-                  <p>Switching tabs will trigger warnings</p>
-                </div>
-              </div>
-              
-              <div className="rule-item">
-                <Lock size={20} />
-                <div>
-                  <h4>Copy Protection</h4>
-                  <p>Copy/paste is disabled during test</p>
-                </div>
-              </div>
-              
-              <div className="rule-item">
-                <Flag size={20} />
-                <div>
-                  <h4>Question Flagging</h4>
-                  <p>Flag questions for review</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="tips-section">
-              <h4>Tips for Success</h4>
-              <ul>
-                <li>Read each question carefully</li>
-                <li>Manage your time effectively</li>
-                <li>Review flagged questions</li>
-                <li>Stay focused throughout</li>
-              </ul>
-            </div>
-          </div>
+      <div className="quiz-content">
+        {quizStep === 1 && (
+          <>
+            {renderQuizSetup()}
+            {quizHistory.length > 0 && renderQuizHistory()}
+          </>
         )}
+        
+        {quizStep === 2 && renderQuizTest()}
+        {quizStep === 3 && renderQuizResults()}
       </div>
     </div>
   );
