@@ -7,6 +7,7 @@ import StudentDashboard from "./pages/student/Studentdashboard";
 import StudentCareer from "./pages/student/components/career_command";
 import StudentQuiz from "./pages/student/components/Quiz";
 import StudyMaterial from "./pages/student/components/studymaterial";
+import StudentProgress from "./pages/student/components/studentprogress";
 
 import MentorDashboard from "./pages/mentor/Mentordashboard";
 
@@ -20,6 +21,8 @@ function App() {
         <Route path="/student/career-command" element={<StudentCareer />} />
         <Route path="/student/quiz" element={<StudentQuiz />} />
         <Route path="/student/study-material" element={<StudyMaterial />} />
+        <Route path="/student/update-progress" element={<StudentProgress />} />
+
         <Route path="/mentor/dashboard" element={<MentorDashboard />} />
         
 
