@@ -16,4 +16,3 @@ else {
 }
 
 export default BASE_URL;
-xcvbnm
