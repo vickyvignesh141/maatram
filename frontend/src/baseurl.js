@@ -8,7 +8,7 @@ if (host.includes("devtunnels.ms")) {
 } 
 else if (host === "localhost" || host === "127.0.0.1") {
   // Frontend running locally
-  BASE_URL = "http://localhost:5000/api";
+  BASE_URL = "http://localhost:5000/apidcscsdccsdcs";
 } 
 else {
   // Accessing from another device in same network (mobile / another PC)
