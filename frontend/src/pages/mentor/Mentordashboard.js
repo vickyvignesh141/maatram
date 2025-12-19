@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import baseurl from "../../baseurl";
+import MentorTop from "../mentornav/mentortop";
+
 import "./mentordashboard.css";
+
 import { 
   User, 
   Bell, 
@@ -24,6 +27,7 @@ import {
   Briefcase,
   GraduationCap,
   Download,
+  Contact,
   Settings
 } from "lucide-react";
 
@@ -44,6 +48,8 @@ export default function MentorDashboard() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // console.log("data",data);
+  console.log("student",students)
   useEffect(() => {
     const username = localStorage.getItem("loggedUser");
 
@@ -65,25 +71,45 @@ export default function MentorDashboard() {
     }
   }, []);
 
-  const loadMockData = () => {
-    // Mock students data
-    setStudents([
-      { id: 1, name: "Alex Johnson", progress: 85, status: "active", course: "Computer Science", lastActive: "2 hours ago" },
-      { id: 2, name: "Sarah Miller", progress: 72, status: "active", course: "Data Science", lastActive: "1 day ago" },
-      { id: 3, name: "David Wilson", progress: 93, status: "active", course: "Engineering", lastActive: "3 hours ago" },
-      { id: 4, name: "Emma Brown", progress: 65, status: "inactive", course: "Business", lastActive: "5 days ago" },
-      { id: 5, name: "Michael Chen", progress: 88, status: "active", course: "AI & ML", lastActive: "1 hour ago" }
-    ]);
+const loadMockData = () => {
+  const mentorUsername = localStorage.getItem("loggedUser"); 
+  // example: MAA100001
 
-    // Mock tasks data
-    setTasks([
-      { id: 1, title: "Review Career Assessments", due: "Today", priority: "high", completed: false },
-      { id: 2, title: "Schedule Weekly Meetings", due: "Tomorrow", priority: "medium", completed: true },
-      { id: 3, title: "Update Student Progress", due: "Dec 20", priority: "medium", completed: false },
-      { id: 4, title: "Submit Monthly Report", due: "Dec 25", priority: "low", completed: false },
-      { id: 5, title: "Plan Workshop", due: "Jan 5", priority: "high", completed: false }
-    ]);
-  };
+  fetch(`${baseurl}/students/${mentorUsername}`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+
+        // ✅ LIMIT TO ONLY 5 STUDENTS
+        const formattedStudents = data.students
+          .slice(0, 6)
+          .map((stu) => ({
+            id: stu.id,
+            name: stu.name,
+            username: stu.username,
+            phone: stu.phno,
+            progress: Math.floor(Math.random() * 40) + 60, // temporary
+            status: "active",
+            lastActive: "Recently"
+          }));
+
+        setStudents(formattedStudents);
+      }
+    })
+    .catch((err) => {
+      console.error("Error loading students:", err);
+    });
+
+  // Mock tasks data
+  setTasks([
+    { id: 1, title: "Review Career Assessments", due: "Today", priority: "high", completed: false },
+    { id: 2, title: "Schedule Weekly Meetings", due: "Tomorrow", priority: "medium", completed: true },
+    { id: 3, title: "Update Student Progress", due: "Dec 20", priority: "medium", completed: false },
+    { id: 4, title: "Submit Monthly Report", due: "Dec 25", priority: "low", completed: false },
+    { id: 5, title: "Plan Workshop", due: "Jan 5", priority: "high", completed: false }
+  ]);
+};
+
 
   const handleTaskToggle = (id) => {
     setTasks(tasks.map(task => 
@@ -104,7 +130,7 @@ export default function MentorDashboard() {
   const handleStatCardClick = (type) => {
     switch(type) {
       case 'totalStudents':
-        navigate("/mentor/students", {
+        navigate("/mentor/totalstudents", {
           state: {
             name: "Total Students",
             description: "View and manage all students assigned to you",
@@ -150,7 +176,7 @@ export default function MentorDashboard() {
   };
 
   const handleViewAllStudents = () => {
-    navigate("/mentor/students", {
+    navigate("/mentor/totalstudents", {
       state: {
         name: "All Students",
         description: "Complete list of all your students",
@@ -185,7 +211,7 @@ export default function MentorDashboard() {
   return (
     <div className="mentor-dashboard">
       {/* Header */}
-      <header className="dashboard-header">
+      {/* <header className="dashboard-header">
         <div className="header-left">
           <button 
             className="menu-toggle"
@@ -237,11 +263,12 @@ export default function MentorDashboard() {
             </div>
             <div className="user-info">
               <span className="user-name">{data.name}</span>
-              <span className="user-role">Senior Mentor</span>
+              <div className="contact-item"><span>{data.username }</span></div>
             </div>
           </div>
         </div>
-      </header>
+      </header> */}
+      <MentorTop/>
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
@@ -260,7 +287,7 @@ export default function MentorDashboard() {
             className={`nav-item ${activeTab === "students" ? "active" : ""}`}
             onClick={() => {
               setActiveTab("students");
-              navigate("/mentor/students", {
+              navigate("/mentor/totalstudents", {
                 state: {
                   name: "My Students",
                   description: "Manage all your students",
@@ -351,10 +378,7 @@ export default function MentorDashboard() {
             <h2>Welcome back, {data.name}!</h2>
             <p>You have {tasks.filter(t => !t.completed).length} pending tasks and {stats.upcomingMeetings} upcoming meetings</p>
           </div>
-          <button className="action-btn primary">
-            <Calendar size={16} />
-            Schedule Meeting
-          </button>
+          
         </div>
 
         {/* Stats Overview */}
@@ -449,16 +473,20 @@ export default function MentorDashboard() {
                       <span>{data.email || "mentor@example.com"}</span>
                     </div>
                     <div className="contact-item">
+                      <Contact size={14} />
+                      <span>{data.username }</span>
+                    </div>
+                    <div className="contact-item">
                       <Phone size={14} />
-                      <span>{data.phno || "+1 234 567 8900"}</span>
+                      <span>{data.phone || "+1 234 567 8900"}</span>
                     </div>
                     <div className="contact-item">
                       <Briefcase size={14} />
-                      <span>{data.company || "Tech Solutions Inc."}</span>
+                      <span>{data.company || "Mr.Cooper"}</span>
                     </div>
                     <div className="contact-item">
                       <GraduationCap size={14} />
-                      <span>{data.department || "Computer Science"}</span>
+                      <span>{data.department || "VEC"}</span>
                     </div>
                   </div>
 
@@ -505,18 +533,22 @@ export default function MentorDashboard() {
                       <div className={`status-dot ${student.status}`}></div>
                     </div>
                     <div className="student-info">
-                      <h4>{student.name}</h4>
-                      <p>{student.course}</p>
-                      <div className="student-progress">
-                        <div className="progress-bar">
-                          <div 
-                            className="progress-fill" 
-                            style={{ width: `${student.progress}%` }}
-                          ></div>
-                        </div>
-                        <span className="progress-text">{student.progress}%</span>
-                      </div>
-                    </div>
+  <h4>{student.name}</h4>
+  <p className="student-username">username:{student.username} Phone:{student.phone}</p> {/* 👈 added username */}
+
+  
+  <p>{student.course}</p>
+  <div className="student-progress">
+    <div className="progress-bar">
+      <div 
+        className="progress-fill" 
+        style={{ width: `${student.progress}%` }}
+      ></div>
+    </div>
+    <span className="progress-text">{student.progress}%</span>
+  </div>
+</div>
+
                     <button 
                       className="message-btn"
                       onClick={(e) => {
@@ -698,29 +730,7 @@ export default function MentorDashboard() {
       </main>
 
       {/* Quick Actions Panel */}
-      <div className="quick-actions">
-        <button 
-          className="action-btn"
-          onClick={() => navigate("/mentor/messages")}
-        >
-          <MessageSquare size={18} />
-          <span>Messages</span>
-        </button>
-        <button 
-          className="action-btn"
-          onClick={() => navigate("/mentor/calendar")}
-        >
-          <Calendar size={18} />
-          <span>Calendar</span>
-        </button>
-        <button 
-          className="action-btn primary"
-          onClick={() => navigate("/mentor/students/add")}
-        >
-          <Users size={18} />
-          <span>Add Student</span>
-        </button>
-      </div>
+      
 
       {/* Overlay for sidebar on mobile */}
       {sidebarOpen && (

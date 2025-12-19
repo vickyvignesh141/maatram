@@ -3,6 +3,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/login";
+
 import StudentDashboard from "./pages/student/Studentdashboard";
 import StudentCareer from "./pages/student/components/career_command";
 import StudentQuiz from "./pages/student/components/Quiz";
@@ -10,6 +11,7 @@ import StudyMaterial from "./pages/student/components/studymaterial";
 import StudentProgress from "./pages/student/components/studentprogress";
 
 import MentorDashboard from "./pages/mentor/Mentordashboard";
+import MentorStudents from "./pages/mentor/components/TotalStudents"
 
 function App() {
   return (
@@ -24,6 +26,7 @@ function App() {
         <Route path="/student/update-progress" element={<StudentProgress />} />
 
         <Route path="/mentor/dashboard" element={<MentorDashboard />} />
+        <Route path="/mentor/totalstudents" element={<MentorStudents />} />
         
 
         {/* Add more pages here if needed */}
