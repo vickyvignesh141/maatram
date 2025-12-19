@@ -13,6 +13,11 @@ import StudentProgress from "./pages/student/components/studentprogress";
 import MentorDashboard from "./pages/mentor/Mentordashboard";
 import MentorStudents from "./pages/mentor/components/TotalStudents"
 
+import GetAdmin from "./pages/admin/admindashboard";
+import AdminStudent from "./pages/admin/components/Admin_stu"
+import AdminMentor from "./pages/admin/components/admin_men"
+
+
 function App() {
   return (
     <Router>
@@ -27,6 +32,12 @@ function App() {
 
         <Route path="/mentor/dashboard" element={<MentorDashboard />} />
         <Route path="/mentor/totalstudents" element={<MentorStudents />} />
+
+        
+        <Route path="/admin/dashboard" element={<GetAdmin/>}/>
+        <Route path="/admin/students" element={<AdminStudent/>}/>
+        <Route path="/admin/mentors" element={<AdminMentor/>}/>
+        
         
 
         {/* Add more pages here if needed */}
