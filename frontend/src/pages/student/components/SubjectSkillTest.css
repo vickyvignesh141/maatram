@@ -21,6 +21,75 @@
   --quiz-transition: all 0.3s ease;
 }
 
+/* Add to existing CSS */
+.quiz-mode-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.quiz-mode-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--quiz-gray-300);
+  border-radius: var(--quiz-radius);
+  background: var(--quiz-white);
+  cursor: pointer;
+  transition: var(--quiz-transition);
+  font-weight: 500;
+}
+
+.quiz-mode-btn.active {
+  background: var(--quiz-accent);
+  color: var(--quiz-white);
+  border-color: var(--quiz-accent);
+}
+
+.quiz-progress-bar {
+  height: 4px;
+  background: var(--quiz-gray-200);
+  width: 100%;
+}
+
+.quiz-progress-fill {
+  height: 100%;
+  background: var(--quiz-success);
+  transition: width 0.3s ease;
+}
+
+/* Enhanced history card styles */
+.quiz-history-level.beginner {
+  background: var(--quiz-success);
+}
+
+.quiz-history-level.intermediate {
+  background: var(--quiz-warning);
+}
+
+.quiz-history-level.hard {
+  background: var(--quiz-error);
+}
+
+.quiz-history-percentage.high {
+  color: var(--quiz-success);
+  font-weight: 600;
+}
+
+.quiz-history-percentage.medium {
+  color: var(--quiz-warning);
+  font-weight: 600;
+}
+
+.quiz-history-percentage.low {
+  color: var(--quiz-error);
+  font-weight: 600;
+}
+
+/* Loading state */
+.quiz-start-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 /* Global Quiz Styles */
 .quiz-active {
   overflow: hidden;
@@ -674,3 +743,24 @@
   }
 }
 
+
+.quiz-option-card {
+  padding: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 5px;
+  border-radius: 5px;
+}
+
+.quiz-option-correct {
+  background-color: #d4edda; /* light green */
+  border-color: #28a745;
+}
+
+.quiz-option-wrong {
+  background-color: #f8d7da; /* light red */
+  border-color: #dc3545;
+}
+
+.quiz-answer-review {
+  margin-top: 20px;
+}

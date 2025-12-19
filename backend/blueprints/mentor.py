@@ -19,3 +19,25 @@ def get_student(username):
     return jsonify({"success": False, "msg": "Student not found"}), 404
 
 
+@mentor_bp.route("/students/<mentor_username>", methods=["GET"])
+def get_students_by_mentor(mentor_username):
+
+    students = list(
+        users_collection.find(
+            {"assigned_mentor": mentor_username},
+            {
+                "_id": 0,
+                "id": 1,
+                "name": 1,
+                "username": 1,
+                "phno": 1
+            }
+        )
+    )
+
+    return jsonify({
+        "success": True,
+        "students": students
+    })
+
+

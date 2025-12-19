@@ -347,21 +347,34 @@ def select_career():
             starter_guide = career_agent.generate_starter_guide(
                 career, study_plan["missing_topics"]
             )
+        # Initialize topic progress
+        topic_progress = {}
+        now = datetime.now().isoformat()
+
+        for topic in topics:
+            topic_progress[topic] = {
+                "percentage": 0,
+                "last_updated": now
+            }
 
         progress_collection.update_one(
             {"student_id": student_id},
-            {"$set": {
-                "selected_career": {
-                    "career": career,
-                    "selected_date": datetime.now().isoformat(),
-                    "topics": topics,
-                    "known_topics": known_topics,
-                    "study_plan": study_plan,
-                    "starter_guide": starter_guide
+            {
+                "$set": {
+                    "selected_career": {
+                        "career": career,
+                        "selected_date": datetime.now().isoformat(),
+                        "topics": topics,
+                        "known_topics": known_topics,
+                        "study_plan": study_plan,
+                        "starter_guide": starter_guide
+                    },
+                    "topic_progress": topic_progress
                 }
-            }},
+            },
             upsert=True
         )
+
 
         return jsonify({
             "success": True,
@@ -378,28 +391,38 @@ def select_career():
 
 @career_bp.route('/update-progress', methods=['POST'])
 def update_progress():
-    data = request.json
-    student_id = data.get("student_id")
-    topic = data.get("topic")
-    percentage = int(data.get("percentage", 0))
+    try:
+        data = request.json
+        student_id = data.get("student_id")
+        topic = data.get("topic")
+        percentage = int(data.get("percentage", 0))
 
-    percentage = max(0, min(100, percentage))
+        if not student_id or not topic:
+            return jsonify({"success": False, "message": "Missing data"}), 400
 
-    progress_collection.update_one(
-        {"student_id": student_id},
-        {"$set": {
-            f"topic_progress.{topic}": {
-                "percentage": percentage,
-                "last_updated": datetime.now().isoformat()
-            }
-        }},
-        upsert=True
-    )
+        percentage = max(0, min(100, percentage))
 
-    return jsonify({
-        "success": True,
-        "message": f"{topic} updated to {percentage}%"
-    })
+        progress_collection.update_one(
+            {"student_id": student_id},
+            {
+                "$set": {
+                    f"topic_progress.{topic}": {
+                        "percentage": percentage,
+                        "last_updated": datetime.now().isoformat()
+                    }
+                }
+            },
+            upsert=True
+        )
+
+        return jsonify({
+            "success": True,
+            "message": f"{topic} updated to {percentage}%"
+        })
+
+    except Exception as e:
+        logger.error(e)
+        return jsonify({"success": False, "message": "Progress update failed"}), 500
 
 @career_bp.route('/progress/<student_id>', methods=['GET'])
 def get_progress(student_id):
