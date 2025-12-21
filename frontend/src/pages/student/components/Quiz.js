@@ -32,7 +32,9 @@ const PREDEFINED_TOPICS = [
   "Simple Interest",
   "Algebra",
   "Physics - Mechanics",
-  "Chemistry - Periodic Table"
+  "Chemistry - Periodic Table",
+  "Boat & Stream",
+  "Ages"
 ];
 
 // Custom hook for timer logic
