@@ -9,9 +9,12 @@ import StudentCareer from "./pages/student/components/career_command";
 import StudentQuiz from "./pages/student/components/Quiz";
 import StudyMaterial from "./pages/student/components/studymaterial";
 import StudentProgress from "./pages/student/components/studentprogress";
+import StudentProfile from "./pages/student/components/StudentProfile"
 
 import MentorDashboard from "./pages/mentor/Mentordashboard";
 import MentorStudents from "./pages/mentor/components/TotalStudents"
+import MentorProfile from "./pages/mentor/components/MentorProfile"
+
 
 import GetAdmin from "./pages/admin/admindashboard";
 import AdminStudent from "./pages/admin/components/Admin_stu"
@@ -29,9 +32,13 @@ function App() {
         <Route path="/student/quiz" element={<StudentQuiz />} />
         <Route path="/student/study-material" element={<StudyMaterial />} />
         <Route path="/student/update-progress" element={<StudentProgress />} />
+        <Route path="/student/profile" element={<StudentProfile/>}/>
+       
 
         <Route path="/mentor/dashboard" element={<MentorDashboard />} />
         <Route path="/mentor/totalstudents" element={<MentorStudents />} />
+        <Route path="/mentor/profile" element={<MentorProfile />} />
+        
 
         
         <Route path="/admin/dashboard" element={<GetAdmin/>}/>
