@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import baseurl from "../../baseurl";
 import StudentTopBar from "../nav/studenttop";
 import "./StudentDashboard.css";
+import { useParams } from "react-router-dom";
+
 
 import { 
   BookOpen, 
@@ -23,6 +25,7 @@ import {
 } from "lucide-react";
 
 export default function StudentDashboard() {
+  const { username } = useParams(); 
   const [data, setData] = useState(null);
   const [stats, setStats] = useState({
     completion: 65,
@@ -90,7 +93,12 @@ export default function StudentDashboard() {
 
   // Quick action buttons
   const quickActions = [
-    { name: "Wallet", icon: <Wallet size={20} />, route: "/wallet" },
+    {name: "Wallet",
+    icon: <Wallet size={20} />,
+    route: `/student/wallet`,  // ✅ dynamic username in route
+  },
+
+
     { name: "Analytics", icon: <BarChart2 size={20} />, route: "/view-graph" },
     { name: "Bookmarks", icon: <Bookmark size={20} />, route: "/bookmarks" },
     { name: "Community", icon: <Users size={20} />, route: "/community" },

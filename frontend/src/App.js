@@ -9,6 +9,15 @@ import StudentCareer from "./pages/student/components/career_command";
 import StudentQuiz from "./pages/student/components/Quiz";
 import StudyMaterial from "./pages/student/components/studymaterial";
 import StudentProgress from "./pages/student/components/studentprogress";
+import StudentWallet from "./pages/student/components/Wallets";
+
+
+import MentorDashboard from "./pages/mentor/Mentordashboard";
+import MentorStudents from "./pages/mentor/components/TotalStudents"
+import ResultStudent from "./pages/mentor/components/StudentResult"
+import CareerStudent from "./pages/mentor/components/StudentCareer"
+import CertificateStudent from "./pages/mentor/components/StudentCertificate"
+
 import StudentProfile from "./pages/student/components/StudentProfile"
 
 import MentorDashboard from "./pages/mentor/Mentordashboard";
@@ -32,6 +41,18 @@ function App() {
         <Route path="/student/quiz" element={<StudentQuiz />} />
         <Route path="/student/study-material" element={<StudyMaterial />} />
         <Route path="/student/update-progress" element={<StudentProgress />} />
+        <Route path="/student/wallet" element={<StudentWallet />} />
+
+
+
+        <Route path="/mentor/dashboard" element={<MentorDashboard />} />
+        <Route path="/mentor/totalstudents" element={<MentorStudents />} /> 
+        <Route path="/mentor/student/:student_id/progress" element={<ResultStudent />}/>
+        <Route path="/mentor/student/:username/career" element={<CareerStudent />}/>
+        <Route path="/mentor/student/:username/certifications" element={<CertificateStudent />}/>
+
+
+
         <Route path="/student/profile" element={<StudentProfile/>}/>
        
 

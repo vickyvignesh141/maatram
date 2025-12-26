@@ -1,0 +1,494 @@
+[{
+  "_id": {
+    "$oid": "69458a095171e915da01e1a9"
+  },
+  "student_id": "MAA242626",
+  "initial_assessment": {
+    "responses": {
+      "What subjects do you enjoy the most in school?": "chemistry\n",
+      "What hobbies or activities do you like?": "reading books",
+      "Do you prefer working with people, technology, or ideas?": "techonolgy",
+      "Do you like creative or analytical tasks more?": "creative",
+      "What are your strengths or skills?": "volley ball",
+      "Do you have any career ideas in mind already?": "it field",
+      "Currently pursuing degree and course?": "b.tech aids"
+    },
+    "recommendations": {
+      "career_options": [
+        {
+          "name": "Software Developer",
+          "description": "Combines technology interest with creative problem-solving, fitting for someone who enjoys chemistry and reading, with a degree in B.Tech AIDs",
+          "match_score": 90
+        },
+        {
+          "name": "Data Analyst",
+          "description": "Utilizes analytical skills, which could be a good fit considering the enjoyment of chemistry, and involves working with technology, aligning with the preference for tech",
+          "match_score": 85
+        },
+        {
+          "name": "UX/UI Designer",
+          "description": "Involves creative tasks and working with technology, aligning with preferences for creativity and tech, though may require additional design-focused education",
+          "match_score": 88
+        }
+      ],
+      "top_recommendation": {
+        "career": "Software Developer",
+        "reasoning": "This career path stands out as it aligns with the student's interest in technology, their degree in B.Tech AIDs, and the creative aspect of developing software. It also offers a wide range of specializations, from mobile app development to artificial intelligence, allowing for growth and adaptation based on the student's evolving interests and strengths. The problem-solving aspect of software development can also appeal to someone who enjoys chemistry, as it involves breaking down complex problems into manageable parts and finding innovative solutions.",
+        "short_term_plan": "Over the next 6-12 months, focus on building a strong foundation in programming languages relevant to the IT field, such as Python, Java, or JavaScript. Engage in personal projects or contribute to open-source projects on platforms like GitHub to gain practical experience. Consider taking online courses or attending workshops to stay updated on the latest trends and technologies in software development."
+      },
+      "suggested_topics": [
+        "Programming Languages (Python, Java, JavaScript)",
+        "Data Structures and Algorithms",
+        "Software Development Life Cycle",
+        "Cloud Computing",
+        "Cybersecurity Fundamentals"
+      ]
+    },
+    "assessment_date": "2025-12-21T18:13:54.952600"
+  },
+  "selected_career": {
+    "career": "Software Developer",
+    "selected_date": "2025-12-21T18:14:35.517267",
+    "topics": [
+      "Data Structures",
+      "Algorithms",
+      "Programming Languages",
+      "Database Management",
+      "Web Development"
+    ],
+    "known_topics": [],
+    "study_plan": {
+      "status": "beginner",
+      "career": "Software Developer",
+      "missing_topics": [
+        "Data Structures",
+        "Algorithms",
+        "Programming Languages",
+        "Database Management",
+        "Web Development"
+      ],
+      "known_topics": [],
+      "daily_schedule": {
+        "Data Structures": {
+          "hours_per_day": 0.4,
+          "focus_areas": "Study Data Structures fundamentals and practice exercises"
+        },
+        "Algorithms": {
+          "hours_per_day": 0.4,
+          "focus_areas": "Study Algorithms fundamentals and practice exercises"
+        },
+        "Programming Languages": {
+          "hours_per_day": 0.4,
+          "focus_areas": "Study Programming Languages fundamentals and practice exercises"
+        },
+        "Database Management": {
+          "hours_per_day": 0.4,
+          "focus_areas": "Study Database Management fundamentals and practice exercises"
+        },
+        "Web Development": {
+          "hours_per_day": 0.4,
+          "focus_areas": "Study Web Development fundamentals and practice exercises"
+        }
+      },
+      "weekly_schedule": {
+        "Monday": {
+          "total_hours": 2,
+          "topics": [
+            "Data Structures",
+            "Algorithms",
+            "Programming Languages",
+            "Database Management",
+            "Web Development"
+          ],
+          "breakdown": {
+            "Data Structures": 0.4,
+            "Algorithms": 0.4,
+            "Programming Languages": 0.4,
+            "Database Management": 0.4,
+            "Web Development": 0.4
+          }
+        },
+        "Tuesday": {
+          "total_hours": 2,
+          "topics": [
+            "Data Structures",
+            "Algorithms",
+            "Programming Languages",
+            "Database Management",
+            "Web Development"
+          ],
+          "breakdown": {
+            "Data Structures": 0.4,
+            "Algorithms": 0.4,
+            "Programming Languages": 0.4,
+            "Database Management": 0.4,
+            "Web Development": 0.4
+          }
+        },
+        "Wednesday": {
+          "total_hours": 2,
+          "topics": [
+            "Data Structures",
+            "Algorithms",
+            "Programming Languages",
+            "Database Management",
+            "Web Development"
+          ],
+          "breakdown": {
+            "Data Structures": 0.4,
+            "Algorithms": 0.4,
+            "Programming Languages": 0.4,
+            "Database Management": 0.4,
+            "Web Development": 0.4
+          }
+        },
+        "Thursday": {
+          "total_hours": 2,
+          "topics": [
+            "Data Structures",
+            "Algorithms",
+            "Programming Languages",
+            "Database Management",
+            "Web Development"
+          ],
+          "breakdown": {
+            "Data Structures": 0.4,
+            "Algorithms": 0.4,
+            "Programming Languages": 0.4,
+            "Database Management": 0.4,
+            "Web Development": 0.4
+          }
+        },
+        "Friday": {
+          "total_hours": 2,
+          "topics": [
+            "Data Structures",
+            "Algorithms",
+            "Programming Languages",
+            "Database Management",
+            "Web Development"
+          ],
+          "breakdown": {
+            "Data Structures": 0.4,
+            "Algorithms": 0.4,
+            "Programming Languages": 0.4,
+            "Database Management": 0.4,
+            "Web Development": 0.4
+          }
+        },
+        "Saturday": {
+          "total_hours": 2,
+          "topics": [
+            "Data Structures",
+            "Algorithms",
+            "Programming Languages",
+            "Database Management",
+            "Web Development"
+          ],
+          "breakdown": {
+            "Data Structures": 0.4,
+            "Algorithms": 0.4,
+            "Programming Languages": 0.4,
+            "Database Management": 0.4,
+            "Web Development": 0.4
+          }
+        },
+        "Sunday": {
+          "total_hours": 2,
+          "topics": [
+            "Data Structures",
+            "Algorithms",
+            "Programming Languages",
+            "Database Management",
+            "Web Development"
+          ],
+          "breakdown": {
+            "Data Structures": 0.4,
+            "Algorithms": 0.4,
+            "Programming Languages": 0.4,
+            "Database Management": 0.4,
+            "Web Development": 0.4
+          }
+        }
+      },
+      "total_weekly_hours": 10,
+      "estimated_completion": "10 weeks for fundamentals",
+      "recommendations": [
+        "Start with 30-minute focused sessions",
+        "Mix theory with practical exercises",
+        "Review progress weekly",
+        "Join online communities for support"
+      ]
+    },
+    "starter_guide": "**12-Month Starter Guide to Become a Software Developer**\n\n### Month 1-3: Fundamentals of Programming (Phase 1)\n\n* **Key Topics:** Introduction to programming, data types, variables, control structures, functions, and object-oriented programming\n* **Key Milestones:**\n\t+ Write a simple program using a programming language (e.g., Python, JavaScript)\n\t+ Understand the basics of data structures (e.g., arrays, lists)\n* **Recommended Resources:**\n\t+ Codecademy (Python, JavaScript courses)\n\t+ FreeCodeCamp (interactive coding challenges)\n\t+ \"Introduction to Algorithms\" by Thomas H. Cormen (book)\n* **Project Ideas:**\n\t+ Command-line calculator\n\t+ To-do list app\n* **Assessment Checkpoints:**\n\t+ Complete Codecademy courses\n\t+ Build a simple calculator program\n\n### Month 4-6: Data Structures and Algorithms (Phase 2)\n\n* **Key Topics:** Arrays, linked lists, stacks, queues, trees, graphs, sorting, searching\n* **Key Milestones:**\n\t+ Implement common data structures and algorithms\n\t+ Understand time and space complexity\n* **Recommended Resources:**\n\t+ GeeksforGeeks (data structures and algorithms tutorials)\n\t+ LeetCode (practice problems)\n\t+ \"Data Structures and Algorithms in Python\" by Michael T. Goodrich (book)\n* **Project Ideas:**\n\t+ Implement a sorting algorithm\n\t+ Build a simple graph traversal program\n* **Assessment Checkpoints:**\n\t+ Complete LeetCode problems\n\t+ Implement a data structure from scratch\n\n### Month 7-9: Programming Languages and Database Management (Phase 3)\n\n* **Key Topics:** Programming languages (e.g., Java, C++), database management systems (e.g., MySQL, MongoDB)\n* **Key Milestones:**\n\t+ Learn a new programming language\n\t+ Understand database concepts (e.g., schema, queries)\n* **Recommended Resources:**\n\t+ Udemy (programming language courses)\n\t+ edX (database management courses)\n\t+ \"Database Systems: The Complete Book\" by Hector Garcia-Molina (book)\n* **Project Ideas:**\n\t+ Build a simple CRUD (Create, Read, Update, Delete) application\n\t+ Design a database schema for a fictional application\n* **Assessment Checkpoints:**\n\t+ Complete a programming language course\n\t+ Design a database schema\n\n### Month 10-12: Web Development and Project Integration (Phase 4)\n\n* **Key Topics:** Front-end development (e.g., HTML, CSS, JavaScript), back-end development (e.g., Node.js, Express)\n* **Key Milestones:**\n\t+ Build a full-stack web application\n\t+ Integrate data structures, algorithms, and database management concepts\n* **Recommended Resources:**\n\t+ FreeCodeCamp (web development challenges)\n\t+ Udemy (full-stack web development courses)\n\t+ \"Full Stack Development with Python\" by Shalabh Aggarwal (book)\n* **Project Ideas:**\n\t+ Build a personal website or blog\n\t+ Create a web application for a fictional company\n* **Assessment Checkpoints:**\n\t+ Complete a full-stack web development course\n\t+ Build a functional web application\n\n**Additional Tips:**\n\n* Practice coding regularly (e.g., 1-2 hours per day)\n* Join online communities (e.g., GitHub, Stack Overflow) for support and feedback\n* Read books and articles to deepen your understanding of concepts\n* Participate in coding challenges and hackathons to apply your skills\n\nBy following this 12-month guide, you'll gain a solid foundation in software development and be well-prepared to pursue a career in the field. Remember to stay motivated, be patient, and have fun learning!"
+  },
+  "topic_progress": {
+    "Data Structures": {
+      "percentage": 0,
+      "last_updated": "2025-12-21T18:14:35.517267"
+    },
+    "Algorithms": {
+      "percentage": 0,
+      "last_updated": "2025-12-21T18:14:35.517267"
+    },
+    "Programming Languages": {
+      "percentage": 0,
+      "last_updated": "2025-12-21T18:14:35.517267"
+    },
+    "Database Management": {
+      "percentage": 0,
+      "last_updated": "2025-12-21T18:14:35.517267"
+    },
+    "Web Development": {
+      "percentage": 0,
+      "last_updated": "2025-12-21T18:14:35.517267"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6949678d5171e915da01e1aa"
+  },
+  "student_id": "MAA000013",
+  "initial_assessment": {
+    "responses": {
+      "What subjects do you enjoy the most in school?": "tamil\n",
+      "What hobbies or activities do you like?": "playing cricket",
+      "Do you prefer working with people, technology, or ideas?": "people",
+      "Do you like creative or analytical tasks more?": "analytical tasks",
+      "What are your strengths or skills?": "no",
+      "Do you have any career ideas in mind already?": "no",
+      "Currently pursuing degree and course?": "civil"
+    },
+    "recommendations": {
+      "career_options": [
+        {
+          "name": "Construction Manager",
+          "description": "As a civil engineering student, this role leverages your analytical skills and experience in the field. It involves managing construction projects, which requires working with people, fitting your preference.",
+          "match_score": 85
+        },
+        {
+          "name": "Urban Planner",
+          "description": "This career path combines analytical tasks with working with people, as urban planners need to collaborate with communities and other stakeholders to design and develop urban spaces.",
+          "match_score": 78
+        },
+        {
+          "name": "Project Manager - Infrastructure",
+          "description": "Given your enjoyment of analytical tasks and preference for working with people, managing infrastructure projects could be highly suitable. It involves planning, coordinating, and overseeing projects, utilizing your civil engineering background.",
+          "match_score": 92
+        }
+      ],
+      "top_recommendation": {
+        "career": "Project Manager - Infrastructure",
+        "reasoning": "This career stands out because it aligns closely with your current pursuit of a civil engineering degree, utilizes your analytical skills, and involves working with people, which you've indicated a preference for. The role of a project manager in infrastructure projects requires strong organizational and leadership skills, which can be developed over time with experience and additional training.",
+        "short_term_plan": "Over the next 6-12 months, focus on completing your civil engineering degree. Seek out internships or part-time jobs in construction or project management to gain practical experience. Additionally, consider taking courses or earning certifications in project management (like PMP) to enhance your skills and competitiveness in the job market."
+      },
+      "suggested_topics": [
+        "Project Management Fundamentals",
+        "Leadership and Team Management",
+        "Infrastructure Development and Planning",
+        "Contract Management and Negotiation",
+        "Risk Management in Construction Projects"
+      ]
+    },
+    "assessment_date": "2025-12-22T21:15:17.861339"
+  },
+  "selected_career": {
+    "career": "Project Manager - Infrastructure",
+    "selected_date": "2025-12-22T21:15:34.043359",
+    "topics": [
+      "Project Management Frameworks",
+      "Infrastructure Planning and Design",
+      "Contract Management",
+      "Risk Management",
+      "Stakeholder Engagement and Communication"
+    ],
+    "known_topics": [],
+    "study_plan": {
+      "status": "beginner",
+      "career": "Project Manager - Infrastructure",
+      "missing_topics": [
+        "Project Management Frameworks",
+        "Infrastructure Planning and Design",
+        "Contract Management",
+        "Risk Management",
+        "Stakeholder Engagement and Communication"
+      ],
+      "known_topics": [],
+      "daily_schedule": {
+        "Project Management Frameworks": {
+          "hours_per_day": 0.4,
+          "focus_areas": "Study Project Management Frameworks fundamentals and practice exercises"
+        },
+        "Infrastructure Planning and Design": {
+          "hours_per_day": 0.4,
+          "focus_areas": "Study Infrastructure Planning and Design fundamentals and practice exercises"
+        },
+        "Contract Management": {
+          "hours_per_day": 0.4,
+          "focus_areas": "Study Contract Management fundamentals and practice exercises"
+        },
+        "Risk Management": {
+          "hours_per_day": 0.4,
+          "focus_areas": "Study Risk Management fundamentals and practice exercises"
+        },
+        "Stakeholder Engagement and Communication": {
+          "hours_per_day": 0.4,
+          "focus_areas": "Study Stakeholder Engagement and Communication fundamentals and practice exercises"
+        }
+      },
+      "weekly_schedule": {
+        "Monday": {
+          "total_hours": 2,
+          "topics": [
+            "Project Management Frameworks",
+            "Infrastructure Planning and Design",
+            "Contract Management",
+            "Risk Management",
+            "Stakeholder Engagement and Communication"
+          ],
+          "breakdown": {
+            "Project Management Frameworks": 0.4,
+            "Infrastructure Planning and Design": 0.4,
+            "Contract Management": 0.4,
+            "Risk Management": 0.4,
+            "Stakeholder Engagement and Communication": 0.4
+          }
+        },
+        "Tuesday": {
+          "total_hours": 2,
+          "topics": [
+            "Project Management Frameworks",
+            "Infrastructure Planning and Design",
+            "Contract Management",
+            "Risk Management",
+            "Stakeholder Engagement and Communication"
+          ],
+          "breakdown": {
+            "Project Management Frameworks": 0.4,
+            "Infrastructure Planning and Design": 0.4,
+            "Contract Management": 0.4,
+            "Risk Management": 0.4,
+            "Stakeholder Engagement and Communication": 0.4
+          }
+        },
+        "Wednesday": {
+          "total_hours": 2,
+          "topics": [
+            "Project Management Frameworks",
+            "Infrastructure Planning and Design",
+            "Contract Management",
+            "Risk Management",
+            "Stakeholder Engagement and Communication"
+          ],
+          "breakdown": {
+            "Project Management Frameworks": 0.4,
+            "Infrastructure Planning and Design": 0.4,
+            "Contract Management": 0.4,
+            "Risk Management": 0.4,
+            "Stakeholder Engagement and Communication": 0.4
+          }
+        },
+        "Thursday": {
+          "total_hours": 2,
+          "topics": [
+            "Project Management Frameworks",
+            "Infrastructure Planning and Design",
+            "Contract Management",
+            "Risk Management",
+            "Stakeholder Engagement and Communication"
+          ],
+          "breakdown": {
+            "Project Management Frameworks": 0.4,
+            "Infrastructure Planning and Design": 0.4,
+            "Contract Management": 0.4,
+            "Risk Management": 0.4,
+            "Stakeholder Engagement and Communication": 0.4
+          }
+        },
+        "Friday": {
+          "total_hours": 2,
+          "topics": [
+            "Project Management Frameworks",
+            "Infrastructure Planning and Design",
+            "Contract Management",
+            "Risk Management",
+            "Stakeholder Engagement and Communication"
+          ],
+          "breakdown": {
+            "Project Management Frameworks": 0.4,
+            "Infrastructure Planning and Design": 0.4,
+            "Contract Management": 0.4,
+            "Risk Management": 0.4,
+            "Stakeholder Engagement and Communication": 0.4
+          }
+        },
+        "Saturday": {
+          "total_hours": 2,
+          "topics": [
+            "Project Management Frameworks",
+            "Infrastructure Planning and Design",
+            "Contract Management",
+            "Risk Management",
+            "Stakeholder Engagement and Communication"
+          ],
+          "breakdown": {
+            "Project Management Frameworks": 0.4,
+            "Infrastructure Planning and Design": 0.4,
+            "Contract Management": 0.4,
+            "Risk Management": 0.4,
+            "Stakeholder Engagement and Communication": 0.4
+          }
+        },
+        "Sunday": {
+          "total_hours": 2,
+          "topics": [
+            "Project Management Frameworks",
+            "Infrastructure Planning and Design",
+            "Contract Management",
+            "Risk Management",
+            "Stakeholder Engagement and Communication"
+          ],
+          "breakdown": {
+            "Project Management Frameworks": 0.4,
+            "Infrastructure Planning and Design": 0.4,
+            "Contract Management": 0.4,
+            "Risk Management": 0.4,
+            "Stakeholder Engagement and Communication": 0.4
+          }
+        }
+      },
+      "total_weekly_hours": 10,
+      "estimated_completion": "10 weeks for fundamentals",
+      "recommendations": [
+        "Start with 30-minute focused sessions",
+        "Mix theory with practical exercises",
+        "Review progress weekly",
+        "Join online communities for support"
+      ]
+    },
+    "starter_guide": "**12-Month Starter Guide to Become a Project Manager - Infrastructure**\n\n### Month 1-3: Foundation Phase\n\n* **Learning Objectives:**\n\t+ Introduction to Project Management Frameworks (Agile, Waterfall, Hybrid)\n\t+ Understanding Infrastructure Planning and Design principles\n\t+ Familiarization with Contract Management basics\n* **Key Milestones:**\n\t+ Complete online courses on Project Management Fundamentals (e.g., Coursera, edX)\n\t+ Read introductory books on Infrastructure Planning and Design (e.g., \"Infrastructure Planning and Design\" by Michael D. Meyer)\n\t+ Join online communities (e.g., Project Management Institute, Reddit) for networking and knowledge sharing\n* **Recommended Resources:**\n\t+ Coursera: Project Management Specialization\n\t+ edX: Infrastructure Planning and Design course\n\t+ Book: \"A Guide to the Project Management Body of Knowledge (PMBOK Guide)\"\n* **Project Ideas:**\n\t+ Create a simple project plan for a hypothetical infrastructure project\n\t+ Develop a basic infrastructure design for a small-scale project\n* **Assessment Checkpoints:**\n\t+ Complete online quizzes and assessments on Project Management Frameworks\n\t+ Submit a reflective journal on Infrastructure Planning and Design principles\n\n### Month 4-6: Infrastructure Planning and Design Phase\n\n* **Learning Objectives:**\n\t+ In-depth study of Infrastructure Planning and Design principles\n\t+ Understanding of Contract Management principles and practices\n\t+ Introduction to Risk Management concepts\n* **Key Milestones:**\n\t+ Complete online courses on Infrastructure Planning and Design (e.g., Udemy, LinkedIn Learning)\n\t+ Read advanced books on Contract Management (e.g., \"Contract Management: A Guide to Best Practices\" by David W. Richardson)\n\t+ Participate in online webinars on Risk Management\n* **Recommended Resources:**\n\t+ Udemy: Infrastructure Planning and Design course\n\t+ Book: \"Contract Management: A Guide to Best Practices\"\n\t+ Online webinar: Risk Management in Infrastructure Projects\n* **Project Ideas:**\n\t+ Develop a detailed infrastructure design for a medium-scale project\n\t+ Create a contract management plan for a hypothetical infrastructure project\n* **Assessment Checkpoints:**\n\t+ Complete a case study on Infrastructure Planning and Design\n\t+ Submit a contract management plan for a hypothetical project\n\n### Month 7-9: Risk Management and Stakeholder Engagement Phase\n\n* **Learning Objectives:**\n\t+ In-depth study of Risk Management principles and practices\n\t+ Understanding of Stakeholder Engagement and Communication principles\n\t+ Introduction to advanced Project Management techniques\n* **Key Milestones:**\n\t+ Complete online courses on Risk Management (e.g., Coursera, edX)\n\t+ Read books on Stakeholder Engagement and Communication (e.g., \"Stakeholder Engagement: A Practical Guide\" by John Friedman)\n\t+ Participate in online discussions on advanced Project Management techniques\n* **Recommended Resources:**\n\t+ Coursera: Risk Management Specialization\n\t+ Book: \"Stakeholder Engagement: A Practical Guide\"\n\t+ Online discussion forum: Advanced Project Management techniques\n* **Project Ideas:**\n\t+ Develop a risk management plan for a large-scale infrastructure project\n\t+ Create a stakeholder engagement and communication plan for a hypothetical project\n* **Assessment Checkpoints:**\n\t+ Complete a risk assessment for a hypothetical project\n\t+ Submit a stakeholder engagement and communication plan for a hypothetical project\n\n### Month 10-12: Advanced Project Management and Final Preparation Phase\n\n* **Learning Objectives:**\n\t+ Advanced Project Management techniques and best practices\n\t+ Review and practice of all learned concepts\n\t+ Preparation for certification exams (e.g., PMP, PRINCE2)\n* **Key Milestones:**\n\t+ Complete online courses on advanced Project Management techniques (e.g., LinkedIn Learning, Udemy)\n\t+ Read books on advanced Project Management topics (e.g., \"Advanced Project Management: Best Practices on Implementation\" by Harold Kerzner)\n\t+ Participate in online study groups for certification exam preparation\n* **Recommended Resources:**\n\t+ LinkedIn Learning: Advanced Project Management course\n\t+ Book: \"Advanced Project Management: Best Practices on Implementation\"\n\t+ Online study group: PMP or PRINCE2 certification exam preparation\n* **Project Ideas:**\n\t+ Develop a comprehensive project plan for a large-scale infrastructure project\n\t+ Create a final portfolio showcasing all learned concepts and project ideas\n* **Assessment Checkpoints:**\n\t+ Complete a simulated certification exam\n\t+ Submit a final portfolio for review and feedback\n\nBy following this 12-month starter guide, you will gain a solid foundation in Project Management Frameworks, Infrastructure Planning and Design, Contract Management, Risk Management, Stakeholder Engagement, and Communication, and be well-prepared to become a Project Manager - Infrastructure."
+  },
+  "topic_progress": {
+    "Project Management Frameworks": {
+      "percentage": 0,
+      "last_updated": "2025-12-22T21:15:34.043359"
+    },
+    "Infrastructure Planning and Design": {
+      "percentage": 0,
+      "last_updated": "2025-12-22T21:15:34.043359"
+    },
+    "Contract Management": {
+      "percentage": 0,
+      "last_updated": "2025-12-22T21:15:34.043359"
+    },
+    "Risk Management": {
+      "percentage": 0,
+      "last_updated": "2025-12-22T21:15:34.043359"
+    },
+    "Stakeholder Engagement and Communication": {
+      "percentage": 0,
+      "last_updated": "2025-12-22T21:15:34.043359"
+    }
+  }
+}]
