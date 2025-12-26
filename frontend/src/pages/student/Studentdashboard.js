@@ -12,7 +12,6 @@ import {
   BarChart2, 
   Edit, 
   Target,
-  TrendingUp,
   Calendar,
   Award,
   Clock,
@@ -138,49 +137,6 @@ export default function StudentDashboard() {
           <div className="date-display">
             <Calendar size={20} />
             <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="stats-grid">
-          <div className="stat-card" style={{ borderLeftColor: 'var(--accent)' }}>
-            <div className="stat-icon">
-              <TrendingUp size={24} />
-            </div>
-            <div className="stat-content">
-              <h3>{stats.completion}%</h3>
-              <p>Course Completion</p>
-            </div>
-          </div>
-
-          <div className="stat-card" style={{ borderLeftColor: 'var(--success)' }}>
-            <div className="stat-icon">
-              <Clock size={24} />
-            </div>
-            <div className="stat-content">
-              <h3>{stats.hours}h</h3>
-              <p>Learning Hours</p>
-            </div>
-          </div>
-
-          <div className="stat-card" style={{ borderLeftColor: 'var(--warning)' }}>
-            <div className="stat-icon">
-              <Award size={24} />
-            </div>
-            <div className="stat-content">
-              <h3>{stats.streak} days</h3>
-              <p>Current Streak</p>
-            </div>
-          </div>
-
-          <div className="stat-card" style={{ borderLeftColor: 'var(--info)' }}>
-            <div className="stat-icon">
-              <Star size={24} />
-            </div>
-            <div className="stat-content">
-              <h3>#{stats.rank}</h3>
-              <p>Global Rank</p>
-            </div>
           </div>
         </div>
 
@@ -324,10 +280,6 @@ export default function StudentDashboard() {
                   <span className="info-value">Dr. Sharma</span>
                 </div>
               </div>
-              {/* <button className="edit-profile-btn" onClick={() => handleNavigation('/student/profile')}>
-                <Edit size={18} />
-                Edit Profile
-              </button> */}
             </div>
           </div>
         </div>

@@ -316,7 +316,7 @@
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.2);
+  box-shadow: 0 8px 20px rgba(13, 65, 209, 0.2);
 }
 
 .submit-btn:disabled {
@@ -462,4 +462,8 @@
   .feature-item {
     font-size: 0.875rem;
   }
+}
+/* FORCE LOGIN SUBMIT BUTTON TO BLUE */
+.login-container .submit-btn {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2e6be6 100%);
 }
