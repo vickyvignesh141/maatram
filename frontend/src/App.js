@@ -20,16 +20,19 @@ import CertificateStudent from "./pages/mentor/components/StudentCertificate"
 
 import StudentProfile from "./pages/student/components/StudentProfile"
 
-import MentorDashboard from "./pages/mentor/Mentordashboard";
-import MentorStudents from "./pages/mentor/components/TotalStudents"
-import MentorProfile from "./pages/mentor/components/MentorProfile"
+// import MentorDashboard from "./pages/mentor/Mentordashboard";
+// import MentorStudents from "./pages/mentor/components/TotalStudents"
+import MentorProfile from "./pages/mentor/components/MentorProfile";
 
 
 import GetAdmin from "./pages/admin/admindashboard";
 import AdminStudent from "./pages/admin/components/Admin_stu"
 import AdminMentor from "./pages/admin/components/admin_men"
-
-
+import AdminMentorStudent from "./pages/admin/components/admin_MenStu"
+import AdminClgMan from "./pages/admin/components/admin_clgmng"
+import AdminAnalytics from "./pages/admin/components/Admin_Viewanly"
+import Adminreport from "./pages/admin/components/admin_report"
+import Adminaddstu from "./pages/admin/components/add_stu"
 function App() {
   return (
     <Router>
@@ -65,8 +68,12 @@ function App() {
         <Route path="/admin/dashboard" element={<GetAdmin/>}/>
         <Route path="/admin/students" element={<AdminStudent/>}/>
         <Route path="/admin/mentors" element={<AdminMentor/>}/>
-        
-        
+        <Route path="/admin/assignments" element={<AdminMentorStudent/>}/>
+        <Route path="/admin/colleges" element={<AdminClgMan/>}/>
+        <Route path="admin/analytics" element={<AdminAnalytics/>}/>
+        <Route path="admin/reports" element={<Adminreport/>}/>
+        <Route path="/admin/students/add" element={<Adminaddstu/>}/>
+
 
         {/* Add more pages here if needed */}
       </Routes>

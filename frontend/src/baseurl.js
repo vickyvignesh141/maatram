@@ -4,7 +4,7 @@ const host = window.location.hostname;
 
 if (host.includes("devtunnels.ms")) {
   // Frontend running on Dev Tunnel
-  BASE_URL = "https://r5nv1pzl-5000.inc1.devtunnels.ms/api";
+  BASE_URL = "https://qv1xd7v0-5000.inc1.devtunnels.ms/";
 } 
 else if (host === "localhost" || host === "127.0.0.1") {
   // Frontend running locally
