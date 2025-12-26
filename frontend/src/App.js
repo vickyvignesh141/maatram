@@ -18,6 +18,11 @@ import ResultStudent from "./pages/mentor/components/StudentResult"
 import CareerStudent from "./pages/mentor/components/StudentCareer"
 import CertificateStudent from "./pages/mentor/components/StudentCertificate"
 
+import StudentProfile from "./pages/student/components/StudentProfile"
+
+import MentorDashboard from "./pages/mentor/Mentordashboard";
+import MentorStudents from "./pages/mentor/components/TotalStudents"
+import MentorProfile from "./pages/mentor/components/MentorProfile"
 
 
 import GetAdmin from "./pages/admin/admindashboard";
@@ -48,6 +53,13 @@ function App() {
 
 
 
+        <Route path="/student/profile" element={<StudentProfile/>}/>
+       
+
+        <Route path="/mentor/dashboard" element={<MentorDashboard />} />
+        <Route path="/mentor/totalstudents" element={<MentorStudents />} />
+        <Route path="/mentor/profile" element={<MentorProfile />} />
+        
 
         
         <Route path="/admin/dashboard" element={<GetAdmin/>}/>
