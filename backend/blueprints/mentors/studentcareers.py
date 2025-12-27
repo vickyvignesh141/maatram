@@ -9,7 +9,7 @@ career_collection = db["career_progress"]
 
 @careers_bp.route("/mentor/student/<username>/career", methods=["GET"])
 def get_student_career(username):
-    student = career_collection.find_one({"username": username})
+    student = career_collection.find_one({"student_id": username})
 
     if not student:
         return jsonify({
