@@ -1,0 +1,51 @@
+.charts-section {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.chart-container {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+}
+
+.chart-container h3 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+}
+
+.table-section {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.test-results {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.test-results th {
+  background-color: #007bff;
+  color: white;
+  padding: 12px;
+  text-align: left;
+}
+
+.test-results td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.test-results tr:hover {
+  background-color: #f5f5f5;
+}
