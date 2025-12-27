@@ -1,94 +1,126 @@
-from flask import Blueprint, jsonify, request, send_from_directory
+from flask import Blueprint, jsonify, send_file
 from pymongo import MongoClient
 import os
-from werkzeug.utils import secure_filename
+import zipfile
+import io
 
-certificate_bp = Blueprint("studentcertificate", __name__)
+certificate_bp = Blueprint("certificate_bp", __name__, url_prefix="/api")
 
-# MongoDB setup
+# ================= MONGODB =================
 client = MongoClient("mongodb://localhost:27017/")
 db = client["career_guidance_mongo"]
-users_collection = db["users"]
+studentwallet = db["studentwallet"]
 
-# Upload folder
-UPLOAD_FOLDER = "uploads/certificates"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# ================= UPLOAD ROOT =================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg"}
+UPLOAD_ROOT = os.path.abspath(
+    os.path.join(BASE_DIR, "..", "..", "uploads", "certificates")
+)
+# backend/uploads/certificates/
 
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+# ================= HELPERS =================
+def get_user_folder(username):
+    """
+    uploads/certificates/<username>
+    """
+    return os.path.join(UPLOAD_ROOT, username)
 
 
-# ----------------- VIEW CERTIFICATES -----------------
+def file_belongs_to_student(student, filename):
+    return any(cert.get("file") == filename for cert in student.get("certificates", []))
+
+
+# =====================================================
+# 1️⃣ Mentor → View Student Certificates (LIST)
+# =====================================================
 @certificate_bp.route("/mentor/student/<username>/certificates", methods=["GET"])
-def view_student_certificates(username):
-    student = users_collection.find_one(
+def get_certificates(username):
+    student = studentwallet.find_one(
         {"username": username},
         {"_id": 0, "certificates": 1}
     )
-    if student is None:
+
+    if not student:
         return jsonify({"message": "Student not found"}), 404
 
     return jsonify({"certificates": student.get("certificates", [])}), 200
 
 
-# ----------------- UPLOAD CERTIFICATE -----------------
-@certificate_bp.route("/mentor/student/<username>/certificates", methods=["POST"])
-def upload_certificate(username):
-    if "file" not in request.files:
-        return jsonify({"message": "No file part"}), 400
-    
-    file = request.files["file"]
-    
-    if file.filename == "":
-        return jsonify({"message": "No selected file"}), 400
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(filepath)
-
-        # Save in DB
-        users_collection.update_one(
-            {"username": username},
-            {"$push": {"certificates": filename}}
-        )
-
-        return jsonify({"message": "File uploaded successfully", "filename": filename}), 201
-
-    return jsonify({"message": "File type not allowed"}), 400
-
-
-# ----------------- DELETE CERTIFICATE -----------------
-@certificate_bp.route("/mentor/student/<username>/certificates/<filename>", methods=["DELETE"])
-def delete_certificate(username, filename):
-    student = users_collection.find_one({"username": username})
-    if student is None:
-        return jsonify({"message": "Student not found"}), 404
-
-    if "certificates" not in student or filename not in student["certificates"]:
+# =====================================================
+# 2️⃣ Mentor → VIEW Certificate (Browser)
+# =====================================================
+@certificate_bp.route(
+    "/mentor/student/<username>/certificates/view/<filename>",
+    methods=["GET"]
+)
+def view_certificate(username, filename):
+    student = studentwallet.find_one({"username": username})
+    if not student or not file_belongs_to_student(student, filename):
         return jsonify({"message": "Certificate not found"}), 404
 
-    # Remove from DB
-    users_collection.update_one(
-        {"username": username},
-        {"$pull": {"certificates": filename}}
-    )
+    user_folder = get_user_folder(username)
+    file_path = os.path.join(user_folder, filename)
 
-    # Remove from filesystem
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    if os.path.exists(filepath):
-        os.remove(filepath)
+    if not os.path.exists(file_path):
+        return jsonify({
+            "message": "File not found on server",
+            "path": file_path
+        }), 404
 
-    return jsonify({"message": "Certificate deleted successfully"}), 200
+    return send_file(file_path, as_attachment=False)
 
 
-# ----------------- DOWNLOAD / VIEW FILE -----------------
-@certificate_bp.route("/mentor/student/<username>/certificates/download/<filename>", methods=["GET"])
+# =====================================================
+# 3️⃣ Mentor → DOWNLOAD Certificate
+# =====================================================
+@certificate_bp.route(
+    "/mentor/student/<username>/certificates/download/<filename>",
+    methods=["GET"]
+)
 def download_certificate(username, filename):
-    student = users_collection.find_one({"username": username})
-    if student is None or filename not in student.get("certificates", []):
+    student = studentwallet.find_one({"username": username})
+    if not student or not file_belongs_to_student(student, filename):
         return jsonify({"message": "Certificate not found"}), 404
 
-    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+    user_folder = get_user_folder(username)
+    file_path = os.path.join(user_folder, filename)
+
+    if not os.path.exists(file_path):
+        return jsonify({
+            "message": "File not found on server",
+            "path": file_path
+        }), 404
+
+    return send_file(file_path, as_attachment=True)
+
+
+# =====================================================
+# 4️⃣ Mentor → EXPORT ALL Certificates (ZIP)
+# =====================================================
+@certificate_bp.route(
+    "/mentor/student/<username>/certificates/export",
+    methods=["GET"]
+)
+def export_certificates(username):
+    student = studentwallet.find_one({"username": username})
+    if not student or not student.get("certificates"):
+        return jsonify({"message": "No certificates found"}), 404
+
+    user_folder = get_user_folder(username)
+    zip_buffer = io.BytesIO()
+
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for cert in student["certificates"]:
+            file_path = os.path.join(user_folder, cert["file"])
+            if os.path.exists(file_path):
+                zipf.write(file_path, arcname=cert["file"])
+
+    zip_buffer.seek(0)
+
+    return send_file(
+        zip_buffer,
+        as_attachment=True,
+        download_name=f"{username}_certificates.zip",
+        mimetype="application/zip"
+    )

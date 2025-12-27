@@ -6,7 +6,8 @@ import MentorTopBar from "../../mentornav/mentortop";
 const BASE_URL = "http://localhost:5000/api";
 
 export default function MentorViewCertificates() {
-  const { username } = useParams();   // student username from URL
+  const { username } = useParams();
+
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,7 +24,14 @@ export default function MentorViewCertificates() {
         const res = await axios.get(
           `${BASE_URL}/mentor/student/${username}/certificates`
         );
-        setCertificates(res.data.certificates || []);
+
+        // normalize file name
+        const certs = (res.data.certificates || []).map(cert => ({
+          ...cert,
+          file: cert.file || cert.file_id
+        }));
+
+        setCertificates(certs);
       } catch (err) {
         console.error(err);
         setError("Failed to load certificates");
@@ -39,8 +47,8 @@ export default function MentorViewCertificates() {
     <div>
       <MentorTopBar />
 
-      <div style={{ padding: "20px" }}>
-        <h2>🎓 Certificates – {username}</h2>
+      <div style={{ padding: "20px", maxWidth: "800px" }}>
+        <h2>Certificates – {username}</h2>
 
         {loading && <p>Loading certificates...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
@@ -49,36 +57,53 @@ export default function MentorViewCertificates() {
           <p>No certificates uploaded by this student</p>
         )}
 
-        {certificates.map((c, index) => (
+        {certificates.map((cert, index) => (
           <div
-            key={index}
+            key={cert.id || index}
             style={{
               border: "1px solid #ddd",
               borderRadius: "6px",
-              padding: "10px",
-              marginBottom: "10px"
+              padding: "12px",
+              marginBottom: "10px",
             }}
           >
-            <strong>{c.name}</strong>
-            <br />
+            <strong>{cert.name}</strong>
 
-            <a
-              href={`http://localhost:5000${c.file_url}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              👁 View Certificate
-            </a>
+            <p style={{ fontSize: "12px", color: "#666" }}>
+              Uploaded: {cert.uploaded_at}
+            </p>
 
-            <br />
-            <small>
-              Uploaded on:{" "}
-              {c.uploaded_at
-                ? new Date(c.uploaded_at).toLocaleString()
-                : "N/A"}
-            </small>
+            <div style={{ marginTop: "8px" }}>
+              {/* VIEW */}
+              <a
+                href={`${BASE_URL}/mentor/student/${username}/certificates/view/${cert.file}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ marginRight: "15px" }}
+              >
+                View
+              </a>
+
+              {/* DOWNLOAD */}
+              <a
+                href={`${BASE_URL}/mentor/student/${username}/certificates/download/${cert.file}`}
+              >
+                Download
+              </a>
+            </div>
           </div>
         ))}
+
+        {/* EXPORT ALL */}
+        {!loading && certificates.length > 0 && (
+          <div style={{ marginTop: "20px" }}>
+            <a
+              href={`${BASE_URL}/mentor/student/${username}/certificates/export`}
+            >
+              Export All Certificates (ZIP)
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );

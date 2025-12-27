@@ -15,6 +15,7 @@ import {
   UserPlus,
   BarChart3,
   FileText,
+  recharts,
   List
 } from "lucide-react";
 
