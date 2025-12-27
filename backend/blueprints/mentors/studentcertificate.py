@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, send_file
+from flask import Blueprint, jsonify, send_from_directory
 from pymongo import MongoClient
 import os
 import zipfile
@@ -11,28 +11,23 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["career_guidance_mongo"]
 studentwallet = db["studentwallet"]
 
-# ================= UPLOAD ROOT =================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# ================= PATH CONFIG =================
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 UPLOAD_ROOT = os.path.abspath(
-    os.path.join(BASE_DIR, "..", "..", "uploads", "certificates")
+    os.path.join(BASE_DIR, "..", "uploads", "certificates")
 )
-# backend/uploads/certificates/
 
 # ================= HELPERS =================
 def get_user_folder(username):
-    """
-    uploads/certificates/<username>
-    """
     return os.path.join(UPLOAD_ROOT, username)
-
 
 def file_belongs_to_student(student, filename):
     return any(cert.get("file") == filename for cert in student.get("certificates", []))
 
 
 # =====================================================
-# 1️⃣ Mentor → View Student Certificates (LIST)
+# 1️⃣ LIST CERTIFICATES
 # =====================================================
 @certificate_bp.route("/mentor/student/<username>/certificates", methods=["GET"])
 def get_certificates(username):
@@ -44,11 +39,11 @@ def get_certificates(username):
     if not student:
         return jsonify({"message": "Student not found"}), 404
 
-    return jsonify({"certificates": student.get("certificates", [])}), 200
+    return jsonify({"certificates": student.get("certificates", [])})
 
 
 # =====================================================
-# 2️⃣ Mentor → VIEW Certificate (Browser)
+# 2️⃣ VIEW CERTIFICATE (Browser)
 # =====================================================
 @certificate_bp.route(
     "/mentor/student/<username>/certificates/view/<filename>",
@@ -60,19 +55,19 @@ def view_certificate(username, filename):
         return jsonify({"message": "Certificate not found"}), 404
 
     user_folder = get_user_folder(username)
-    file_path = os.path.join(user_folder, filename)
 
-    if not os.path.exists(file_path):
-        return jsonify({
-            "message": "File not found on server",
-            "path": file_path
-        }), 404
+    if not os.path.exists(os.path.join(user_folder, filename)):
+        return jsonify({"message": "File missing on server"}), 404
 
-    return send_file(file_path, as_attachment=False)
+    return send_from_directory(
+        directory=user_folder,
+        path=filename,
+        as_attachment=False
+    )
 
 
 # =====================================================
-# 3️⃣ Mentor → DOWNLOAD Certificate
+# 3️⃣ DOWNLOAD CERTIFICATE
 # =====================================================
 @certificate_bp.route(
     "/mentor/student/<username>/certificates/download/<filename>",
@@ -84,43 +79,17 @@ def download_certificate(username, filename):
         return jsonify({"message": "Certificate not found"}), 404
 
     user_folder = get_user_folder(username)
-    file_path = os.path.join(user_folder, filename)
 
-    if not os.path.exists(file_path):
-        return jsonify({
-            "message": "File not found on server",
-            "path": file_path
-        }), 404
+    if not os.path.exists(os.path.join(user_folder, filename)):
+        return jsonify({"message": "File missing on server"}), 404
 
-    return send_file(file_path, as_attachment=True)
-
-
-# =====================================================
-# 4️⃣ Mentor → EXPORT ALL Certificates (ZIP)
-# =====================================================
-@certificate_bp.route(
-    "/mentor/student/<username>/certificates/export",
-    methods=["GET"]
-)
-def export_certificates(username):
-    student = studentwallet.find_one({"username": username})
-    if not student or not student.get("certificates"):
-        return jsonify({"message": "No certificates found"}), 404
-
-    user_folder = get_user_folder(username)
-    zip_buffer = io.BytesIO()
-
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for cert in student["certificates"]:
-            file_path = os.path.join(user_folder, cert["file"])
-            if os.path.exists(file_path):
-                zipf.write(file_path, arcname=cert["file"])
-
-    zip_buffer.seek(0)
-
-    return send_file(
-        zip_buffer,
-        as_attachment=True,
-        download_name=f"{username}_certificates.zip",
-        mimetype="application/zip"
+    return send_from_directory(
+        directory=user_folder,
+        path=filename,
+        as_attachment=True
     )
+
+
+# =====================================================
+# 4️⃣ EXPORT ALL CERTIFICATES (ZIP)
+# =====================================================
