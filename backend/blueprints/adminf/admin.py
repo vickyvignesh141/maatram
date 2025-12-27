@@ -9,6 +9,7 @@ mongo_db = client["career_guidance_mongo"]
 
 users_collection = mongo_db["users"]
 mentors_collection = mongo_db["mentors"]
+
 admin_collection = mongo_db["admin"]
 
 @admin_bp.route("/get_admin/<username>", methods=["GET"])

@@ -64,12 +64,20 @@
   color: var(--yellow);
 }
 
-.welcome-content .subtitle {
+.welcome-content{
   margin: 0.5rem 0 0 0;
   opacity: 0.9;
   font-size: 1rem;
   max-width: 600px;
+} 
+.subtitle {
+  margin: 0.5rem 0 0 0;
+  opacity: 0.9;
+  font-size: 1rem;
+  max-width: 600px;
+  color: #ffffff; /* white */
 }
+
 
 .date-display {
   display: flex;

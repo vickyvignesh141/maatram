@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const AdminUsers = () => {
-  const [users, setUsers] = useState([]); // MUST be array
+  const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]); // Store all users for filtering
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // CSS Styles
+  // CSS Styles (added search styles)
   const styles = {
     container: {
       padding: "2rem",
@@ -19,6 +21,29 @@ const AdminUsers = () => {
       borderBottom: "3px solid #3498db",
       fontSize: "1.8rem",
       fontWeight: "600",
+    },
+    searchContainer: {
+      marginBottom: "1.5rem",
+    },
+    searchInput: {
+      width: "100%",
+      padding: "0.8rem 1rem",
+      fontSize: "1rem",
+      borderRadius: "8px",
+      border: "1px solid #ddd",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+      outline: "none",
+      transition: "all 0.3s ease",
+      boxSizing: "border-box",
+    },
+    searchInputFocus: {
+      borderColor: "#3498db",
+      boxShadow: "0 2px 8px rgba(52, 152, 219, 0.3)",
+    },
+    searchResultsInfo: {
+      marginTop: "0.5rem",
+      color: "#7f8c8d",
+      fontSize: "0.9rem",
     },
     tableContainer: {
       overflowX: "auto",
@@ -115,13 +140,16 @@ const AdminUsers = () => {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     axios
       .get("http://localhost:5000/api/admin/users")
       .then((res) => {
-        setUsers(res.data.data); // 👈 IMPORTANT
+        const fetchedUsers = res.data.data;
+        setAllUsers(fetchedUsers); // Store all users
+        setUsers(fetchedUsers); // Initially show all users
         setLoading(false);
         setError(null);
       })
@@ -131,6 +159,51 @@ const AdminUsers = () => {
         setLoading(false);
       });
   }, []);
+
+  // Filter users based on search term
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setUsers(allUsers); // Show all users when search is empty
+      return;
+    }
+
+    const term = searchTerm.toLowerCase().trim();
+    
+    const filtered = allUsers.filter(user => {
+      // Check name
+      if (user.name && user.name.toLowerCase().includes(term)) {
+        return true;
+      }
+      
+      // Check username
+      if (user.username && user.username.toLowerCase().includes(term)) {
+        return true;
+      }
+      
+      // Check ID (converting to string for comparison)
+      if (user.id && user.id.toString().includes(term)) {
+        return true;
+      }
+      
+      // Check phone number
+      if (user.phno && user.phno.toString().includes(term)) {
+        return true;
+      }
+      
+      // Check mentor name
+      if (user.assigned_mentor && user.assigned_mentor.toLowerCase().includes(term)) {
+        return true;
+      }
+      
+      return false;
+    });
+    
+    setUsers(filtered);
+  }, [searchTerm, allUsers]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   if (loading) {
     return (
@@ -154,9 +227,34 @@ const AdminUsers = () => {
     <div style={styles.container}>
       <h2 style={styles.header}>Admin Users</h2>
 
+      {/* Search Box */}
+      <div style={styles.searchContainer}>
+        <input
+          type="text"
+          placeholder="Search by name, username, ID, phone, or mentor..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onFocus={() => setIsSearchFocused(true)}
+          onBlur={() => setIsSearchFocused(false)}
+          style={{
+            ...styles.searchInput,
+            ...(isSearchFocused && styles.searchInputFocus)
+          }}
+        />
+        {searchTerm && (
+          <div style={styles.searchResultsInfo}>
+            Found {users.length} user{users.length !== 1 ? 's' : ''} matching "{searchTerm}"
+          </div>
+        )}
+      </div>
+
       <div style={styles.tableContainer}>
         {users.length === 0 ? (
-          <div style={styles.emptyState}>No users found.</div>
+          <div style={styles.emptyState}>
+            {searchTerm 
+              ? `No users found matching "${searchTerm}"` 
+              : "No users found."}
+          </div>
         ) : (
           <table style={styles.table}>
             <thead>
