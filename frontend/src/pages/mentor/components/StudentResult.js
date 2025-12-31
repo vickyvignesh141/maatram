@@ -16,10 +16,11 @@ import {
   Legend,
   ResponsiveContainer
 } from "recharts";
+import BASE_URL from "../../../baseurl";
 
 export default function StudentProgress() {
   const { student_id } = useParams();
-  const BASE_URL = "http://localhost:5000/api";
+
 
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);

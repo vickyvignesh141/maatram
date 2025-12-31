@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import MentorTopBar from "../../mentornav/mentortop";
-
-const BASE_URL = "http://localhost:5000/api";
+import BASE_URL from "../../../baseurl";
 
 export default function MentorViewCertificates() {
   const { username } = useParams();

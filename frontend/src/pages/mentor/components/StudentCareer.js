@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import MentorTopBar from "../../mentornav/mentortop";
+import BASE_URL from "../../../baseurl";
 
 export default function StudentProgress() {
   // Get username from route params
   const { username } = useParams();
-  const BASE_URL = "http://localhost:5000/api";
+
 
   // State for career data, loading, and errors
   const [career, setCareer] = useState(null);
@@ -30,7 +31,7 @@ export default function StudentProgress() {
         }
       } catch (err) {
         console.error("Error fetching career data:", err);
-        setError("Failed to fetch student career");
+        //setError("Failed to fetch student career");
       } finally {
         setLoading(false);
       }
@@ -246,7 +247,7 @@ export default function StudentProgress() {
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "calc(100vh - 100px)" }}>
         <div style={errorStyle}>
           <div style={{ fontSize: "4em", marginBottom: "20px" }}>⚠️</div>
-          <h3 style={{ color: "#c0392b", fontSize: "1.5em" }}>Error Loading Data</h3>
+          <h3 style={{ color: "#c0392b", fontSize: "1.5em" }}>Student Didnot Choose Career</h3>
           <p style={{ fontSize: "1.1em", marginTop: "10px" }}>{error}</p>
         </div>
       </div>
