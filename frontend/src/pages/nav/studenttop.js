@@ -8,7 +8,7 @@ export default function StudentTopBar() {
   const [student, setStudent] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifications, setNotifications] = useState(3); // Mock notifications count
-
+console.log("sTUDENTTOP",student);
   useEffect(() => {
     const username = localStorage.getItem("loggedUser");
     if (username) {
@@ -41,6 +41,9 @@ export default function StudentTopBar() {
     );
   }
 
+  console.log(`${baseurl}/${student.profileImage}`);
+
+
   return (
     <div className="student-topbar">
       {/* Logo Section */}
@@ -71,13 +74,18 @@ export default function StudentTopBar() {
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
             <div className="user-avatar">
-              {student.photo ? (
-                <img src={student.photo} alt={student.name} className="avatar-image" />
-              ) : (
-                <div className="avatar-fallback">
-                  <User size={24} />
-                </div>
-              )}
+{student.profileImage ? (
+  <img
+    src={`${baseurl}/${student.profileImage}`}
+    alt={student.name}
+    className="avatar-image"
+  />
+) : (
+  <div className="avatar-fallback">
+    <User size={24} />
+  </div>
+)}
+
             </div>
             <div className="user-details">
               <h4 className="user-name">{student.name}</h4>
@@ -94,8 +102,8 @@ export default function StudentTopBar() {
             <div className="dropdown-menu">
               <div className="dropdown-header">
                 <div className="dropdown-avatar">
-                  {student.photo ? (
-                    <img src={student.photo} alt={student.name} />
+                  {student.profileImage ? (
+                    <img src={student.profileImage} alt={student.name} />
                   ) : (
                     <User size={20} />
                   )}

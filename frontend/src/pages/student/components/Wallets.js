@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Wallets.css";
 import StudentTopBar from "../../nav/studenttop";
+import BASE_URL from "../../../baseurl";
 
 
-const BASE_URL = "http://localhost:5000/api";
 
 export default function StudentWallet() {
   const username = localStorage.getItem("loggedUser"); // MAA000001

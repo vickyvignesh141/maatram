@@ -1,10 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import './StudentProfile.css';
+import styles from './StudentProfile.module.css';
+import BASE_URL from "../../../baseurl";
+import StudentTopBar from "../../nav/studenttop";
+import { 
+  User, 
+  ChevronDown, 
+  Bell, 
+  Settings, 
+  LogOut, 
+  GraduationCap,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Globe,
+  FileText,
+  Upload,
+  Camera,
+  CheckCircle,
+  Edit2,
+  Save,
+  X,
+  Eye,
+  Trash2,
+  Home,
+  Building,
+  Users,
+  BookOpen,
+  FilePlus,
+  AlertCircle,
+  Loader2,
+  ExternalLink,
+  Linkedin,
+  Github,
+  Globe as Web,
+  UserCircle,
+  FileType,
+  Clipboard,
+  Info,
+  Headphones
+} from "lucide-react";
 
 const StudentProfile = ({ loginData }) => {
   // Initial state with pre-filled data from login
   const [studentInfo, setStudentInfo] = useState({
-    studentName: '',
+    name: '',
     dateOfBirth: loginData?.dateOfBirth || '',
     maatramId: loginData?.maatramId || '',
     collegeName: '',
@@ -18,16 +58,18 @@ const StudentProfile = ({ loginData }) => {
     linkedinId: '',
     githubId: '',
     email: loginData?.email || '',
-    profileImage: null,
+    profileImage: '',
+    otherProfile: '',
     resumeImage: null
   });
 
-  const [profileImagePreview, setProfileImagePreview] = useState(null);
+  const [originalData, setOriginalData] = useState(null);
   const [resumePreview, setResumePreview] = useState(null);
-  const [isEditing, setIsEditing] = useState(true); // Changed to true for immediate editing
+  const [isEditing, setIsEditing] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [imagePreview, setImagePreview] = useState(null);
 
   // Set pre-filled data when component mounts or loginData changes
   useEffect(() => {
@@ -41,13 +83,70 @@ const StudentProfile = ({ loginData }) => {
     }
   }, [loginData]);
 
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      const username = localStorage.getItem("loggedUser");
+      if (username) {
+        try {
+          const response = await fetch(`${BASE_URL}/student_profile/${username}`);
+          const json = await response.json();
+          
+          if (json.success) {
+            const data = json.data;
+            const studentData = {
+              name: data.name || "",
+              phoneNumber: data.phno || "",
+              maatramId: data.username || "",
+              dateOfBirth: data.password || data.dateOfBirth || "",
+              assignedMentor: data.assigned_mentor || data.assignedMentor || "",
+              collegeName: data.collegeName || "",
+              batchYear: data.batchYear || "",
+              currentYear: data.currentYear || "",
+              semester: data.semester || "",
+              program: data.program || "",
+              department: data.department || "",
+              email: data.email || "",
+              profileImage: data.profileImage || "",
+              address: data.address || "",
+              linkedinId: data.linkedinId || "",
+              githubId: data.githubId || "",
+              otherProfile: data.otherProfile || "",
+            };
+
+            setStudentInfo(prev => ({ ...prev, ...studentData }));
+            setOriginalData(studentData);
+            
+            // Set image preview if profile image exists
+            if (data.profileImage) {
+              setImagePreview(`${BASE_URL}/uploads/${data.profileImage}`);
+            }
+            
+            // Set resume preview if exists
+            if (data.resumeImage) {
+              setResumePreview(`${BASE_URL}/${data.resumeImage}`);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching student data:", error);
+        }
+      }
+    };
+
+    fetchStudentData();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/login";
+  };
+
   const validateForm = () => {
     const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
 
-    if (!studentInfo.studentName.trim()) {
-      newErrors.studentName = 'Full name is required';
+    if (!studentInfo.name.trim()) {
+      newErrors.name = 'Full name is required';
     }
     
     if (!studentInfo.email || !emailRegex.test(studentInfo.email)) {
@@ -107,78 +206,108 @@ const StudentProfile = ({ loginData }) => {
 
   const handleProfileImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        setErrors(prev => ({
-          ...prev,
-          profileImage: 'Profile image should be less than 2MB'
-        }));
-        return;
-      }
-      if (!file.type.startsWith('image/')) {
-        setErrors(prev => ({
-          ...prev,
-          profileImage: 'Please upload an image file'
-        }));
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImagePreview(reader.result);
-        setStudentInfo(prev => ({
-          ...prev,
-          profileImage: file
-        }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      setErrors(prev => ({ ...prev, profileImage: 'Please upload an image file' }));
+      return;
+    }
+
+    // Check file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, profileImage: 'Image size should be less than 5MB' }));
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+    setStudentInfo(prev => ({
+      ...prev,
+      profileImage: file
+    }));
+
+    if (errors.profileImage) {
+      setErrors(prev => ({ ...prev, profileImage: '' }));
     }
   };
 
   const handleResumeUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors(prev => ({
-          ...prev,
-          resumeImage: 'Resume should be less than 5MB'
-        }));
-        return;
-      }
-      if (file.type !== 'application/pdf') {
-        setErrors(prev => ({
-          ...prev,
-          resumeImage: 'Please upload a PDF file'
-        }));
-        return;
-      }
-      setStudentInfo(prev => ({
-        ...prev,
-        resumeImage: file
-      }));
-      setResumePreview(URL.createObjectURL(file));
+    if (!file) return;
+
+    // Check file type
+    if (file.type !== 'application/pdf') {
+      setErrors(prev => ({ ...prev, resumeImage: 'Please upload a PDF file' }));
+      return;
+    }
+
+    // Check file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, resumeImage: 'File size should be less than 5MB' }));
+      return;
+    }
+
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setResumePreview(previewUrl);
+
+    setStudentInfo(prev => ({
+      ...prev,
+      resumeImage: file
+    }));
+
+    if (errors.resumeImage) {
+      setErrors(prev => ({ ...prev, resumeImage: '' }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
+
+    if (!validateForm()) return;
+
     setLoading(true);
-    
-    // Simulate API call
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Student Profile Submitted:', studentInfo);
-      setIsSubmitted(true);
-      setIsEditing(false);
-      setLoading(false);
-      
-      setTimeout(() => setIsSubmitted(false), 3000);
-    } catch (error) {
-      console.error('Error saving profile:', error);
+      const formData = new FormData();
+      formData.append("username", studentInfo.maatramId);
+
+      // Append all other fields
+      Object.keys(studentInfo).forEach((key) => {
+        if (key === "profileImage" || key === "resumeImage") {
+          if (studentInfo[key]) formData.append(key, studentInfo[key]);
+        } else if (key !== "maatramId") {
+          formData.append(key, studentInfo[key] || "");
+        }
+      });
+
+      const response = await fetch(`${BASE_URL}/student_profile`, {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setIsSubmitted(true);
+        setIsEditing(false);
+        setLoading(false);
+
+        // Update original data
+        setOriginalData({ ...studentInfo });
+
+        setTimeout(() => setIsSubmitted(false), 3000);
+      } else {
+        console.error(result.msg);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
       setLoading(false);
     }
   };
@@ -191,11 +320,17 @@ const StudentProfile = ({ loginData }) => {
     if (window.confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
       setIsEditing(false);
       setErrors({});
+      // Restore original data
+      if (originalData) {
+        setStudentInfo(originalData);
+        setImagePreview(originalData.profileImage ? `${BASE_URL}/uploads/${originalData.profileImage}` : null);
+        setResumePreview(originalData.resumeImage ? `${BASE_URL}/${originalData.resumeImage}` : null);
+      }
     }
   };
 
   const removeProfileImage = () => {
-    setProfileImagePreview(null);
+    setImagePreview(null);
     setStudentInfo(prev => ({
       ...prev,
       profileImage: null
@@ -203,11 +338,13 @@ const StudentProfile = ({ loginData }) => {
   };
 
   const removeResume = () => {
-    setResumePreview(null);
-    setStudentInfo(prev => ({
-      ...prev,
-      resumeImage: null
-    }));
+    if (window.confirm('Are you sure you want to remove your resume?')) {
+      setResumePreview(null);
+      setStudentInfo(prev => ({
+        ...prev,
+        resumeImage: null
+      }));
+    }
   };
 
   // Helper function to format phone number
@@ -219,100 +356,153 @@ const StudentProfile = ({ loginData }) => {
     return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
   };
 
+  // Generate batch years (last 10 years)
+  const batchYears = Array.from({ length: 10 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { value: year, label: year.toString() };
+  });
+
+  const programs = [
+    { value: 'B.Tech', label: 'Bachelor of Technology (B.Tech)' },
+    { value: 'B.E.', label: 'Bachelor of Engineering (B.E.)' },
+    { value: 'B.Sc.', label: 'Bachelor of Science (B.Sc.)' },
+    { value: 'B.A.', label: 'Bachelor of Arts (B.A.)' },
+    { value: 'B.Com', label: 'Bachelor of Commerce (B.Com)' },
+    { value: 'BBA', label: 'Bachelor of Business Administration (BBA)' },
+    { value: 'M.Tech', label: 'Master of Technology (M.Tech)' },
+    { value: 'M.Sc.', label: 'Master of Science (M.Sc.)' },
+    { value: 'MBA', label: 'Master of Business Administration (MBA)' },
+    { value: 'PhD', label: 'Doctor of Philosophy (PhD)' }
+  ];
+
+  const departments = [
+    'Computer Science & Engineering',
+    'Electronics & Communication Engineering',
+    'Mechanical Engineering',
+    'Civil Engineering',
+    'Electrical Engineering',
+    'Information Technology',
+    'Artificial Intelligence',
+    'Data Science',
+    'Business Administration',
+    'Commerce',
+    'Science',
+    'Arts',
+    'Law',
+    'Medicine'
+  ];
+
   return (
-    <div className="student-profile-container">
-      <div className="profile-header">
-        <div className="header-content">
-          <h1><i className="fas fa-user-graduate"></i> Student Profile</h1>
-          <p className="subtitle">Complete your profile to access all campus resources</p>
+    <div className={styles.container}>
+      <StudentTopBar />
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerTitle}>
+            <GraduationCap className={styles.headerIcon} />
+            <h1>Student Profile</h1>
+          </div>
+          <p className={styles.subtitle}>Complete your profile to access all campus resources</p>
         </div>
-        <div className="profile-status">
-          <span className={`status-badge ${isEditing ? 'editing' : 'viewing'}`}>
-            <i className={`fas ${isEditing ? 'fa-edit' : 'fa-eye'}`}></i>
-            {isEditing ? 'Editing Mode' : 'Viewing Mode'}
-          </span>
+        <div className={styles.headerActions}>
+          <div className={`${styles.statusBadge} ${isEditing ? styles.editing : styles.viewing}`}>
+            {isEditing ? <Edit2 size={14} /> : <Eye size={14} />}
+            <span>{isEditing ? 'Editing Mode' : 'Viewing Mode'}</span>
+          </div>
+          {isSubmitted && (
+            <div className={styles.successMessage}>
+              <CheckCircle size={16} />
+              <span>Profile updated successfully!</span>
+            </div>
+          )}
         </div>
       </div>
 
-      {isSubmitted && (
-        <div className="success-message">
-          <i className="fas fa-check-circle"></i>
-          <span>Profile updated successfully!</span>
-        </div>
-      )}
-
-      <div className="profile-card">
-        <div className="profile-header-section">
-          <div className="profile-image-section">
-            <div className="profile-image-container">
-              {profileImagePreview ? (
+      <div className={styles.profileCard}>
+        <div className={styles.profileHeader}>
+          <div className={styles.profileImageSection}>
+            <div className={styles.profileImageContainer}>
+              {imagePreview ? (
                 <img 
-                  src={profileImagePreview} 
+                  src={imagePreview} 
                   alt="Profile" 
-                  className="profile-image"
+                  className={styles.profileImage}
                 />
               ) : (
-                <div className="profile-image-placeholder">
-                  <i className="fas fa-user-graduate"></i>
+                <div className={styles.profileImagePlaceholder}>
+                  <UserCircle size={48} />
                 </div>
               )}
+              
               {isEditing && (
-                <div className="image-overlay">
-                  <label className="camera-icon">
-                    <i className="fas fa-camera"></i>
+                <>
+                  <label className={styles.imageUploadOverlay}>
+                    <Camera size={20} />
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleProfileImageUpload}
-                      style={{ display: 'none' }}
+                      hidden
                     />
                   </label>
-                </div>
+                  {imagePreview && (
+                    <button 
+                      type="button" 
+                      className={styles.removeImageButton}
+                      onClick={removeProfileImage}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </>
               )}
             </div>
             {errors.profileImage && (
-              <div className="error-message">{errors.profileImage}</div>
+              <div className={styles.errorMessage}>
+                <AlertCircle size={14} />
+                <span>{errors.profileImage}</span>
+              </div>
             )}
           </div>
 
-          <div className="profile-basic-info">
-            <div className="info-header">
+          <div className={styles.profileInfo}>
+            <div className={styles.infoHeader}>
               <h2>
-                {studentInfo.studentName || 'Your Name'}
-                <span className="verified-badge">
-                  <i className="fas fa-check-circle"></i> Student
+                {studentInfo.name || 'Your Name'}
+                <span className={styles.verifiedBadge}>
+                  <CheckCircle size={14} />
+                  <span>Student</span>
                 </span>
               </h2>
-              <div className="student-id">
-                <i className="fas fa-id-card"></i>
+              <div className={styles.studentId}>
+                <Clipboard size={16} />
                 <span>Maatram ID: {studentInfo.maatramId || 'Not assigned'}</span>
               </div>
             </div>
             
-            <div className="info-grid">
-              <div className="info-item">
-                <i className="fas fa-university"></i>
+            <div className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <Building size={20} />
                 <div>
                   <label>College</label>
                   <p>{studentInfo.collegeName || 'Not specified'}</p>
                 </div>
               </div>
-              <div className="info-item">
-                <i className="fas fa-graduation-cap"></i>
+              <div className={styles.infoItem}>
+                <GraduationCap size={20} />
                 <div>
                   <label>Program</label>
                   <p>{studentInfo.program || 'Not specified'}</p>
                 </div>
               </div>
-              <div className="info-item">
-                <i className="fas fa-building"></i>
+              <div className={styles.infoItem}>
+                <Users size={20} />
                 <div>
                   <label>Department</label>
                   <p>{studentInfo.department || 'Not specified'}</p>
                 </div>
               </div>
-              <div className="info-item">
-                <i className="fas fa-calendar-alt"></i>
+              <div className={styles.infoItem}>
+                <Calendar size={20} />
                 <div>
                   <label>Batch</label>
                   <p>{studentInfo.batchYear || 'Not specified'}</p>
@@ -322,72 +512,74 @@ const StudentProfile = ({ loginData }) => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="profile-form">
-          <div className="form-sections">
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formSections}>
             {/* Personal Information Section */}
-            <div className="form-section">
-              <div className="section-header">
-                <i className="fas fa-user-circle"></i>
+            <div className={styles.formSection}>
+              <div className={styles.sectionHeader}>
+                <User size={20} />
                 <h3>Personal Information</h3>
               </div>
-              <div className="form-grid">
-                <div className="form-group">
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
                   <label>
-                    Full Name <span className="required">*</span>
-                    {errors.studentName && <span className="error-text"> - {errors.studentName}</span>}
+                    Full Name <span className={styles.required}>*</span>
+                    {errors.name && <span className={styles.errorText}> - {errors.name}</span>}
                   </label>
                   <input
                     type="text"
-                    name="studentName"
-                    value={studentInfo.studentName}
+                    name="name"
+                    value={studentInfo.name}
                     onChange={handleChange}
                     placeholder="Enter your full name"
-                    className={errors.studentName ? 'error-input' : ''}
-                    required
+                    className={`${styles.input} ${errors.name ? styles.error : ''}`}
+                    disabled={!isEditing}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>Date of Birth</label>
-                  <div className="input-with-icon">
-                    <i className="fas fa-calendar"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Calendar size={18} />
                     <input
                       type="date"
                       name="dateOfBirth"
                       value={studentInfo.dateOfBirth}
                       onChange={handleChange}
+                      className={styles.input}
+                      disabled={!isEditing}
                     />
                   </div>
-                  <div className="field-info">Pre-filled from login</div>
+                  <div className={styles.fieldInfo}>Pre-filled from login</div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Email Address <span className="required">*</span>
-                    {errors.email && <span className="error-text"> - {errors.email}</span>}
+                    Email Address <span className={styles.required}>*</span>
+                    {errors.email && <span className={styles.errorText}> - {errors.email}</span>}
                   </label>
-                  <div className="input-with-icon">
-                    <i className="fas fa-envelope"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Mail size={18} />
                     <input
                       type="email"
                       name="email"
                       value={studentInfo.email}
                       onChange={handleChange}
                       placeholder="student@college.edu"
-                      className={errors.email ? 'error-input' : ''}
-                      required
+                      className={`${styles.input} ${errors.email ? styles.error : ''}`}
+                      disabled={!isEditing}
                     />
                   </div>
-                  <div className="field-info">Pre-filled from login</div>
+                  <div className={styles.fieldInfo}>Pre-filled from login</div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Phone Number <span className="required">*</span>
-                    {errors.phoneNumber && <span className="error-text"> - {errors.phoneNumber}</span>}
+                    Phone Number <span className={styles.required}>*</span>
+                    {errors.phoneNumber && <span className={styles.errorText}> - {errors.phoneNumber}</span>}
                   </label>
-                  <div className="input-with-icon">
-                    <i className="fas fa-phone"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Phone size={18} />
                     <input
                       type="tel"
                       name="phoneNumber"
@@ -397,8 +589,8 @@ const StudentProfile = ({ loginData }) => {
                         handleChange({ target: { name: 'phoneNumber', value: formatted } });
                       }}
                       placeholder="(123) 456-7890"
-                      className={errors.phoneNumber ? 'error-input' : ''}
-                      required
+                      className={`${styles.input} ${errors.phoneNumber ? styles.error : ''}`}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
@@ -406,31 +598,31 @@ const StudentProfile = ({ loginData }) => {
             </div>
 
             {/* Academic Information Section */}
-            <div className="form-section">
-              <div className="section-header">
-                <i className="fas fa-graduation-cap"></i>
+            <div className={styles.formSection}>
+              <div className={styles.sectionHeader}>
+                <GraduationCap size={20} />
                 <h3>Academic Information</h3>
               </div>
-              <div className="form-grid">
-                <div className="form-group">
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
                   <label>Maatram ID</label>
-                  <div className="input-with-icon">
-                    <i className="fas fa-id-card"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Clipboard size={18} />
                     <input
                       type="text"
                       name="maatramId"
                       value={studentInfo.maatramId}
                       readOnly
-                      className="readonly-input"
+                      className={`${styles.input} ${styles.readonly}`}
                     />
                   </div>
-                  <div className="field-info">Pre-filled from login (Read-only)</div>
+                  <div className={styles.fieldInfo}>Pre-filled from login (Read-only)</div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    College/University <span className="required">*</span>
-                    {errors.collegeName && <span className="error-text"> - {errors.collegeName}</span>}
+                    College/University <span className={styles.required}>*</span>
+                    {errors.collegeName && <span className={styles.errorText}> - {errors.collegeName}</span>}
                   </label>
                   <input
                     type="text"
@@ -438,46 +630,43 @@ const StudentProfile = ({ loginData }) => {
                     value={studentInfo.collegeName}
                     onChange={handleChange}
                     placeholder="Enter your college/university name"
-                    className={errors.collegeName ? 'error-input' : ''}
-                    required
+                    className={`${styles.input} ${errors.collegeName ? styles.error : ''}`}
+                    disabled={!isEditing}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Batch Year <span className="required">*</span>
-                    {errors.batchYear && <span className="error-text"> - {errors.batchYear}</span>}
+                    Batch Year <span className={styles.required}>*</span>
+                    {errors.batchYear && <span className={styles.errorText}> - {errors.batchYear}</span>}
                   </label>
                   <select
                     name="batchYear"
                     value={studentInfo.batchYear}
                     onChange={handleChange}
-                    className={errors.batchYear ? 'error-input' : ''}
-                    required
+                    className={`${styles.select} ${errors.batchYear ? styles.error : ''}`}
+                    disabled={!isEditing}
                   >
                     <option value="">Select Batch Year</option>
-                    {Array.from({ length: 10 }, (_, i) => {
-                      const year = new Date().getFullYear() - i;
-                      return (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      );
-                    })}
+                    {batchYears.map(year => (
+                      <option key={year.value} value={year.value}>
+                        {year.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Current Year <span className="required">*</span>
-                    {errors.currentYear && <span className="error-text"> - {errors.currentYear}</span>}
+                    Current Year <span className={styles.required}>*</span>
+                    {errors.currentYear && <span className={styles.errorText}> - {errors.currentYear}</span>}
                   </label>
                   <select
                     name="currentYear"
                     value={studentInfo.currentYear}
                     onChange={handleChange}
-                    className={errors.currentYear ? 'error-input' : ''}
-                    required
+                    className={`${styles.select} ${errors.currentYear ? styles.error : ''}`}
+                    disabled={!isEditing}
                   >
                     <option value="">Select Year</option>
                     <option value="1">1st Year</option>
@@ -488,17 +677,17 @@ const StudentProfile = ({ loginData }) => {
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Current Semester <span className="required">*</span>
-                    {errors.semester && <span className="error-text"> - {errors.semester}</span>}
+                    Current Semester <span className={styles.required}>*</span>
+                    {errors.semester && <span className={styles.errorText}> - {errors.semester}</span>}
                   </label>
                   <select
                     name="semester"
                     value={studentInfo.semester}
                     onChange={handleChange}
-                    className={errors.semester ? 'error-input' : ''}
-                    required
+                    className={`${styles.select} ${errors.semester ? styles.error : ''}`}
+                    disabled={!isEditing}
                   >
                     <option value="">Select Semester</option>
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(sem => (
@@ -509,128 +698,120 @@ const StudentProfile = ({ loginData }) => {
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Program/Degree <span className="required">*</span>
-                    {errors.program && <span className="error-text"> - {errors.program}</span>}
+                    Program/Degree <span className={styles.required}>*</span>
+                    {errors.program && <span className={styles.errorText}> - {errors.program}</span>}
                   </label>
                   <select
                     name="program"
                     value={studentInfo.program}
                     onChange={handleChange}
-                    className={errors.program ? 'error-input' : ''}
-                    required
+                    className={`${styles.select} ${errors.program ? styles.error : ''}`}
+                    disabled={!isEditing}
                   >
                     <option value="">Select Program</option>
-                    <option value="B.Tech">Bachelor of Technology (B.Tech)</option>
-                    <option value="B.E.">Bachelor of Engineering (B.E.)</option>
-                    <option value="B.Sc.">Bachelor of Science (B.Sc.)</option>
-                    <option value="B.A.">Bachelor of Arts (B.A.)</option>
-                    <option value="B.Com">Bachelor of Commerce (B.Com)</option>
-                    <option value="BBA">Bachelor of Business Administration (BBA)</option>
-                    <option value="M.Tech">Master of Technology (M.Tech)</option>
-                    <option value="M.Sc.">Master of Science (M.Sc.)</option>
-                    <option value="MBA">Master of Business Administration (MBA)</option>
-                    <option value="PhD">Doctor of Philosophy (PhD)</option>
+                    {programs.map(program => (
+                      <option key={program.value} value={program.value}>
+                        {program.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Department <span className="required">*</span>
-                    {errors.department && <span className="error-text"> - {errors.department}</span>}
+                    Department <span className={styles.required}>*</span>
+                    {errors.department && <span className={styles.errorText}> - {errors.department}</span>}
                   </label>
                   <select
                     name="department"
                     value={studentInfo.department}
                     onChange={handleChange}
-                    className={errors.department ? 'error-input' : ''}
-                    required
+                    className={`${styles.select} ${errors.department ? styles.error : ''}`}
+                    disabled={!isEditing}
                   >
                     <option value="">Select Department</option>
-                    <option value="Computer Science">Computer Science & Engineering</option>
-                    <option value="Electronics">Electronics & Communication Engineering</option>
-                    <option value="Mechanical">Mechanical Engineering</option>
-                    <option value="Civil">Civil Engineering</option>
-                    <option value="Electrical">Electrical Engineering</option>
-                    <option value="Information Technology">Information Technology</option>
-                    <option value="Artificial Intelligence">Artificial Intelligence</option>
-                    <option value="Data Science">Data Science</option>
-                    <option value="Business Administration">Business Administration</option>
-                    <option value="Commerce">Commerce</option>
-                    <option value="Science">Science</option>
-                    <option value="Arts">Arts</option>
-                    <option value="Law">Law</option>
-                    <option value="Medicine">Medicine</option>
+                    {departments.map(dept => (
+                      <option key={dept} value={dept}>
+                        {dept}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
             </div>
 
             {/* Contact & Social Information */}
-            <div className="form-section">
-              <div className="section-header">
-                <i className="fas fa-address-book"></i>
+            <div className={styles.formSection}>
+              <div className={styles.sectionHeader}>
+                <BookOpen size={20} />
                 <h3>Contact & Social Profiles</h3>
               </div>
-              <div className="form-grid">
-                <div className="form-group full-width">
+              <div className={styles.formGrid}>
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label>
-                    Residential Address <span className="required">*</span>
-                    {errors.address && <span className="error-text"> - {errors.address}</span>}
+                    Residential Address <span className={styles.required}>*</span>
+                    {errors.address && <span className={styles.errorText}> - {errors.address}</span>}
                   </label>
-                  <div className="textarea-container">
-                    <i className="fas fa-home"></i>
+                  <div className={styles.textareaContainer}>
+                    <Home size={18} />
                     <textarea
                       name="address"
                       value={studentInfo.address}
                       onChange={handleChange}
                       placeholder="Enter your complete address including street, city, state, and PIN code"
                       rows="3"
-                      className={errors.address ? 'error-input' : ''}
-                      required
+                      className={`${styles.textarea} ${errors.address ? styles.error : ''}`}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>LinkedIn Profile</label>
-                  <div className="input-with-icon">
-                    <i className="fab fa-linkedin"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Linkedin size={18} />
                     <input
                       type="url"
                       name="linkedinId"
                       value={studentInfo.linkedinId}
                       onChange={handleChange}
                       placeholder="https://linkedin.com/in/yourprofile"
+                      className={styles.input}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>GitHub Profile</label>
-                  <div className="input-with-icon">
-                    <i className="fab fa-github"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Github size={18} />
                     <input
                       type="url"
                       name="githubId"
                       value={studentInfo.githubId}
                       onChange={handleChange}
                       placeholder="https://github.com/yourusername"
+                      className={styles.input}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>Portfolio/Other</label>
-                  <div className="input-with-icon">
-                    <i className="fas fa-globe"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Web size={18} />
                     <input
                       type="url"
                       name="otherProfile"
                       value={studentInfo.otherProfile || ''}
                       onChange={handleChange}
                       placeholder="https://yourportfolio.com"
+                      className={styles.input}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
@@ -638,128 +819,133 @@ const StudentProfile = ({ loginData }) => {
             </div>
 
             {/* Resume Upload Section */}
-            <div className="form-section">
-              <div className="section-header">
-                <i className="fas fa-file-alt"></i>
+            <div className={styles.formSection}>
+              <div className={styles.sectionHeader}>
+                <FileText size={20} />
                 <h3>Resume/CV</h3>
               </div>
-              <div className="resume-section">
-                <div className="resume-upload-area">
+              <div className={styles.resumeSection}>
+                <div className={styles.resumeUploadArea}>
                   {resumePreview ? (
-                    <div className="resume-preview-card">
-                      <div className="resume-header">
-                        <i className="fas fa-file-pdf"></i>
-                        <div className="resume-info">
+                    <div className={styles.resumePreview}>
+                      <div className={styles.resumeHeader}>
+                        <FileType size={24} />
+                        <div className={styles.resumeInfo}>
                           <h4>Your Resume</h4>
                           <p>PDF Document • {new Date().toLocaleDateString()}</p>
                         </div>
-                        <div className="resume-actions">
+                        <div className={styles.resumeActions}>
                           <a 
                             href={resumePreview} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="view-btn"
+                            className={styles.viewButton}
                           >
-                            <i className="fas fa-eye"></i> View
+                            <Eye size={16} /> View
                           </a>
-                          <button 
-                            type="button"
-                            className="remove-resume-btn"
-                            onClick={removeResume}
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
+                          {isEditing && (
+                            <button 
+                              type="button"
+                              className={styles.removeButton}
+                              onClick={removeResume}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="resume-upload-prompt">
-                      <div className="upload-icon">
-                        <i className="fas fa-cloud-upload-alt"></i>
+                    <div className={styles.uploadPrompt}>
+                      <div className={styles.uploadIcon}>
+                        <Upload size={32} />
                       </div>
-                      <div className="upload-text">
+                      <div className={styles.uploadText}>
                         <h4>Upload your resume</h4>
                         <p>Drag & drop or click to browse</p>
-                        <p className="file-info">PDF only • Max 5MB</p>
+                        <p className={styles.fileInfo}>PDF only • Max 5MB</p>
                       </div>
                     </div>
                   )}
                   
-                  <label className="resume-upload-btn">
-                    <i className="fas fa-upload"></i>
-                    {resumePreview ? 'Change Resume' : 'Upload Resume'}
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleResumeUpload}
-                      style={{ display: 'none' }}
-                    />
-                  </label>
+                  {isEditing && (
+                    <label className={styles.uploadButton}>
+                      <Upload size={16} />
+                      {resumePreview ? 'Change Resume' : 'Upload Resume'}
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleResumeUpload}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                  )}
                   
                   {errors.resumeImage && (
-                    <div className="error-message">{errors.resumeImage}</div>
+                    <div className={styles.errorMessage}>
+                      <AlertCircle size={14} />
+                      <span>{errors.resumeImage}</span>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="form-footer">
-            <div className="form-actions">
+          <div className={styles.formFooter}>
+            <div className={styles.formActions}>
               {!isEditing ? (
                 <button 
                   type="button" 
-                  className="edit-btn"
+                  className={styles.editButton}
                   onClick={handleEdit}
                 >
-                  <i className="fas fa-edit"></i> Edit Profile
+                  <Edit2 size={16} /> Edit Profile
                 </button>
               ) : (
                 <>
                   <button 
                     type="button" 
-                    className="cancel-btn"
+                    className={styles.cancelButton}
                     onClick={handleCancel}
                   >
-                    <i className="fas fa-times"></i> Cancel
+                    <X size={16} /> Cancel
                   </button>
                   <button 
                     type="submit" 
-                    className="submit-btn"
+                    className={styles.submitButton}
                     disabled={loading}
                   >
                     {loading ? (
                       <>
-                        <i className="fas fa-spinner fa-spin"></i> Saving...
+                        <Loader2 size={16} className={styles.spinner} /> Saving...
                       </>
                     ) : (
                       <>
-                        <i className="fas fa-save"></i> Save Changes
+                        <Save size={16} /> Save Changes
                       </>
                     )}
                   </button>
                 </>
               )}
             </div>
-            <div className="form-help">
-              <p>
-                <i className="fas fa-info-circle"></i>
-                Fields marked with <span className="required">*</span> are required
-              </p>
+            <div className={styles.formHelp}>
+              <Info size={16} />
+              <p>Fields marked with <span className={styles.required}>*</span> are required</p>
             </div>
           </div>
         </form>
       </div>
 
-      <footer className="profile-footer">
-        <div className="footer-content">
-          <div className="footer-logo">
-            <i className="fas fa-graduation-cap"></i>
+      <footer className={styles.footer}>
+        <div className={styles.footerContent}>
+          <div className={styles.footerLogo}>
+            <GraduationCap size={20} />
             <span>Student Portal</span>
           </div>
-          <p className="copyright">© 2024 Student Profile System. All rights reserved.</p>
-          <p className="support">
-            <i className="fas fa-headset"></i>
+          <p className={styles.copyright}>© 2024 Student Profile System. All rights reserved.</p>
+          <p className={styles.support}>
+            <Headphones size={16} />
             Need help? Contact support: support@studentportal.edu
           </p>
         </div>

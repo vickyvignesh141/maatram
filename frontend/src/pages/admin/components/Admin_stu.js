@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import baseurl from "../../../baseurl";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -145,7 +146,7 @@ const AdminUsers = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost:5000/api/admin/users")
+      .get(`${baseurl}/admin/users`)
       .then((res) => {
         const fetchedUsers = res.data.data;
         setAllUsers(fetchedUsers); // Store all users
