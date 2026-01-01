@@ -84,36 +84,31 @@ def save_student_profile():
     if not username:
         return jsonify({"success": False, "msg": "Username required"}), 400
 
-    # Fetch existing user from DB
+    # Fetch existing user
     user = users_collection.find_one({"username": username})
 
-    # ---- DELETE RESUME IF REQUESTED ----
+    # ==== DELETE RESUME IF REQUESTED ====
     remove_resume = data.get("removeResume") == "true"
     if remove_resume and user and user.get("resumeImage"):
         resume_path = os.path.join(PROJECT_ROOT, user["resumeImage"])
+        if os.path.exists(resume_path):
+            os.remove(resume_path)
 
-    # Delete resume file from server
-    if os.path.exists(resume_path):
-        os.remove(resume_path)
+        # Remove field in MongoDB
+        users_collection.update_one(
+            {"username": username},
+            {"$unset": {"resumeImage": ""}}
+        )
 
-    # Remove resumeImage field from MongoDB
-    users_collection.update_one(
-        {"username": user["username"]},
-        {"$unset": {"resumeImage": ""}}
-    )
-
-
-    
-
-    # ---- UPLOAD NEW PROFILE IMAGE ----
+    # ==== UPLOAD PROFILE IMAGE ====
     profile_image = request.files.get("profileImage")
     if profile_image:
-        saved = save_uploaded_file(profile_image, "profile_images", username, ALLOWED_IMAGE_EXT)
-        if not saved:
+        saved_profile = save_uploaded_file(profile_image, "profile_images", username, ALLOWED_IMAGE_EXT)
+        if not saved_profile:
             return jsonify({"success": False, "msg": "Invalid profile image"}), 400
-        data["profileImage"] = saved
+        data["profileImage"] = saved_profile
 
-    # ---- UPLOAD NEW RESUME ----
+    # ==== UPLOAD RESUME ====
     resume = request.files.get("resumeImage")
     if resume:
         saved_resume = save_uploaded_file(resume, "resumes", username, ALLOWED_DOC_EXT)
@@ -121,7 +116,11 @@ def save_student_profile():
             return jsonify({"success": False, "msg": "Invalid resume file"}), 400
         data["resumeImage"] = saved_resume
 
-    # Save other fields: data already contains all form fields (strings)
+    # ==== UPDATE OTHER FIELDS ====
+    # Remove 'removeResume' key if present
+    data.pop("removeResume", None)
+
+    # Save all fields to MongoDB (upsert: create if not exists)
     users_collection.update_one(
         {"username": username},
         {"$set": data},
@@ -129,7 +128,6 @@ def save_student_profile():
     )
 
     return jsonify({"success": True, "msg": "Profile saved successfully", "data": data}), 200
-
 
 
 # Serve uploaded files (images/resumes) at: GET /uploads/<path:filepath>
