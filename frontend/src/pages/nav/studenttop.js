@@ -89,7 +89,7 @@ console.log("sTUDENTTOP",student);
             </div>
             <div className="user-details">
               <h4 className="user-name">{student.name}</h4>
-              <p className="user-id">{student.id}</p>
+              <p className="user-id">{student.username}</p>
             </div>
             <ChevronDown 
               size={20} 

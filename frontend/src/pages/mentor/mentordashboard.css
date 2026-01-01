@@ -1,8 +1,9 @@
 /* Mentor Dashboard CSS - Scoped to prevent conflicts */
 .mentor-dashboard {
-  --primary-color: #4361ee;
+  --primary-color: #1e3a8a;
+  
   --primary-light: #eef2ff;
-  --secondary-color: #3a0ca3;
+  --secondary-color: #2e6be6;
   --success-color: #4cc9f0;
   --warning-color: #f8961e;
   --danger-color: #f72585;

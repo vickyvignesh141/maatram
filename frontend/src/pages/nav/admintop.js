@@ -81,7 +81,7 @@ export default function Admintop() {
             </div>
             <div className="user-details">
               <h4 className="user-name">{Admin.name}</h4>
-              <p className="user-id">{Admin.id}</p>
+              <p className="user-id">{Admin.username}</p>
             </div>
             <ChevronDown 
               size={20} 

@@ -10,6 +10,7 @@ import StudentQuiz from "./pages/student/components/Quiz";
 import StudyMaterial from "./pages/student/components/studymaterial";
 import StudentProgress from "./pages/student/components/studentprogress";
 import StudentWallet from "./pages/student/components/Wallets";
+import Studentbooklet from "./pages/student/components/Stu_Bookmark";
 
 
 import MentorDashboard from "./pages/mentor/Mentordashboard";
@@ -45,6 +46,8 @@ function App() {
         <Route path="/student/study-material" element={<StudyMaterial />} />
         <Route path="/student/update-progress" element={<StudentProgress />} />
         <Route path="/student/wallet" element={<StudentWallet />} />
+        <Route path="/student/bookmarks" element={<Studentbooklet />} />
+
 
 
 

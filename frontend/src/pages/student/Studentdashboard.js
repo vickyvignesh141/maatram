@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import baseurl from "../../baseurl";
 import StudentTopBar from "../nav/studenttop";
-import "./StudentDashboard.css";
 import { useParams } from "react-router-dom";
-
+import styles from "./StudentDashboard.module.css";
 
 import { 
   BookOpen, 
@@ -99,17 +98,11 @@ export default function StudentDashboard() {
 
 
     { name: "Analytics", icon: <BarChart2 size={20} />, route: "/view-graph" },
-    { name: "Bookmarks", icon: <Bookmark size={20} />, route: "/bookmarks" },
+    { name: "Bookmarks", icon: <Bookmark size={20} />, route: "/student/bookmarks" },
     { name: "Community", icon: <Users size={20} />, route: "/community" },
   ];
 
-  // Upcoming tasks
-  const upcomingTasks = [
-    { title: "Complete Module 5 Quiz", due: "Today", subject: "Mathematics" },
-    { title: "Submit Assignment", due: "Tomorrow", subject: "Physics" },
-    { title: "Weekly Progress Review", due: "In 2 days", subject: "General" },
-  ];
-
+  
   const handleNavigation = (route) => {
     window.location.href = route;
   };
@@ -124,166 +117,113 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="student-dashboard">
-      <StudentTopBar />
+<div className={styles.studentDashboard}>
+  <StudentTopBar />
 
-      <div className="dashboard-container">
-        {/* Welcome Section */}
-        <div className="welcome-section">
-          <div className="welcome-content">
-            <h1>Welcome back, <span className="highlight">{data.name}</span>!</h1>
-            <p className="subtitle">Here's your learning progress for today</p>
+  <div className={styles.dashboardContainer}>
+    {/* Welcome Section */}
+    <div className={styles.welcomeSection}>
+      <div className={styles.welcomeContent}>
+        <h1>
+          Welcome back, <span className={styles.highlight}>{data.name}</span>!
+        </h1>
+        <p className={styles.subtitle}>Here's your learning progress</p>
+      </div>
+
+      <div className={styles.dateDisplay}>
+        <Calendar size={20} />
+        <span>
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </span>
+      </div>
+    </div>
+
+    {/* Section Header */}
+    <div className={styles.sectionHeader}>
+      <h2>Quick Access</h2>
+    </div>
+
+    {/* Main Actions */}
+    <div className={styles.mainActionsGrid}>
+      {mainActions.map((action, index) => (
+        <div
+          key={index}
+          className={styles.mainActionCard}
+          onClick={() => handleNavigation(action.route)}
+          style={{ "--card-color": action.color, "--card-bg": action.bgColor }}
+        >
+          <div
+            className={styles.actionIcon}
+            style={{ backgroundColor: action.bgColor, color: action.color }}
+          >
+            {action.icon}
           </div>
-          <div className="date-display">
-            <Calendar size={20} />
-            <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          <h3>{action.name}</h3>
+          <p>{action.description}</p>
+          <div className={styles.actionArrow}>
+            <ChevronRight size={20} />
           </div>
         </div>
+      ))}
+    </div>
 
-        {/* Main Actions */}
-        <div className="section-header">
-          <h2>Quick Access</h2>
-          <p>Jump to your most important features</p>
-        </div>
+    <div className={styles.dashboardColumns}>
+      {/* Left Column */}
+      <div className={styles.leftColumn}>
+        <div className={styles.quickActionsCard}>
+          <h3>Quick Actions</h3>
 
-        <div className="main-actions-grid">
-          {mainActions.map((action, index) => (
-            <div 
-              key={index}
-              className="main-action-card"
-              onClick={() => handleNavigation(action.route)}
-              style={{ '--card-color': action.color, '--card-bg': action.bgColor }}
-            >
-              <div className="action-icon" style={{ backgroundColor: action.bgColor, color: action.color }}>
-                {action.icon}
-              </div>
-              <h3>{action.name}</h3>
-              <p>{action.description}</p>
-              <div className="action-arrow">
-                <ChevronRight size={20} />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="dashboard-columns">
-          {/* Left Column - Quick Actions & Tasks */}
-          <div className="left-column">
-            {/* Quick Actions */}
-            <div className="quick-actions-card">
-              <h3>Quick Actions</h3>
-              <div className="quick-actions-grid">
-                {quickActions.map((action, index) => (
-                  <button 
-                    key={index}
-                    className="quick-action-btn"
-                    onClick={() => handleNavigation(action.route)}
-                  >
-                    <div className="quick-action-icon">
-                      {action.icon}
-                    </div>
-                    <span>{action.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Upcoming Tasks */}
-            <div className="tasks-card">
-              <div className="tasks-header">
-                <h3>Upcoming Tasks</h3>
-                <a href="/tasks" className="view-all">View All <ExternalLink size={16} /></a>
-              </div>
-              <div className="tasks-list">
-                {upcomingTasks.map((task, index) => (
-                  <div key={index} className="task-item">
-                    <div className="task-info">
-                      <h4>{task.title}</h4>
-                      <p className="task-subject">{task.subject}</p>
-                    </div>
-                    <div className="task-due">
-                      <span className={`due-badge ${task.due === 'Today' ? 'urgent' : ''}`}>
-                        {task.due}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className={styles.quickActionsGrid}>
+            {quickActions.map((action, index) => (
+              <button
+                key={index}
+                className={styles.quickActionBtn}
+                onClick={() => handleNavigation(action.route)}
+              >
+                <div className={styles.quickActionIcon}>{action.icon}</div>
+                <span>{action.name}</span>
+              </button>
+            ))}
           </div>
+        </div>
+      </div>
 
-          {/* Right Column - Recent Activity */}
-          <div className="right-column">
-            <div className="recent-activity-card">
-              <div className="activity-header">
-                <h3>Recent Activity</h3>
-                <a href="/activity" className="view-all">View All <ExternalLink size={16} /></a>
-              </div>
-              <div className="activity-list">
-                <div className="activity-item">
-                  <div className="activity-icon completed">
-                    <ClipboardCheck size={18} />
-                  </div>
-                  <div className="activity-content">
-                    <p>Completed "Algebra Basics" quiz</p>
-                    <span className="activity-time">2 hours ago</span>
-                  </div>
-                </div>
-                <div className="activity-item">
-                  <div className="activity-icon downloaded">
-                    <Download size={18} />
-                  </div>
-                  <div className="activity-content">
-                    <p>Downloaded Physics study material</p>
-                    <span className="activity-time">Yesterday</span>
-                  </div>
-                </div>
-                <div className="activity-item">
-                  <div className="activity-icon updated">
-                    <Edit size={18} />
-                  </div>
-                  <div className="activity-content">
-                    <p>Updated weekly progress</p>
-                    <span className="activity-time">2 days ago</span>
-                  </div>
-                </div>
-                <div className="activity-item">
-                  <div className="activity-icon achievement">
-                    <Award size={18} />
-                  </div>
-                  <div className="activity-content">
-                    <p>Earned "Math Wizard" badge</p>
-                    <span className="activity-time">3 days ago</span>
-                  </div>
-                </div>
-              </div>
+      {/* Right Column */}
+      <div className={styles.rightColumn}>
+        <div className={styles.studentInfoCard}>
+          <h3>Your Information</h3>
+
+          <div className={styles.infoGrid}>
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>Student ID</span>
+              <span className={styles.infoValue}>{data.username}</span>
             </div>
 
-            {/* Student Info Card */}
-            <div className="student-info-card">
-              <h3>Your Information</h3>
-              <div className="info-grid">
-                <div className="info-item">
-                  <span className="info-label">Student ID</span>
-                  <span className="info-value">{data.id}</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">Contact</span>
-                  <span className="info-value">{data.phno}</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">Course</span>
-                  <span className="info-value">Science Stream</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">Mentor</span>
-                  <span className="info-value">Dr. Sharma</span>
-                </div>
-              </div>
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>Contact</span>
+              <span className={styles.infoValue}>{data.phno}</span>
+            </div>
+
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>Course</span>
+              <span className={styles.infoValue}>Engineering</span>
+            </div>
+
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>Mentor</span>
+              <span className={styles.infoValue}>Esakki Rajan</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
   );
 }
