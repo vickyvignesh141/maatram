@@ -81,7 +81,7 @@ export default function MentorTopy() {
             </div>
             <div className="user-details">
               <h4 className="user-name">{mentor.name}</h4>
-              <p className="user-id">{mentor.id}</p>
+              <p className="user-id">{mentor.username}</p>
             </div>
             <ChevronDown 
               size={20} 
