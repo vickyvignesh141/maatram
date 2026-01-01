@@ -1,24 +1,41 @@
-import React, { useEffect, useState } from "react";
-import baseurl from "../../baseurl";
-import { User, ChevronDown, Bell, Settings, LogOut } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { 
+  UserCircle, 
+  ChevronDown, 
+  Bell, 
+  LogOut, 
+  Camera, 
+  Trash2, 
+  CheckCircle 
+} from "lucide-react";
 import logo from "../../imgs/logo.png";
-import "./StudentTopBar.css"; // Create this CSS file
+import BASE_URL from "../../baseurl";
+import "./StudentTopBar.css"; // Changed from styles import
 
 export default function StudentTopBar() {
   const [student, setStudent] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notifications, setNotifications] = useState(3); // Mock notifications count
-console.log("sTUDENTTOP",student);
+  const [notifications] = useState(3);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  // Fetch student data
   useEffect(() => {
     const username = localStorage.getItem("loggedUser");
-    if (username) {
-      fetch(`${baseurl}/get_student/${username}`)
-        .then((res) => res.json())
-        .then((json) => {
-          if (json.success) setStudent(json.data);
-        })
-        .catch(() => console.log("Error fetching student data"));
-    }
+    if (!username) return;
+
+    fetch(`${BASE_URL}/get_student/${username}`)
+      .then(res => res.json())
+      .then(json => {
+        if (json.success) {
+          setStudent(json.data);
+
+          // Set frontend-only image preview with cache busting
+          if (json.data.profileImage) {
+            setImagePreview(`${BASE_URL}/uploads/${json.data.profileImage}?t=${Date.now()}`);
+          }
+        }
+      })
+      .catch(() => console.log("Error fetching student data"));
   }, []);
 
   const handleLogout = () => {
@@ -26,111 +43,114 @@ console.log("sTUDENTTOP",student);
     window.location.href = "/login";
   };
 
+  const removeProfileImage = () => {
+    setImagePreview(null);
+    setStudent(prev => ({
+      ...prev,
+      profileImage: null
+    }));
+  };
+
   if (!student) {
     return (
-      <div className="topbar-skeleton">
-        <div className="skeleton-logo"></div>
-        <div className="skeleton-user">
-          <div className="skeleton-avatar"></div>
-          <div className="skeleton-details">
-            <div className="skeleton-name"></div>
-            <div className="skeleton-info"></div>
-          </div>
+      <div className="topbarSkeleton">
+        <div className="skeletonLogo"></div>
+        <div className="skeletonUser">
+          <div className="skeletonAvatar"></div>
+          <div className="skeletonDetails"></div>
         </div>
       </div>
     );
   }
 
-  console.log(`${baseurl}/${student.profileImage}`);
-
-
   return (
-    <div className="student-topbar">
+    <div className="topbar">
       {/* Logo Section */}
-      <div className="topbar-logo-section">
-        <img src={logo} alt="Maatram Logo" className="topbar-logo" />
-        <div className="logo-text">
-          <h2 className="app-name">Student Dashboard</h2>
-          {/* <p className="app-subtitle">Student Dashboard</p> */}
-        </div>
+      <div className="logoSection">
+        <img src={logo} alt="Logo" className="logo" />
+        <h2 className="appName">Student Dashboard</h2>
       </div>
 
       {/* Right Section */}
-      <div className="topbar-right-section">
+      <div className="rightSection">
         {/* Notifications */}
-        <div className="notification-wrapper">
-          <button className="notification-btn">
-            <Bell size={22} />
-            {notifications > 0 && (
-              <span className="notification-badge">{notifications}</span>
-            )}
-          </button>
-        </div>
+        <button className="notificationBtn">
+          <Bell size={22} />
+          {notifications > 0 && <span className="notificationBadge">{notifications}</span>}
+        </button>
 
         {/* User Profile */}
-        <div className="user-profile-wrapper">
-          <div 
-            className="user-profile"
+        <div className="userProfileWrapper">
+          <div
+            className="userProfile"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-            <div className="user-avatar">
-{student.profileImage ? (
-  <img
-    src={`${baseurl}/${student.profileImage}`}
-    alt={student.name}
-    className="avatar-image"
-  />
-) : (
-  <div className="avatar-fallback">
-    <User size={24} />
-  </div>
-)}
+            <div className="avatarContainer">
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt={student.name}
+                  className="avatarImage"
+                  onError={() => setImagePreview(null)}
+                />
+              ) : (
+                <UserCircle size={28} />
+              )}
 
+              {/* Optional: Remove button */}
+              {imagePreview && (
+                <button className="removeImageBtn" onClick={(e) => {
+                  e.stopPropagation();
+                  removeProfileImage();
+                }}>
+                  <Trash2 size={16} />
+                </button>
+              )}
+
+              {/* Optional: Upload button */}
+              {/* <label className="uploadOverlay">
+                <Camera size={16} />
+                <input type="file" accept="image/*" hidden />
+              </label> */}
             </div>
-            <div className="user-details">
-              <h4 className="user-name">{student.name}</h4>
-              <p className="user-id">{student.username}</p>
+
+            <div className="userDetails">
+              <h4 className="userName">{student.name}</h4>
+              <p className="userId">{student.username}</p>
             </div>
-            <ChevronDown 
-              size={20} 
-              className={`dropdown-icon ${dropdownOpen ? 'rotated' : ''}`}
+
+            <ChevronDown
+              size={20}
+              className={`dropdownIcon ${dropdownOpen ? 'rotated' : ''}`}
             />
           </div>
 
-          {/* Dropdown Menu */}
           {dropdownOpen && (
-            <div className="dropdown-menu">
-              <div className="dropdown-header">
-                <div className="dropdown-avatar">
-                  {student.profileImage ? (
-                    <img src={student.profileImage} alt={student.name} />
+            <div className="dropdownMenu">
+              <div className="dropdownHeader">
+                <div className="dropdownAvatar">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt={student.name} className="avatarImage" />
                   ) : (
-                    <User size={20} />
+                    <UserCircle size={24} />
                   )}
                 </div>
                 <div>
-                  <p className="dropdown-name">{student.name}</p>
-                  <p className="dropdown-email">{student.phno}</p>
+                  <p className="dropdownName">{student.name}</p>
+                  <p className="dropdownEmail">{student.phno || "N/A"}</p>
                 </div>
               </div>
-              
-              <div className="dropdown-divider"></div>
-              
-              <a href="/student/profile" className="dropdown-item">
-                <User size={18} />
-                <span>My Profile</span>
+
+              <div className="dropdownDivider"></div>
+
+              <a href="/student/profile" className="dropdownItem">
+                <UserCircle size={18} /> <span>My Profile</span>
               </a>
-              
-              {/* <a href="/student/settings" className="dropdown-item">
-                <Settings size={18} />
-                <span>Settings</span>
-              </a> */}
-              
-              <div className="dropdown-divider"></div>
-              
-              <button onClick={handleLogout} className="dropdown-item logout">
-                <LogOut size={18} />
-                <span>Logout</span>
+
+              <div className="dropdownDivider"></div>
+
+              <button onClick={handleLogout} className="dropdownItemLogout">
+                <LogOut size={18} /> <span>Logout</span>
               </button>
             </div>
           )}

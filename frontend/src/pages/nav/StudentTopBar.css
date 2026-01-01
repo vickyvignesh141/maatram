@@ -1,3 +1,5 @@
+/* StudentTopBar.css */
+
 :root {
   --accent: #1e3a8a;
   --accent-2: #2e6be6;
@@ -18,7 +20,7 @@
 }
 
 /* Main Topbar */
-.student-topbar {
+.topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -33,24 +35,18 @@
 }
 
 /* Logo Section */
-.topbar-logo-section {
+.logoSection {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.topbar-logo {
+.logo {
   height: 70px;
   width: auto;
-  /* filter: brightness(0) invert(1); */
 }
 
-.logo-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.app-name {
+.appName {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
@@ -60,25 +56,15 @@
   background-clip: text;
 }
 
-.app-subtitle {
-  font-size: 0.8rem;
-  opacity: 0.9;
-  margin: 0;
-}
-
 /* Right Section */
-.topbar-right-section {
+.rightSection {
   display: flex;
   align-items: center;
   gap: 1.5rem;
 }
 
 /* Notifications */
-.notification-wrapper {
-  position: relative;
-}
-
-.notification-btn {
+.notificationBtn {
   background: rgba(255, 255, 255, 0.1);
   border: none;
   width: 42px;
@@ -93,12 +79,12 @@
   position: relative;
 }
 
-.notification-btn:hover {
+.notificationBtn:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
 
-.notification-badge {
+.notificationBadge {
   position: absolute;
   top: -2px;
   right: -2px;
@@ -116,11 +102,11 @@
 }
 
 /* User Profile */
-.user-profile-wrapper {
+.userProfileWrapper {
   position: relative;
 }
 
-.user-profile {
+.userProfile {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -132,12 +118,13 @@
   border: 1px solid transparent;
 }
 
-.user-profile:hover {
+.userProfile:hover {
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-.user-avatar {
+/* Avatar Container */
+.avatarContainer {
   width: 42px;
   height: 42px;
   border-radius: 50%;
@@ -146,47 +133,86 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
-.avatar-image {
+.avatarImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.avatar-fallback {
-  color: var(--white);
+.removeImageBtn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: rgba(239, 68, 68, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
-.user-details {
+.avatarContainer:hover .removeImageBtn {
+  opacity: 1;
+}
+
+.uploadOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.uploadOverlay:hover {
+  opacity: 1;
+}
+
+.userDetails {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
 }
 
-.user-name {
+.userName {
   margin: 0;
   font-size: 0.95rem;
   font-weight: 600;
 }
 
-.user-id {
+.userId {
   margin: 0;
   font-size: 0.8rem;
   opacity: 0.9;
 }
 
-.dropdown-icon {
+.dropdownIcon {
   transition: transform 0.3s ease;
   margin-left: 0.5rem;
 }
 
-.dropdown-icon.rotated {
+.dropdownIcon.rotated {
   transform: rotate(180deg);
 }
 
 /* Dropdown Menu */
-.dropdown-menu {
+.dropdownMenu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
@@ -198,7 +224,7 @@
   overflow: hidden;
 }
 
-.dropdown-header {
+.dropdownHeader {
   padding: 1.25rem;
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   color: var(--white);
@@ -207,7 +233,7 @@
   gap: 1rem;
 }
 
-.dropdown-avatar {
+.dropdownAvatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -218,31 +244,25 @@
   justify-content: center;
 }
 
-.dropdown-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.dropdown-name {
+.dropdownName {
   margin: 0;
   font-weight: 600;
   font-size: 1rem;
 }
 
-.dropdown-email {
+.dropdownEmail {
   margin: 0.25rem 0 0 0;
   font-size: 0.85rem;
   opacity: 0.9;
 }
 
-.dropdown-divider {
+.dropdownDivider {
   height: 1px;
   background: var(--gray-200);
   margin: 0.5rem 0;
 }
 
-.dropdown-item {
+.dropdownItem {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -258,21 +278,33 @@
   font-size: 0.95rem;
 }
 
-.dropdown-item:hover {
+.dropdownItem:hover {
   background: var(--gray-100);
   color: var(--accent);
 }
 
-.dropdown-item.logout {
+.dropdownItemLogout {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
   color: #ef4444;
+  text-decoration: none;
+  transition: var(--transition);
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 0.95rem;
 }
 
-.dropdown-item.logout:hover {
+.dropdownItemLogout:hover {
   background: rgba(239, 68, 68, 0.1);
 }
 
 /* Skeleton Loader */
-.topbar-skeleton {
+.topbarSkeleton {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -281,7 +313,7 @@
   height: 70px;
 }
 
-.skeleton-logo {
+.skeletonLogo {
   width: 150px;
   height: 50px;
   background: rgba(255, 255, 255, 0.1);
@@ -289,13 +321,13 @@
   animation: pulse 1.5s infinite;
 }
 
-.skeleton-user {
+.skeletonUser {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.skeleton-avatar {
+.skeletonAvatar {
   width: 42px;
   height: 42px;
   border-radius: 50%;
@@ -303,23 +335,9 @@
   animation: pulse 1.5s infinite;
 }
 
-.skeleton-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.skeleton-name {
+.skeletonDetails {
   width: 120px;
   height: 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  animation: pulse 1.5s infinite;
-}
-
-.skeleton-info {
-  width: 80px;
-  height: 12px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   animation: pulse 1.5s infinite;
@@ -336,35 +354,31 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .student-topbar {
+  .topbar {
     padding: 0.75rem 1rem;
   }
   
-  .app-name {
+  .appName {
     display: none;
   }
   
-  .user-name {
+  .userName {
     display: none;
   }
   
-  .dropdown-menu {
+  .dropdownMenu {
     width: 250px;
     right: -1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .app-subtitle {
-    display: none;
-  }
-  
-  .notification-btn {
+  .notificationBtn {
     width: 36px;
     height: 36px;
   }
   
-  .user-profile {
+  .userProfile {
     padding: 0.25rem;
   }
 }
