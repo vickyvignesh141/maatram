@@ -46,7 +46,6 @@ FALLBACK_TOPICS = {
 }
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-print(GROQ_API_KEY)
 
 class CareerAgent:
     def __init__(self):

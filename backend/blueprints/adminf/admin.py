@@ -7,10 +7,9 @@ admin_bp = Blueprint("admin", __name__)
 client = MongoClient("mongodb://localhost:27017/")
 mongo_db = client["career_guidance_mongo"]
 
-users_collection = mongo_db["users"]
 mentors_collection = mongo_db["mentors"]
-
 admin_collection = mongo_db["admin"]
+users_collection = mongo_db["users"]
 
 @admin_bp.route("/get_admin/<username>", methods=["GET"])
 def get_student(username):

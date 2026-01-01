@@ -34,6 +34,8 @@ import AdminClgMan from "./pages/admin/components/admin_clgmng"
 import AdminAnalytics from "./pages/admin/components/Admin_Viewanly"
 import Adminreport from "./pages/admin/components/admin_report"
 import Adminaddstu from "./pages/admin/components/add_stu"
+import Adminaddmen from "./pages/admin/components/admin_addmen"
+
 function App() {
   return (
     <Router>
@@ -77,6 +79,8 @@ function App() {
         <Route path="admin/analytics" element={<AdminAnalytics/>}/>
         <Route path="admin/reports" element={<Adminreport/>}/>
         <Route path="/admin/students/add" element={<Adminaddstu/>}/>
+        <Route path="/admin/mentors/add" element={<Adminaddmen/>}/>
+        
 
 
         {/* Add more pages here if needed */}
