@@ -8,12 +8,13 @@ from blueprints.students.career_routes import career_bp
 from blueprints.students.subject_test import subject_bp
 from blueprints.students.wallets import wallet_bp
 from blueprints.students.bookmark import student_notes_bp
-
+from blueprints.students.studymat import studymat_bp
 
 
 from blueprints.adminf.admin import admin_bp
 from blueprints.adminf.adminstu import adminstu_bp
 from blueprints.adminf.adminmen import adminmen_bp
+from blueprints.adminf.admin_addmen import addmen_bp
 
 from blueprints.mentors.mentor import mentor_bp
 from blueprints.mentors.studentresult import result_bp
@@ -31,7 +32,7 @@ app.register_blueprint(career_bp, url_prefix="/api/career")
 app.register_blueprint(subject_bp, url_prefix="/api")
 app.register_blueprint(wallet_bp, url_prefix="/api")
 app.register_blueprint(student_notes_bp, url_prefix="/api")
-
+app.register_blueprint(studymat_bp, url_prefix="/study")
 
 app.register_blueprint(mentor_bp, url_prefix="/api")
 app.register_blueprint(result_bp, url_prefix="/api")
@@ -43,6 +44,7 @@ app.register_blueprint(certificate_bp, url_prefix="/api")
 app.register_blueprint(admin_bp,url_prefix="/api")
 app.register_blueprint(adminstu_bp,url_prefix="/api")
 app.register_blueprint(adminmen_bp,url_prefix="/api")
+app.register_blueprint(addmen_bp,url_prefix="/api")
 
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0", port=5000)
