@@ -18,6 +18,7 @@ import MentorStudents from "./pages/mentor/components/TotalStudents"
 import ResultStudent from "./pages/mentor/components/StudentResult"
 import CareerStudent from "./pages/mentor/components/StudentCareer"
 import CertificateStudent from "./pages/mentor/components/StudentCertificate"
+import MenStudentdetails from "./pages/mentor/components/Men_Studetails"
 
 import StudentProfile from "./pages/student/components/StudentProfile"
 
@@ -58,7 +59,8 @@ function App() {
         <Route path="/mentor/student/:student_id/progress" element={<ResultStudent />}/>
         <Route path="/mentor/student/:username/career" element={<CareerStudent />}/>
         <Route path="/mentor/student/:username/certifications" element={<CertificateStudent />}/>
-        
+        <Route path="/mentor/student/:username/profile" element={<MenStudentdetails />}/>
+       
 
 
 
