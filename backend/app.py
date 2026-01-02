@@ -20,6 +20,7 @@ from blueprints.mentors.mentor import mentor_bp
 from blueprints.mentors.studentresult import result_bp
 from blueprints.mentors.studentcareers import careers_bp
 from blueprints.mentors.studentcertificate import certificate_bp
+from blueprints.mentors.studentprofile import studetails_bp
 
 
 app = Flask(__name__)
@@ -38,6 +39,8 @@ app.register_blueprint(mentor_bp, url_prefix="/api")
 app.register_blueprint(result_bp, url_prefix="/api")
 app.register_blueprint(careers_bp, url_prefix="/api")
 app.register_blueprint(certificate_bp, url_prefix="/api")
+app.register_blueprint(studetails_bp, url_prefix="/api")
+
 
 
 
