@@ -1,133 +1,175 @@
-import React, { useEffect, useState } from "react";
-import baseurl from "../../../baseurl";
-import { User, ChevronDown, Bell, Settings, LogOut } from "lucide-react";
-import logo from "../../../imgs/logo.png";
-import "./add_stu"; // Create this CSS file
+// Updated AddStudent.js with improved UI
+import React, { useState } from "react";
+import BASE_URL from "../../../baseurl";
+import "./add_stu.css"; // Import the enhanced CSS
+import Admintop from "../../nav/admintop";
 
-export default function Admintop() {
-  const [Admin, setAdmin] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notifications, setNotifications] = useState(3); // Mock notifications count
+function AddStudent() {
+  const [student, setStudent] = useState({
+    name: "",
+    dob: "",
+    maatramId: "",
+    phone: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const username = localStorage.getItem("loggedUser");
-    if (username) {
-      fetch(`${baseurl}/get_admin/${username}`)
-        .then((res) => res.json())
-        .then((json) => {
-          if (json.success) setAdmin(json.data);
-        })
-        .catch(() => console.log("Error fetching Admin data"));
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "/login";
+  const handleChange = (e) => {
+    setStudent({ ...student, [e.target.name]: e.target.value });
+    // Clear messages when user starts typing
+    if (success) setSuccess(false);
+    if (error) setError("");
   };
 
-  if (!Admin) {
-    return (
-      <div className="topbar-skeleton">
-        <div className="skeleton-logo"></div>
-        <div className="skeleton-user">
-          <div className="skeleton-avatar"></div>
-          <div className="skeleton-details">
-            <div className="skeleton-name"></div>
-            <div className="skeleton-info"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess(false);
+
+    try {
+      const response = await fetch(`${BASE_URL}/add_student`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(student),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess(true);
+        setStudent({
+          name: "",
+          dob: "",
+          maatramId: "",
+          phone: "",
+        });
+        // Auto-hide success message after 3 seconds
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(data.message || "Failed to add student");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setError("Server error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setStudent({
+      name: "",
+      dob: "",
+      maatramId: "",
+      phone: "",
+    });
+    setSuccess(false);
+    setError("");
+  };
 
   return (
-    <div className="Admin-topbar">
-      {/* Logo Section */}
-      <div className="topbar-logo-section">
-        <img src={logo} alt="Maatram Logo" className="topbar-logo" />
-        <div className="logo-text">
-          <h2 className="app-name">Admin Dashboard</h2>
-          {/* <p className="app-subtitle">Admin Dashboard</p> */}
-        </div>
-      </div>
+    <div className="student-container">
+       <Admintop activeTab="assignments" />
+      <form 
+        className={`student-form ${loading ? 'loading' : ''}`} 
+        onSubmit={handleSubmit}
+      >
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
+        
+        <h2>Add Student</h2>
 
-      {/* Right Section */}
-      <div className="topbar-right-section">
-        {/* Notifications */}
-        <div className="notification-wrapper">
-          <button className="notification-btn">
-            <Bell size={22} />
-            {notifications > 0 && (
-              <span className="notification-badge">{notifications}</span>
-            )}
-          </button>
-        </div>
+        {success && (
+          <div className="success-message">
+            Student added successfully!
+          </div>
+        )}
 
-        {/* User Profile */}
-        <div className="user-profile-wrapper">
-          <div 
-            className="user-profile"
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-          >
-            <div className="user-avatar">
-              {Admin.photo ? (
-                <img src={Admin.photo} alt={Admin.name} className="avatar-image" />
-              ) : (
-                <div className="avatar-fallback">
-                  <User size={24} />
-                </div>
-              )}
-            </div>
-            <div className="user-details">
-              <h4 className="user-name">{Admin.name}</h4>
-              <p className="user-id">{Admin.id}</p>
-            </div>
-            <ChevronDown 
-              size={20} 
-              className={`dropdown-icon ${dropdownOpen ? 'rotated' : ''}`}
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
+        <div className="form-grid">
+          <div className="form-group">
+            <label>Student Name</label>
+            <input
+              type="text"
+              name="name"
+              value={student.name}
+              onChange={handleChange}
+              placeholder="Enter student name"
+              required
+              disabled={loading}
             />
           </div>
 
-          {/* Dropdown Menu */}
-          {dropdownOpen && (
-            <div className="dropdown-menu">
-              <div className="dropdown-header">
-                <div className="dropdown-avatar">
-                  {Admin.photo ? (
-                    <img src={Admin.photo} alt={Admin.name} />
-                  ) : (
-                    <User size={20} />
-                  )}
-                </div>
-                <div>
-                  <p className="dropdown-name">{Admin.name}</p>
-                  <p className="dropdown-email">{Admin.phno}</p>
-                </div>
-              </div>
-              
-              <div className="dropdown-divider"></div>
-              
-              <a href="/Admin/profile" className="dropdown-item">
-                <User size={18} />
-                <span>My Profile</span>
-              </a>
-              
-              {/* <a href="/Admin/settings" className="dropdown-item">
-                <Settings size={18} />
-                <span>Settings</span>
-              </a> */}
-              
-              <div className="dropdown-divider"></div>
-              
-              <button onClick={handleLogout} className="dropdown-item logout">
-                <LogOut size={18} />
-                <span>Logout</span>
-              </button>
-            </div>
-          )}
+          <div className="form-group">
+            <label>Date of Birth</label>
+            <input
+              type="date"
+              name="dob"
+              value={student.dob}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Maatram ID</label>
+            <input
+              type="text"
+              name="maatramId"
+              value={student.maatramId}
+              onChange={handleChange}
+              placeholder="Enter Maatram ID"
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Phone Number</label>
+            <input
+              type="tel"
+              name="phone"
+              value={student.phone}
+              onChange={handleChange}
+              placeholder="Enter phone number (optional)"
+              disabled={loading}
+            />
+          </div>
         </div>
-      </div>
+
+        <div className="submit-section">
+          <button 
+            type="button" 
+            className="reset-button"
+            onClick={handleReset}
+            disabled={loading}
+          >
+            Reset Form
+          </button>
+          <button 
+            type="submit" 
+            className="submit-button"
+            disabled={loading}
+          >
+            {loading ? 'Adding...' : 'Add Student'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
+
+export default AddStudent;

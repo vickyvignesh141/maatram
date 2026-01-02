@@ -15,6 +15,7 @@ from blueprints.adminf.admin import admin_bp
 from blueprints.adminf.adminstu import adminstu_bp
 from blueprints.adminf.adminmen import adminmen_bp
 from blueprints.adminf.admin_addmen import addmen_bp
+from blueprints.adminf.admin_addstu import addstu_bp
 
 from blueprints.mentors.mentor import mentor_bp
 from blueprints.mentors.studentresult import result_bp
@@ -48,6 +49,7 @@ app.register_blueprint(admin_bp,url_prefix="/api")
 app.register_blueprint(adminstu_bp,url_prefix="/api")
 app.register_blueprint(adminmen_bp,url_prefix="/api")
 app.register_blueprint(addmen_bp,url_prefix="/api")
+app.register_blueprint(addstu_bp,url_prefix="/api")
 
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0", port=5000)
