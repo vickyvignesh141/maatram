@@ -7,8 +7,10 @@ from blueprints.students.student import student
 from blueprints.students.career_routes import career_bp
 from blueprints.students.subject_test import subject_bp
 from blueprints.students.wallets import wallet_bp
-from blueprints.students.bookmark import student_notes_bp
+from blueprints.students.bookmark import student_bookmark
 from blueprints.students.studymat import studymat_bp
+from blueprints.students.mentorprofile import mendetails_bp
+
 
 
 from blueprints.adminf.admin import admin_bp
@@ -33,8 +35,9 @@ app.register_blueprint(student, url_prefix="/api")
 app.register_blueprint(career_bp, url_prefix="/api/career")
 app.register_blueprint(subject_bp, url_prefix="/api")
 app.register_blueprint(wallet_bp, url_prefix="/api")
-app.register_blueprint(student_notes_bp, url_prefix="/api")
+app.register_blueprint(student_bookmark, url_prefix="/api")
 app.register_blueprint(studymat_bp, url_prefix="/study")
+app.register_blueprint(mendetails_bp, url_prefix="/api")
 
 app.register_blueprint(mentor_bp, url_prefix="/api")
 app.register_blueprint(result_bp, url_prefix="/api")

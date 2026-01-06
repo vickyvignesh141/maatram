@@ -10,12 +10,21 @@ import {
 const MentorViewStudentProfile = () => {
   const { username } = useParams();
   const navigate = useNavigate();
-
   const [studentInfo, setStudentInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  
+
 
   useEffect(() => {
+    const mentorId = localStorage.getItem("loggedUser");
+
+    if (!mentorId) {
+      setError("You must be logged in as a mentor to view this page");
+      setLoading(false);
+      return;
+    }
+
     if (!username) {
       setError("Student username not found");
       setLoading(false);
@@ -24,7 +33,9 @@ const MentorViewStudentProfile = () => {
 
     const fetchStudent = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/mentor/view-student/${username}`);
+        const res = await fetch(`${BASE_URL}/mentor/view-student/${username}`, {
+          headers: { Authorization: mentorId }
+        });
         const data = await res.json();
 
         if (data?.success && data?.data) {
@@ -51,16 +62,11 @@ const MentorViewStudentProfile = () => {
       <button onClick={() => navigate(-1)}>Go Back</button>
     </div>
   );
-  
 
   // Safe optional chaining
-// Safe optional chaining
-const s = studentInfo || {};
+  const s = studentInfo || {};
+  console.log("Profile Image:", s.profileImage);
 
-// Debug logs
-console.log("Profile Image Field:", s.profileImage);
-console.log("Full Image URL:", `${BASE_URL}/${s.profileImage}`);
-  
 
   return (
     <div className={styles.container}>
@@ -69,7 +75,7 @@ console.log("Full Image URL:", `${BASE_URL}/${s.profileImage}`);
         <div className={styles.profileHeader}>
           <div className={styles.profileImageContainer}>
             {s.profileImage ? (
-                <img src={`${BASE_URL.replace('/api','')}/${s.profileImage}`} alt="Profile" className={styles.profileImage} />
+              <img src={`${BASE_URL}/uploads/${s.profileImage}`} alt="Profile" className={styles.profileImage} />
             ) : (
               <UserCircle size={80} />
             )}
@@ -105,7 +111,7 @@ console.log("Full Image URL:", `${BASE_URL}/${s.profileImage}`);
 
         {s.resumeImage && (
           <div className={styles.resumeSection}>
-            <a href={`${BASE_URL}/${s.resumeImage}`} target="_blank" rel="noreferrer" className={styles.resumeBtn}>
+            <a href={`${BASE_URL}/uploads/${s.resumeImage}`} target="_blank" rel="noreferrer" className={styles.resumeBtn}>
               <FileType size={16} /> View Resume
             </a>
           </div>

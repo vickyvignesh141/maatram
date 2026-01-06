@@ -15,6 +15,8 @@ export default function TotalStudents() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [expandedStudent, setExpandedStudent] = useState(null);
+
 
   useEffect(() => {
     const mentorUsername = localStorage.getItem("loggedUser");
@@ -31,7 +33,20 @@ export default function TotalStudents() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredStudents = students.filter(student => {
+  const toggleStudentExpansion = (studentId) => {
+    setExpandedStudent(expandedStudent === studentId ? null : studentId);
+  };
+
+  // ✅ filter logic
+  const filteredStudents = [...students]
+  // 🔹 SORT A → Z by student name
+  .sort((a, b) =>
+    (a.name || "").toLowerCase().localeCompare(
+      (b.name || "").toLowerCase()
+    )
+  )
+  // 🔹 THEN FILTER
+  .filter(student => {
     const term = searchTerm.toLowerCase();
     return (
       student.name?.toLowerCase().includes(term) ||
@@ -39,6 +54,7 @@ export default function TotalStudents() {
       student.phno?.toString().includes(term)
     );
   });
+
 
   if (loading) return <p className="loading-text">Loading students...</p>;
 

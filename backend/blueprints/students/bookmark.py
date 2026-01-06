@@ -1,119 +1,86 @@
 from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
 from datetime import datetime
+import uuid
 
-student_notes_bp = Blueprint(
-    "student_notes",
-    __name__,
-    url_prefix="/api"
-)
+student_bookmark = Blueprint("student_bookmark", __name__)
 
+# MongoDB
 client = MongoClient("mongodb://localhost:27017/")
 db = client["career_guidance_mongo"]
-users_collection = db["users"]
+notes_col = db["student_notes"]
 
 
-@student_notes_bp.route("/student/bookmark/<username>", methods=["GET"])
-def get_notes(username):
-    user = users_collection.find_one(
-        {"username": username},
-        {"_id": 0, "notes": 1}
-    )
-
-    return jsonify({
-        "success": True,
-        "notes": user.get("notes", []) if user else []
-    })
-
-
-@student_notes_bp.route("/student/bookmark/add", methods=["POST"])
+@student_bookmark.route("/student/bookmark/add", methods=["POST"])
 def add_note():
     data = request.json
 
-    username = data.get("username")
-    title = data.get("title")
-    description = data.get("description", "")
-    date = data.get("date")
-    tags = data.get("tags", [])
+    if not data.get("username") or not data.get("title"):
+        return jsonify({"success": False, "message": "Missing fields"}), 400
 
-    if not all([username, title, date]):
-        return jsonify({
-            "success": False,
-            "msg": "Username, title and date are required"
-        }), 400
+    now = datetime.utcnow()
 
     note = {
-        "note_id": int(datetime.utcnow().timestamp() * 1000),
-        "title": title,
-        "description": description,
-        "date": date,
-        "tags": tags,
-        "created_at": datetime.utcnow()
+        "note_id": str(uuid.uuid4()),
+        "username": data["username"],
+        "title": data["title"],
+        "description": data.get("description", ""),
+        "tags": data.get("tags", []),
+        "date": now.strftime("%Y-%m-%d"),   # 🔒 SERVER DATE
+        "created_at": now,
+        "updated_at": now
     }
 
-    result = users_collection.update_one(
-        {"username": username},
-        {"$push": {"notes": note}}
-    )
+    notes_col.insert_one(note)
 
-    if result.matched_count == 0:
-        return jsonify({
-            "success": False,
-            "msg": "User not found"
-        }), 404
-
-    return jsonify({
-        "success": True,
-        "msg": "Note added successfully"
-    })
+    return jsonify({"success": True, "message": "Note added"})
 
 
-@student_notes_bp.route("/student/bookmark/update", methods=["PUT"])
+@student_bookmark.route("/student/bookmark/update", methods=["PUT"])
 def update_note():
     data = request.json
 
-    username = data.get("username")
-    note_id = data.get("note_id")
-    title = data.get("title")
-    description = data.get("description", "")
-    date = data.get("date")
-    tags = data.get("tags", [])
+    if not data.get("note_id") or not data.get("username"):
+        return jsonify({"success": False, "message": "Missing fields"}), 400
 
-    if not all([username, note_id, title, date]):
-        return jsonify({"success": False, "msg": "Incomplete data"}), 400
+    update_data = {
+        "title": data.get("title"),
+        "description": data.get("description", ""),
+        "tags": data.get("tags", []),
+        "updated_at": datetime.utcnow()   # 🔒 SERVER TIME
+    }
 
-    users_collection.update_one(
-        {
-            "username": username,
-            "notes.note_id": note_id
-        },
-        {
-            "$set": {
-                "notes.$.title": title,
-                "notes.$.description": description,
-                "notes.$.date": date,
-                "notes.$.tags": tags,
-                "notes.$.updated_at": datetime.utcnow()
-            }
-        }
+    notes_col.update_one(
+        {"note_id": data["note_id"], "username": data["username"]},
+        {"$set": update_data}
     )
 
-    return jsonify({"success": True, "msg": "Note updated"})
+    return jsonify({"success": True, "message": "Note updated"})
 
 
-@student_notes_bp.route("/student/bookmark/delete", methods=["DELETE"])
+
+@student_bookmark.route("/student/bookmark/delete", methods=["DELETE"])
 def delete_note():
     data = request.json
 
-    username = data.get("username")
-    note_id = data.get("note_id")
+    notes_col.delete_one({
+        "note_id": data["note_id"],
+        "username": data["username"]
+    })
 
-    if not all([username, note_id]):
-        return jsonify({"success": False, "msg": "Missing data"}), 400
+    return jsonify({"success": True, "message": "Note deleted"})
 
-    users_collection.update_one(
-        {"username": username},
-        {"$pull": {"notes": {"note_id": note_id}}}
-    )
 
-    return jsonify({"success": True, "msg": "Note deleted"})
+@student_bookmark.route("/student/bookmark/<username>", methods=["GET"])
+def get_notes(username):
+    notes = list(notes_col.find({"username": username}, {"_id": 0}))
+
+    # Convert datetime to string
+    for n in notes:
+        n["created_at"] = n["created_at"].isoformat()
+        n["updated_at"] = n["updated_at"].isoformat()
+
+    return jsonify({
+        "success": True,
+        "notes": notes
+    })

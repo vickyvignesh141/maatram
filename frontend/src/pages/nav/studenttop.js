@@ -97,7 +97,7 @@ export default function StudentTopBar() {
                 <UserCircle size={28} />
               )}
 
-              {/* Optional: Remove button */}
+              {/* Optional: Remove button 
               {imagePreview && (
                 <button className="removeImageBtn" onClick={(e) => {
                   e.stopPropagation();
@@ -105,7 +105,7 @@ export default function StudentTopBar() {
                 }}>
                   <Trash2 size={16} />
                 </button>
-              )}
+              )}*/}
 
               {/* Optional: Upload button */}
               {/* <label className="uploadOverlay">
@@ -137,7 +137,7 @@ export default function StudentTopBar() {
                 </div>
                 <div>
                   <p className="dropdownName">{student.name}</p>
-                  <p className="dropdownEmail">{student.phno || "N/A"}</p>
+                  <p className="dropdownEmail">{student.username || "N/A"}</p>
                 </div>
               </div>
 
