@@ -1,5 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import './MentorProfile.css';
+import styles from './MentorProfile.module.css';
+import BASE_URL from "../../../baseurl";
+import MentorTopBar from "../../mentornav/mentortop";
+import { 
+  User, 
+  Briefcase, 
+  Building, 
+  GraduationCap, 
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Home,
+  Globe,
+  Linkedin,
+  Github,
+  Upload,
+  Camera,
+  CheckCircle,
+  Edit2,
+  Save,
+  X,
+  Eye,
+  Trash2,
+  Clipboard,
+  Award,
+  BookOpen,
+  Users,
+  AlertCircle,
+  Loader2,
+  ExternalLink,
+  FileText,
+  Star,
+  Clock,
+  Info,
+  Headphones,
+  ChevronDown,
+  Bell,
+  Settings,
+  LogOut,
+  UserCircle
+} from "lucide-react";
 
 const MentorProfile = ({ loginData }) => {
   // Initial state with pre-filled data from login
@@ -17,25 +58,81 @@ const MentorProfile = ({ loginData }) => {
     portfolioLink: '',
     email: loginData?.email || '',
     phoneNumber: '',
-    profileImage: null
+    profileImage: '',
+    expertise: '',
+    yearsOfExperience: '',
+    mentorId: loginData?.mentorId || '',
+    preferredAddress: 'company',
+    customRole: ''
   });
 
-  const [profileImagePreview, setProfileImagePreview] = useState(null);
+  const [originalData, setOriginalData] = useState(null);
   const [isEditing, setIsEditing] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [imagePreview, setImagePreview] = useState(null);
 
   // Set pre-filled data when component mounts or loginData changes
   useEffect(() => {
     if (loginData) {
       setMentorInfo(prev => ({
         ...prev,
+        mentorId: loginData.mentorId || loginData.username || prev.mentorId,
         dateOfBirth: loginData.dateOfBirth || prev.dateOfBirth,
         email: loginData.email || prev.email
       }));
     }
   }, [loginData]);
+
+  useEffect(() => {
+    const fetchMentorData = async () => {
+      const username = localStorage.getItem("loggedUser");
+      if (username) {
+        try {
+          const response = await fetch(`${BASE_URL}/mentor_profile/${username}`);
+          const json = await response.json();
+          
+          if (json.success) {
+            const data = json.data;
+            const mentorData = {
+              name: data.name || "",
+              phoneNumber: data.phoneNumber || data.phone || "",
+              mentorId: data.username || "",
+              dateOfBirth: data.dateOfBirth || "",
+              yearOfPassedOut: data.yearOfPassedOut || "",
+              collegeName: data.collegeName || "",
+              workingCompany: data.workingCompany || "",
+              role: data.role || "",
+              companyAddress: data.companyAddress || "",
+              homeAddress: data.homeAddress || "",
+              email: data.email || "",
+              profileImage: data.profileImage || "",
+              linkedinId: data.linkedinId || "",
+              githubId: data.githubId || "",
+              portfolioLink: data.portfolioLink || "",
+              expertise: data.expertise || "",
+              yearsOfExperience: data.yearsOfExperience || "",
+              preferredAddress: data.preferredAddress || 'company',
+              customRole: data.customRole || ''
+            };
+
+            setMentorInfo(prev => ({ ...prev, ...mentorData }));
+            setOriginalData(mentorData);
+            
+            // Set image preview if profile image exists
+            if (data.profileImage) {
+              setImagePreview(`${BASE_URL}/uploads/${data.profileImage}`);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching mentor data:", error);
+        }
+      }
+    };
+
+    fetchMentorData();
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -43,7 +140,7 @@ const MentorProfile = ({ loginData }) => {
     const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
 
     if (!mentorInfo.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = 'Full name is required';
     }
     
     if (!mentorInfo.email || !emailRegex.test(mentorInfo.email)) {
@@ -66,7 +163,7 @@ const MentorProfile = ({ loginData }) => {
       newErrors.workingCompany = 'Working company is required';
     }
     
-    if (!mentorInfo.role.trim()) {
+    if (!mentorInfo.role.trim() && !mentorInfo.customRole.trim()) {
       newErrors.role = 'Role is required';
     }
     
@@ -84,6 +181,15 @@ const MentorProfile = ({ loginData }) => {
       ...prev,
       [name]: value
     }));
+    
+    // Handle role change
+    if (name === 'role' && value !== 'Other') {
+      setMentorInfo(prev => ({
+        ...prev,
+        customRole: ''
+      }));
+    }
+    
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -95,53 +201,85 @@ const MentorProfile = ({ loginData }) => {
 
   const handleProfileImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        setErrors(prev => ({
-          ...prev,
-          profileImage: 'Profile image should be less than 2MB'
-        }));
-        return;
-      }
-      if (!file.type.startsWith('image/')) {
-        setErrors(prev => ({
-          ...prev,
-          profileImage: 'Please upload an image file'
-        }));
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImagePreview(reader.result);
-        setMentorInfo(prev => ({
-          ...prev,
-          profileImage: file
-        }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      setErrors(prev => ({ ...prev, profileImage: 'Please upload an image file' }));
+      return;
+    }
+
+    // Check file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, profileImage: 'Image size should be less than 5MB' }));
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+    setMentorInfo(prev => ({
+      ...prev,
+      profileImage: file
+    }));
+
+    if (errors.profileImage) {
+      setErrors(prev => ({ ...prev, profileImage: '' }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
+
+    if (!validateForm()) return;
+
     setLoading(true);
-    
-    // Simulate API call
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Mentor Profile Submitted:', mentorInfo);
-      setIsSubmitted(true);
-      setIsEditing(false);
-      setLoading(false);
-      
-      setTimeout(() => setIsSubmitted(false), 3000);
-    } catch (error) {
-      console.error('Error saving profile:', error);
+      const formData = new FormData();
+      formData.append("username", mentorInfo.mentorId);
+
+      // Calculate years of experience if not provided
+      if (!mentorInfo.yearsOfExperience && mentorInfo.yearOfPassedOut) {
+        const currentYear = new Date().getFullYear();
+        const experience = currentYear - parseInt(mentorInfo.yearOfPassedOut);
+        formData.append("yearsOfExperience", experience > 0 ? experience : 0);
+      }
+
+      // Append all other fields
+      Object.keys(mentorInfo).forEach((key) => {
+        if (key === "profileImage") {
+          if (mentorInfo[key]) formData.append(key, mentorInfo[key]);
+        } else if (key !== "mentorId" && key !== "yearsOfExperience") {
+          formData.append(key, mentorInfo[key] || "");
+        }
+      });
+
+      const response = await fetch(`${BASE_URL}/mentor_profile`, {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setIsSubmitted(true);
+        setIsEditing(false);
+        setLoading(false);
+
+        // Update original data
+        setOriginalData({ ...mentorInfo });
+
+        setTimeout(() => setIsSubmitted(false), 3000);
+      } else {
+        console.error(result.msg);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
       setLoading(false);
     }
   };
@@ -154,11 +292,16 @@ const MentorProfile = ({ loginData }) => {
     if (window.confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
       setIsEditing(false);
       setErrors({});
+      // Restore original data
+      if (originalData) {
+        setMentorInfo(originalData);
+        setImagePreview(originalData.profileImage ? `${BASE_URL}/uploads/${originalData.profileImage}` : null);
+      }
     }
   };
 
   const removeProfileImage = () => {
-    setProfileImagePreview(null);
+    setImagePreview(null);
     setMentorInfo(prev => ({
       ...prev,
       profileImage: null
@@ -167,148 +310,226 @@ const MentorProfile = ({ loginData }) => {
 
   // Helper function to format phone number
   const formatPhoneNumber = (value) => {
-    if (!value) return '';
-    const phoneNumber = value.replace(/\D/g, '');
-    if (phoneNumber.length <= 3) return phoneNumber;
-    if (phoneNumber.length <= 6) return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
-    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  if (!value) return "";
+  
+  // Remove all non-digits
+  const digits = value.replace(/\D/g, "");
+
+  // Limit to 10 digits only
+  return digits.slice(0, 10);
+};
+
+  // Calculate years of experience
+  const calculateExperience = () => {
+    if (mentorInfo.yearsOfExperience) {
+      return `${mentorInfo.yearsOfExperience} years`;
+    }
+    if (mentorInfo.yearOfPassedOut) {
+      const currentYear = new Date().getFullYear();
+      const experience = currentYear - parseInt(mentorInfo.yearOfPassedOut);
+      return experience > 0 ? `${experience} years` : 'Fresh Graduate';
+    }
+    return 'Not specified';
   };
 
-  // Calculate years since passed out
-  const calculateExperience = () => {
-    if (!mentorInfo.yearOfPassedOut) return '';
-    const currentYear = new Date().getFullYear();
-    const experience = currentYear - parseInt(mentorInfo.yearOfPassedOut);
-    return experience > 0 ? `${experience} years experience` : 'Fresh Graduate';
-  };
+  // Generate passed out years (last 30 years)
+  const passedOutYears = Array.from({ length: 30 }, (_, i) => {
+    const year = new Date().getFullYear() - i;
+    return { value: year, label: year.toString() };
+  });
+
+  const roles = [
+    'Software Engineer',
+    'Senior Software Engineer',
+    'Lead Engineer',
+    'Engineering Manager',
+    'Product Manager',
+    'Project Manager',
+    'Data Scientist',
+    'Machine Learning Engineer',
+    'DevOps Engineer',
+    'Full Stack Developer',
+    'Frontend Developer',
+    'Backend Developer',
+    'Mobile Developer',
+    'UX/UI Designer',
+    'System Architect',
+    'CTO',
+    'CEO',
+    'Founder',
+    'Consultant',
+    'Researcher',
+    'Professor',
+    'Other'
+  ];
+
+  const expertiseAreas = [
+    'Web Development',
+    'Mobile Development',
+    'Data Science',
+    'Machine Learning',
+    'Cloud Computing',
+    'DevOps',
+    'Cybersecurity',
+    'UI/UX Design',
+    'Product Management',
+    'Project Management',
+    'Software Architecture',
+    'Database Design',
+    'AI/ML',
+    'Blockchain',
+    'IoT',
+    'Game Development',
+    'Embedded Systems',
+    'Networking',
+    'Testing/QA',
+    'Business Analysis'
+  ];
 
   return (
-    <div className="mentor-profile-container">
-      <div className="profile-header">
-        <div className="header-content">
-          <h1><i className="fas fa-user-tie"></i> Mentor Profile</h1>
-          <p className="subtitle">Complete your profile to start mentoring students</p>
+    <div className={styles.container}>
+      <MentorTopBar />
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerTitle}>
+            <Briefcase className={styles.headerIcon} />
+            <h1>Mentor Profile</h1>
+          </div>
+          <p className={styles.subtitle}>Complete your profile to start mentoring students</p>
         </div>
-        <div className="profile-status">
-          <span className={`status-badge ${isEditing ? 'editing' : 'viewing'}`}>
-            <i className={`fas ${isEditing ? 'fa-edit' : 'fa-eye'}`}></i>
-            {isEditing ? 'Editing Mode' : 'Viewing Mode'}
-          </span>
+        <div className={styles.headerActions}>
+          <div className={`${styles.statusBadge} ${isEditing ? styles.editing : styles.viewing}`}>
+            {isEditing ? <Edit2 size={14} /> : <Eye size={14} />}
+            <span>{isEditing ? 'Editing Mode' : 'Viewing Mode'}</span>
+          </div>
+          {isSubmitted && (
+            <div className={styles.successMessage}>
+              <CheckCircle size={16} />
+              <span>Profile updated successfully!</span>
+            </div>
+          )}
         </div>
       </div>
 
-      {isSubmitted && (
-        <div className="success-message">
-          <i className="fas fa-check-circle"></i>
-          <span>Profile updated successfully!</span>
-        </div>
-      )}
-
-      <div className="profile-card">
-        <div className="profile-header-section">
-          <div className="profile-image-section">
-            <div className="profile-image-container">
-              {profileImagePreview ? (
+      <div className={styles.profileCard}>
+        <div className={styles.profileHeader}>
+          <div className={styles.profileImageSection}>
+            <div className={styles.profileImageContainer}>
+              {imagePreview ? (
                 <img 
-                  src={profileImagePreview} 
+                  src={imagePreview} 
                   alt="Profile" 
-                  className="profile-image"
+                  className={styles.profileImage}
                 />
               ) : (
-                <div className="profile-image-placeholder">
-                  <i className="fas fa-user-tie"></i>
+                <div className={styles.profileImagePlaceholder}>
+                  <UserCircle size={48} />
                 </div>
               )}
+              
               {isEditing && (
-                <div className="image-overlay">
-                  <label className="camera-icon">
-                    <i className="fas fa-camera"></i>
+                <>
+                  <label className={styles.imageUploadOverlay}>
+                    <Camera size={20} />
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleProfileImageUpload}
-                      style={{ display: 'none' }}
+                      hidden
                     />
                   </label>
-                </div>
+                  {imagePreview && (
+                    <button 
+                      type="button" 
+                      className={styles.removeImageButton}
+                      onClick={removeProfileImage}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </>
               )}
             </div>
             {errors.profileImage && (
-              <div className="error-message">{errors.profileImage}</div>
+              <div className={styles.errorMessage}>
+                <AlertCircle size={14} />
+                <span>{errors.profileImage}</span>
+              </div>
             )}
           </div>
 
-          <div className="profile-basic-info">
-            <div className="info-header">
+          <div className={styles.profileInfo}>
+            <div className={styles.infoHeader}>
               <h2>
                 {mentorInfo.name || 'Your Name'}
-                <span className="mentor-badge">
-                  <i className="fas fa-star"></i> Mentor
+                <span className={styles.mentorBadge}>
+                  <Star size={14} />
+                  <span>Verified Mentor</span>
                 </span>
               </h2>
-              <div className="mentor-experience">
-                <i className="fas fa-briefcase"></i>
-                <span>{calculateExperience() || 'Add passed out year'}</span>
+              <div className={styles.mentorId}>
+                <Award size={16} />
+                <span>Mentor ID: {mentorInfo.mentorId || 'Not assigned'}</span>
               </div>
             </div>
             
-            <div className="info-grid">
-              <div className="info-item">
-                <i className="fas fa-university"></i>
+            <div className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <GraduationCap size={20} />
                 <div>
                   <label>College</label>
                   <p>{mentorInfo.collegeName || 'Not specified'}</p>
                 </div>
               </div>
-              <div className="info-item">
-                <i className="fas fa-building"></i>
+              <div className={styles.infoItem}>
+                <Building size={20} />
                 <div>
                   <label>Company</label>
                   <p>{mentorInfo.workingCompany || 'Not specified'}</p>
                 </div>
               </div>
-              <div className="info-item">
-                <i className="fas fa-user-tag"></i>
+              <div className={styles.infoItem}>
+                <Briefcase size={20} />
                 <div>
                   <label>Role</label>
-                  <p>{mentorInfo.role || 'Not specified'}</p>
+                  <p>{mentorInfo.role || mentorInfo.customRole || 'Not specified'}</p>
                 </div>
               </div>
-              <div className="info-item">
-                <i className="fas fa-graduation-cap"></i>
+              <div className={styles.infoItem}>
+                <Clock size={20} />
                 <div>
-                  <label>Passed Out</label>
-                  <p>{mentorInfo.yearOfPassedOut || 'Not specified'}</p>
+                  <label>Experience</label>
+                  <p>{calculateExperience()}</p>
                 </div>
               </div>
             </div>
 
-            <div className="contact-info">
-              <div className="contact-item">
-                <i className="fas fa-envelope"></i>
+            <div className={styles.contactInfo}>
+              <div className={styles.contactItem}>
+                <Mail size={16} />
                 <span>{mentorInfo.email || 'email@example.com'}</span>
               </div>
-              <div className="contact-item">
-                <i className="fas fa-phone"></i>
+              <div className={styles.contactItem}>
+                <Phone size={16} />
                 <span>{mentorInfo.phoneNumber || '+1 (123) 456-7890'}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="profile-form">
-          <div className="form-sections">
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formSections}>
             {/* Personal Information Section */}
-            <div className="form-section">
-              <div className="section-header">
-                <i className="fas fa-user-circle"></i>
+            <div className={styles.formSection}>
+              <div className={styles.sectionHeader}>
+                <User size={20} />
                 <h3>Personal Information</h3>
               </div>
-              <div className="form-grid">
-                <div className="form-group">
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
                   <label>
-                    Full Name <span className="required">*</span>
-                    {errors.name && <span className="error-text"> - {errors.name}</span>}
+                    Full Name <span className={styles.required}>*</span>
+                    {errors.name && <span className={styles.errorText}> - {errors.name}</span>}
                   </label>
                   <input
                     type="text"
@@ -316,52 +537,54 @@ const MentorProfile = ({ loginData }) => {
                     value={mentorInfo.name}
                     onChange={handleChange}
                     placeholder="Enter your full name"
-                    className={errors.name ? 'error-input' : ''}
-                    required
+                    className={`${styles.input} ${errors.name ? styles.error : ''}`}
+                    disabled={!isEditing}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>Date of Birth</label>
-                  <div className="input-with-icon">
-                    <i className="fas fa-calendar"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Calendar size={18} />
                     <input
                       type="date"
                       name="dateOfBirth"
                       value={mentorInfo.dateOfBirth}
                       onChange={handleChange}
+                      className={styles.input}
+                      disabled={!isEditing}
                     />
                   </div>
-                  <div className="field-info">Pre-filled from login</div>
+                  <div className={styles.fieldInfo}>Pre-filled from login</div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Email Address <span className="required">*</span>
-                    {errors.email && <span className="error-text"> - {errors.email}</span>}
+                    Email Address <span className={styles.required}>*</span>
+                    {errors.email && <span className={styles.errorText}> - {errors.email}</span>}
                   </label>
-                  <div className="input-with-icon">
-                    <i className="fas fa-envelope"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Mail size={18} />
                     <input
                       type="email"
                       name="email"
                       value={mentorInfo.email}
                       onChange={handleChange}
                       placeholder="mentor@example.com"
-                      className={errors.email ? 'error-input' : ''}
-                      required
+                      className={`${styles.input} ${errors.email ? styles.error : ''}`}
+                      disabled={!isEditing}
                     />
                   </div>
-                  <div className="field-info">Pre-filled from login</div>
+                  <div className={styles.fieldInfo}>Pre-filled from login</div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Phone Number <span className="required">*</span>
-                    {errors.phoneNumber && <span className="error-text"> - {errors.phoneNumber}</span>}
+                    Phone Number <span className={styles.required}>*</span>
+                    {errors.phoneNumber && <span className={styles.errorText}> - {errors.phoneNumber}</span>}
                   </label>
-                  <div className="input-with-icon">
-                    <i className="fas fa-phone"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Phone size={18} />
                     <input
                       type="tel"
                       name="phoneNumber"
@@ -371,8 +594,8 @@ const MentorProfile = ({ loginData }) => {
                         handleChange({ target: { name: 'phoneNumber', value: formatted } });
                       }}
                       placeholder="(123) 456-7890"
-                      className={errors.phoneNumber ? 'error-input' : ''}
-                      required
+                      className={`${styles.input} ${errors.phoneNumber ? styles.error : ''}`}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
@@ -380,16 +603,31 @@ const MentorProfile = ({ loginData }) => {
             </div>
 
             {/* Educational & Professional Information */}
-            <div className="form-section">
-              <div className="section-header">
-                <i className="fas fa-briefcase"></i>
+            <div className={styles.formSection}>
+              <div className={styles.sectionHeader}>
+                <Briefcase size={20} />
                 <h3>Educational & Professional Information</h3>
               </div>
-              <div className="form-grid">
-                <div className="form-group">
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label>Mentor ID</label>
+                  <div className={styles.inputWithIcon}>
+                    <Award size={18} />
+                    <input
+                      type="text"
+                      name="mentorId"
+                      value={mentorInfo.mentorId}
+                      readOnly
+                      className={`${styles.input} ${styles.readonly}`}
+                    />
+                  </div>
+                  <div className={styles.fieldInfo}>Pre-filled from login (Read-only)</div>
+                </div>
+
+                <div className={styles.formGroup}>
                   <label>
-                    College/University <span className="required">*</span>
-                    {errors.collegeName && <span className="error-text"> - {errors.collegeName}</span>}
+                    College/University <span className={styles.required}>*</span>
+                    {errors.collegeName && <span className={styles.errorText}> - {errors.collegeName}</span>}
                   </label>
                   <input
                     type="text"
@@ -397,39 +635,36 @@ const MentorProfile = ({ loginData }) => {
                     value={mentorInfo.collegeName}
                     onChange={handleChange}
                     placeholder="Enter your college/university name"
-                    className={errors.collegeName ? 'error-input' : ''}
-                    required
+                    className={`${styles.input} ${errors.collegeName ? styles.error : ''}`}
+                    disabled={!isEditing}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Year of Passed Out <span className="required">*</span>
-                    {errors.yearOfPassedOut && <span className="error-text"> - {errors.yearOfPassedOut}</span>}
+                    Year of Passed Out <span className={styles.required}>*</span>
+                    {errors.yearOfPassedOut && <span className={styles.errorText}> - {errors.yearOfPassedOut}</span>}
                   </label>
                   <select
                     name="yearOfPassedOut"
                     value={mentorInfo.yearOfPassedOut}
                     onChange={handleChange}
-                    className={errors.yearOfPassedOut ? 'error-input' : ''}
-                    required
+                    className={`${styles.select} ${errors.yearOfPassedOut ? styles.error : ''}`}
+                    disabled={!isEditing}
                   >
                     <option value="">Select Year</option>
-                    {Array.from({ length: 30 }, (_, i) => {
-                      const year = new Date().getFullYear() - i;
-                      return (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      );
-                    })}
+                    {passedOutYears.map(year => (
+                      <option key={year.value} value={year.value}>
+                        {year.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Current Company <span className="required">*</span>
-                    {errors.workingCompany && <span className="error-text"> - {errors.workingCompany}</span>}
+                    Current Company <span className={styles.required}>*</span>
+                    {errors.workingCompany && <span className={styles.errorText}> - {errors.workingCompany}</span>}
                   </label>
                   <input
                     type="text"
@@ -437,117 +672,120 @@ const MentorProfile = ({ loginData }) => {
                     value={mentorInfo.workingCompany}
                     onChange={handleChange}
                     placeholder="Enter your current company name"
-                    className={errors.workingCompany ? 'error-input' : ''}
-                    required
+                    className={`${styles.input} ${errors.workingCompany ? styles.error : ''}`}
+                    disabled={!isEditing}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>
-                    Current Role <span className="required">*</span>
-                    {errors.role && <span className="error-text"> - {errors.role}</span>}
+                    Current Role <span className={styles.required}>*</span>
+                    {errors.role && <span className={styles.errorText}> - {errors.role}</span>}
                   </label>
                   <select
                     name="role"
                     value={mentorInfo.role}
                     onChange={handleChange}
-                    className={errors.role ? 'error-input' : ''}
-                    required
+                    className={`${styles.select} ${errors.role ? styles.error : ''}`}
+                    disabled={!isEditing}
                   >
                     <option value="">Select Role</option>
-                    <option value="Software Engineer">Software Engineer</option>
-                    <option value="Senior Software Engineer">Senior Software Engineer</option>
-                    <option value="Lead Engineer">Lead Engineer</option>
-                    <option value="Engineering Manager">Engineering Manager</option>
-                    <option value="Product Manager">Product Manager</option>
-                    <option value="Project Manager">Project Manager</option>
-                    <option value="Data Scientist">Data Scientist</option>
-                    <option value="Machine Learning Engineer">Machine Learning Engineer</option>
-                    <option value="DevOps Engineer">DevOps Engineer</option>
-                    <option value="Full Stack Developer">Full Stack Developer</option>
-                    <option value="Frontend Developer">Frontend Developer</option>
-                    <option value="Backend Developer">Backend Developer</option>
-                    <option value="Mobile Developer">Mobile Developer</option>
-                    <option value="UX/UI Designer">UX/UI Designer</option>
-                    <option value="System Architect">System Architect</option>
-                    <option value="CTO">CTO</option>
-                    <option value="CEO">CEO</option>
-                    <option value="Founder">Founder</option>
-                    <option value="Consultant">Consultant</option>
-                    <option value="Researcher">Researcher</option>
-                    <option value="Professor">Professor</option>
-                    <option value="Other">Other</option>
+                    {roles.map(role => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 {mentorInfo.role === 'Other' && (
-                  <div className="form-group full-width">
+                  <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                     <label>Specify Your Role</label>
                     <input
                       type="text"
                       name="customRole"
                       value={mentorInfo.customRole || ''}
-                      onChange={(e) => setMentorInfo(prev => ({
-                        ...prev,
-                        customRole: e.target.value,
-                        role: e.target.value
-                      }))}
+                      onChange={handleChange}
                       placeholder="Enter your specific role"
+                      className={styles.input}
+                      disabled={!isEditing}
                     />
                   </div>
                 )}
+
+                <div className={styles.formGroup}>
+                  <label>Area of Expertise</label>
+                  <select
+                    name="expertise"
+                    value={mentorInfo.expertise}
+                    onChange={handleChange}
+                    className={styles.select}
+                    disabled={!isEditing}
+                  >
+                    <option value="">Select Expertise</option>
+                    {expertiseAreas.map(area => (
+                      <option key={area} value={area}>
+                        {area}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
             {/* Address Information */}
-            <div className="form-section">
-              <div className="section-header">
-                <i className="fas fa-map-marker-alt"></i>
+            <div className={styles.formSection}>
+              <div className={styles.sectionHeader}>
+                <MapPin size={20} />
                 <h3>Address Information</h3>
               </div>
-              <div className="form-grid">
-                <div className="form-group full-width">
+              <div className={styles.formGrid}>
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label>Company Address</label>
-                  <div className="textarea-container">
-                    <i className="fas fa-building"></i>
+                  <div className={styles.textareaContainer}>
+                    <Building size={18} />
                     <textarea
                       name="companyAddress"
                       value={mentorInfo.companyAddress}
                       onChange={handleChange}
                       placeholder="Enter your company address including street, city, state, and country"
                       rows="3"
+                      className={styles.textarea}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
 
-                <div className="form-group full-width">
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label>Home Address</label>
-                  <div className="textarea-container">
-                    <i className="fas fa-home"></i>
+                  <div className={styles.textareaContainer}>
+                    <Home size={18} />
                     <textarea
                       name="homeAddress"
                       value={mentorInfo.homeAddress}
                       onChange={handleChange}
                       placeholder="Enter your home address (optional)"
                       rows="3"
+                      className={styles.textarea}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
 
                 {errors.address && (
-                  <div className="form-group full-width">
-                    <div className="error-message">
-                      <i className="fas fa-exclamation-circle"></i>
-                      {errors.address}
+                  <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                    <div className={styles.errorMessage}>
+                      <AlertCircle size={14} />
+                      <span>{errors.address}</span>
                     </div>
                   </div>
                 )}
 
-                <div className="form-group full-width">
-                  <div className="address-preference">
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                  <div className={styles.addressPreference}>
                     <label>Preferred Contact Address:</label>
-                    <div className="preference-options">
-                      <label className="radio-option">
+                    <div className={styles.preferenceOptions}>
+                      <label className={styles.radioOption}>
                         <input
                           type="radio"
                           name="preferredAddress"
@@ -557,10 +795,11 @@ const MentorProfile = ({ loginData }) => {
                             ...prev,
                             preferredAddress: e.target.value
                           }))}
+                          disabled={!isEditing}
                         />
                         <span>Company Address</span>
                       </label>
-                      <label className="radio-option">
+                      <label className={styles.radioOption}>
                         <input
                           type="radio"
                           name="preferredAddress"
@@ -570,6 +809,7 @@ const MentorProfile = ({ loginData }) => {
                             ...prev,
                             preferredAddress: e.target.value
                           }))}
+                          disabled={!isEditing}
                         />
                         <span>Home Address</span>
                       </label>
@@ -580,66 +820,72 @@ const MentorProfile = ({ loginData }) => {
             </div>
 
             {/* Professional Profiles */}
-            <div className="form-section">
-              <div className="section-header">
-                <i className="fas fa-network-wired"></i>
+            <div className={styles.formSection}>
+              <div className={styles.sectionHeader}>
+                <Globe size={20} />
                 <h3>Professional Profiles</h3>
               </div>
-              <div className="form-grid">
-                <div className="form-group">
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
                   <label>LinkedIn Profile</label>
-                  <div className="input-with-icon">
-                    <i className="fab fa-linkedin"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Linkedin size={18} />
                     <input
                       type="url"
                       name="linkedinId"
                       value={mentorInfo.linkedinId}
                       onChange={handleChange}
                       placeholder="https://linkedin.com/in/yourprofile"
+                      className={styles.input}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label>GitHub Profile</label>
-                  <div className="input-with-icon">
-                    <i className="fab fa-github"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Github size={18} />
                     <input
                       type="url"
                       name="githubId"
                       value={mentorInfo.githubId}
                       onChange={handleChange}
                       placeholder="https://github.com/yourusername"
+                      className={styles.input}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
 
-                <div className="form-group full-width">
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label>Portfolio/Website</label>
-                  <div className="input-with-icon">
-                    <i className="fas fa-globe"></i>
+                  <div className={styles.inputWithIcon}>
+                    <Globe size={18} />
                     <input
                       type="url"
                       name="portfolioLink"
                       value={mentorInfo.portfolioLink}
                       onChange={handleChange}
                       placeholder="https://yourportfolio.com"
+                      className={styles.input}
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
 
-                <div className="form-group full-width">
-                  <div className="profile-verification">
-                    <div className="verification-status">
-                      <i className="fas fa-check-circle verified"></i>
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                  <div className={styles.profileVerification}>
+                    <div className={styles.verificationStatus}>
+                      <CheckCircle size={16} className={styles.verified} />
                       <span>LinkedIn Verified</span>
                     </div>
-                    <div className="verification-status">
-                      <i className="fas fa-check-circle verified"></i>
+                    <div className={styles.verificationStatus}>
+                      <CheckCircle size={16} className={styles.verified} />
                       <span>GitHub Verified</span>
                     </div>
-                    <div className="verification-status">
-                      <i className="fas fa-clock pending"></i>
+                    <div className={styles.verificationStatus}>
+                      <Clock size={16} className={styles.pending} />
                       <span>Portfolio Pending</span>
                     </div>
                   </div>
@@ -648,62 +894,60 @@ const MentorProfile = ({ loginData }) => {
             </div>
           </div>
 
-          <div className="form-footer">
-            <div className="form-actions">
+          <div className={styles.formFooter}>
+            <div className={styles.formActions}>
               {!isEditing ? (
                 <button 
                   type="button" 
-                  className="edit-btn"
+                  className={styles.editButton}
                   onClick={handleEdit}
                 >
-                  <i className="fas fa-edit"></i> Edit Profile
+                  <Edit2 size={16} /> Edit Profile
                 </button>
               ) : (
                 <>
                   <button 
                     type="button" 
-                    className="cancel-btn"
+                    className={styles.cancelButton}
                     onClick={handleCancel}
                   >
-                    <i className="fas fa-times"></i> Cancel
+                    <X size={16} /> Cancel
                   </button>
                   <button 
                     type="submit" 
-                    className="submit-btn"
+                    className={styles.submitButton}
                     disabled={loading}
                   >
                     {loading ? (
                       <>
-                        <i className="fas fa-spinner fa-spin"></i> Saving...
+                        <Loader2 size={16} className={styles.spinner} /> Saving...
                       </>
                     ) : (
                       <>
-                        <i className="fas fa-save"></i> Save Changes
+                        <Save size={16} /> Save Changes
                       </>
                     )}
                   </button>
                 </>
               )}
             </div>
-            <div className="form-help">
-              <p>
-                <i className="fas fa-info-circle"></i>
-                Fields marked with <span className="required">*</span> are required
-              </p>
+            <div className={styles.formHelp}>
+              <Info size={16} />
+              <p>Fields marked with <span className={styles.required}>*</span> are required</p>
             </div>
           </div>
         </form>
       </div>
 
-      <footer className="profile-footer">
-        <div className="footer-content">
-          <div className="footer-logo">
-            <i className="fas fa-user-tie"></i>
+      <footer className={styles.footer}>
+        <div className={styles.footerContent}>
+          <div className={styles.footerLogo}>
+            <Briefcase size={20} />
             <span>Mentor Portal</span>
           </div>
-          <p className="copyright">© 2024 Mentor Profile System. All rights reserved.</p>
-          <p className="support">
-            <i className="fas fa-headset"></i>
+          <p className={styles.copyright}>© 2024 Mentor Profile System. All rights reserved.</p>
+          <p className={styles.support}>
+            <Headphones size={16} />
             Need help? Contact support: mentors@portal.edu
           </p>
         </div>

@@ -102,7 +102,7 @@ export default function Admintop() {
                 </div>
                 <div>
                   <p className="dropdown-name">{Admin.name}</p>
-                  <p className="dropdown-email">{Admin.phno}</p>
+                  <p className="dropdown-email">{Admin.username}</p>
                 </div>
               </div>
               
