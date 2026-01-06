@@ -27,7 +27,7 @@ def call_llm(prompt, temperature=0.3):
 
 
 # ==================================================
-# 1️⃣ Generate MCQs (NO DIAGNOSTIC)
+# 1️ Generate MCQs (NO DIAGNOSTIC)
 # ==================================================
 @subject_bp.route("/subject-test/mcq", methods=["POST"])
 def generate_mcqs():
@@ -82,7 +82,7 @@ FORMAT:
 
 
 # ==================================================
-# 2️⃣ Submit Test & Store Result
+# 2️ Submit Test & Store Result
 # ==================================================
 # from datetime import datetime
 
