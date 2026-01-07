@@ -1,11 +1,11 @@
-/* AddStudent.css - Enhanced Styles */
-.student-container {
+/* AddMentor.css - Enhanced Styles */
+.mentor-container {
   max-width: 1000px;
   margin: 2rem auto;
   padding: 0 1.5rem;
 }
 
-.student-form {
+.mentor-form {
   background: var(--white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
@@ -14,18 +14,18 @@
   overflow: hidden;
 }
 
-.student-form::before {
+.mentor-form::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, #8B5CF6 0%, #3b039d 100%);
 }
 
-.student-form h2 {
-  color: var(--accent);
+.mentor-form h2 {
+  color: #5006d1;
   margin-bottom: 2rem;
   font-size: 1.75rem;
   font-weight: 700;
@@ -33,7 +33,7 @@
   padding-bottom: 0.75rem;
 }
 
-.student-form h2::after {
+.mentor-form h2::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -42,6 +42,26 @@
   height: 3px;
   background: var(--yellow);
   border-radius: 2px;
+}
+
+.mentor-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.mentor-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #3802b5 0%, #3d04a0 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
 }
 
 .form-grid {
@@ -85,12 +105,13 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+  border-color: #4105ce;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
 }
 
 .form-group input::placeholder {
   color: var(--gray-300);
+  font-size: 0.95rem;
 }
 
 .form-group input[type="date"] {
@@ -108,6 +129,23 @@
   opacity: 1;
 }
 
+.form-group input[type="email"]:valid {
+  border-color: #10B981;
+}
+
+.form-group input[type="email"]:invalid:not(:placeholder-shown) {
+  border-color: #EF4444;
+}
+
+.email-hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .submit-section {
   display: flex;
   justify-content: flex-end;
@@ -118,7 +156,7 @@
 }
 
 .submit-button {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, #3907ae 0%, #380590 100%);
   color: var(--white);
   border: none;
   padding: 0.875rem 2rem;
@@ -130,12 +168,12 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 6px rgba(30, 58, 138, 0.15);
+  box-shadow: 0 4px 6px rgba(139, 92, 246, 0.15);
 }
 
 .submit-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(30, 58, 138, 0.2);
+  box-shadow: 0 6px 12px rgba(63, 5, 199, 0.2);
 }
 
 .submit-button:active {
@@ -149,9 +187,8 @@
 }
 
 .submit-button::before {
-  content: '+';
+  content: '👨‍🏫';
   font-size: 1.2rem;
-  font-weight: 700;
 }
 
 .reset-button {
@@ -252,7 +289,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid var(--gray-200);
-  border-top-color: var(--accent);
+  border-top-color: #220467;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -265,13 +302,25 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .student-container {
+  .mentor-container {
     margin: 1rem auto;
     padding: 0 1rem;
   }
   
-  .student-form {
+  .mentor-form {
     padding: 1.5rem;
+  }
+  
+  .mentor-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .mentor-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
   }
   
   .form-grid {
@@ -279,7 +328,7 @@
     gap: 1.25rem;
   }
   
-  .student-form h2 {
+  .mentor-form h2 {
     font-size: 1.5rem;
   }
   
@@ -296,11 +345,11 @@
 }
 
 @media (max-width: 480px) {
-  .student-form {
+  .mentor-form {
     padding: 1.25rem;
   }
   
-  .student-form h2 {
+  .mentor-form h2 {
     font-size: 1.25rem;
     margin-bottom: 1.5rem;
   }

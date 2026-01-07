@@ -62,24 +62,27 @@ export default function MentorDashboard() {
       .then((data) => {
         if (data.success) {
           const formattedStudents = data.students
-            .slice(0, 4)
-            .map((stu) => ({
-              id: stu.id,
-              name: stu.name,
-              username: stu.username,
-              phone: stu.phno,
-              progress: Math.floor(Math.random() * 40) + 60,
-              status: "active",
-              lastActive: "Recently"
-            }));
+          .map((stu) => ({
+            id: stu.id,
+            name: stu.name,
+            username: stu.username,
+            phno: stu.phno,
+            progress: Math.floor(Math.random() * 40) + 60,
+            status: "active",
+            lastActive: "Recently"
+          }))
+          // 🔹 SORT A → Z by name
+          .sort((a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        )
+        // 🔹 TAKE FIRST 4 AFTER SORT
+        .slice(0, 4);
+        setStudents(formattedStudents);
+        // Update stats
+        setStats(prev => ({
+        ...prev,}));
+  }
 
-          setStudents(formattedStudents);
-          // Update stats with actual student count
-          setStats(prev => ({
-            ...prev,
-            
-          }));
-        }
       })
       .catch((err) => {
         console.error("Error loading students:", err);
@@ -260,23 +263,15 @@ export default function MentorDashboard() {
                     <div className="student-info">
                       <h4>{student.name}</h4>
                       <p className="student-username">
-                        Username: {student.username} | Phone: {student.phone}
+                        Username: {student.username} | Phone: {student.phno}
                       </p>
                       
                      
                     </div>
-                    <button 
-                      className="message-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSendMessage(student.id);
-                      }}
-                    >
-                      <MessageSquare size={16} />
-                    </button>
+                    
                   </div>
                 ))}
-              </div>
+              </div> 
             </div>
           </div>
 
@@ -288,7 +283,7 @@ export default function MentorDashboard() {
                 <h3>Mentor Profile</h3>
                 <button 
                   className="edit-btn" 
-                  onClick={() => navigate("/mentor/edit-profile")}
+                  onClick={() => navigate("/mentor/profile")}
                 >
                   <Edit size={16} />
                   Edit
@@ -296,8 +291,12 @@ export default function MentorDashboard() {
               </div>
               <div className="profile-content">
                 <div className="profile-avatar-large">
-                  {data.photo ? (
-                    <img src={data.photo} alt={data.name} />
+                  {data.profileImage ? (
+                    <img
+                    src={`${baseurl}/uploads/${data.profileImage}?t=${Date.now()}`}
+                    alt={data.name}
+                    onError={(e) => (e.target.style.display = "none")}
+                    />
                   ) : (
                     <div className="avatar-large-placeholder">
                       <User size={32} />
@@ -316,19 +315,19 @@ export default function MentorDashboard() {
                     </div>
                     <div className="contact-item">
                       <Contact size={14} />
-                      <span>Username: {data.username}</span>
+                      <span> {data.username}</span>
                     </div>
                     <div className="contact-item">
                       <Phone size={14} />
-                      <span>{data.phone || "+1 234 567 8900"}</span>
+                      <span>{data.phoneNumber || data.phone || "+1 234 567 8900"}</span>
                     </div>
                     <div className="contact-item">
                       <Briefcase size={14} />
-                      <span>{data.company || "Mr.Cooper"}</span>
+                      <span>{data.workingCompany || "Mr.Cooper"}</span>
                     </div>
                     <div className="contact-item">
                       <GraduationCap size={14} />
-                      <span>{data.department || "VEC"}</span>
+                      <span>{data.collegeName || "VEC"}</span>
                     </div>
                   </div>
 

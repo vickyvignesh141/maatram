@@ -46,7 +46,6 @@ FALLBACK_TOPICS = {
 }
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-print(GROQ_API_KEY)
 
 class CareerAgent:
     def __init__(self):
@@ -92,7 +91,7 @@ Format your response as JSON with this structure:
         "reasoning": "Detailed explanation",
         "short_term_plan": "6-12 month plan steps"
     }},
-    "suggested_topics": ["Topic1", "Topic2", "Topic3", "Topic4", "Topic5"]
+    "suggested_topics": ["Topic1", "Topic2", "Topic3", "Topic4", "Topic5","Topic6"]
 }}""".format(responses="\n".join([f"{q}: {a}" for q, a in student_responses.items()]))
         
         try:

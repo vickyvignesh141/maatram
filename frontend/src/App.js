@@ -11,6 +11,7 @@ import StudyMaterial from "./pages/student/components/studymaterial";
 import StudentProgress from "./pages/student/components/studentprogress";
 import StudentWallet from "./pages/student/components/Wallets";
 import Studentbooklet from "./pages/student/components/Stu_Bookmark";
+import StuMentorDetails from "./pages/student/components/Stu_Mentordetails";
 
 
 import MentorDashboard from "./pages/mentor/Mentordashboard";
@@ -18,6 +19,7 @@ import MentorStudents from "./pages/mentor/components/TotalStudents"
 import ResultStudent from "./pages/mentor/components/StudentResult"
 import CareerStudent from "./pages/mentor/components/StudentCareer"
 import CertificateStudent from "./pages/mentor/components/StudentCertificate"
+import MenStudentdetails from "./pages/mentor/components/Men_Studetails"
 
 import StudentProfile from "./pages/student/components/StudentProfile"
 
@@ -34,6 +36,7 @@ import AdminClgMan from "./pages/admin/components/admin_clgmng"
 import AdminAnalytics from "./pages/admin/components/Admin_Viewanly"
 import Adminreport from "./pages/admin/components/admin_report"
 import Adminaddstu from "./pages/admin/components/add_stu"
+import Adminaddmen from "./pages/admin/components/admin_addmen"
 
 function App() {
   return (
@@ -48,6 +51,8 @@ function App() {
         <Route path="/student/update-progress" element={<StudentProgress />} />
         <Route path="/student/wallet" element={<StudentWallet />} />
         <Route path="/student/bookmarks" element={<Studentbooklet />} />
+        <Route path="/student/mentor/:mentor_username" element={<StuMentorDetails />} />
+
 
 
 
@@ -57,7 +62,8 @@ function App() {
         <Route path="/mentor/student/:student_id/progress" element={<ResultStudent />}/>
         <Route path="/mentor/student/:username/career" element={<CareerStudent />}/>
         <Route path="/mentor/student/:username/certifications" element={<CertificateStudent />}/>
-        
+        <Route path="/mentor/student/:username/profile" element={<MenStudentdetails />}/>
+       
 
 
 
@@ -78,7 +84,9 @@ function App() {
         <Route path="admin/analytics" element={<AdminAnalytics/>}/>
         <Route path="admin/reports" element={<Adminreport/>}/>
         <Route path="/admin/students/add" element={<Adminaddstu/>}/>
+        <Route path="/admin/mentors/add" element={<Adminaddmen/>}/>
         
+
 
         {/* Add more pages here if needed */}
       </Routes>

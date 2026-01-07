@@ -1,43 +1,24 @@
-import React, { useEffect, useState } from "react";
-import baseurl from "../../../baseurl";
-import { User, ChevronDown, Bell, Settings, LogOut } from "lucide-react";
-import logo from "../../../imgs/logo.png";
-import "./add_stu"; // Create this CSS file
-
-
-export default function Admintop() {
-  const [Admin, setAdmin] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notifications, setNotifications] = useState(3); // Mock notifications count
-
-  useEffect(() => {
-    const username = localStorage.getItem("loggedUser");
-    if (username) {
-      fetch(`${baseurl}/get_admin/${username}`)
-        .then((res) => res.json())
-        .then((json) => {
-          if (json.success) setAdmin(json.data);
-        })
-        .catch(() => console.log("Error fetching Admin data"));
-// Updated AddStudent.js with improved UI
+// Updated AddMentor.js with improved UI
 import React, { useState } from "react";
+import "./AddMentor.css";
 import BASE_URL from "../../../baseurl";
-import "./add_stu.css"; // Import the enhanced CSS
 import Admintop from "../../nav/admintop";
 
-function AddStudent() {
-  const [student, setStudent] = useState({
+
+function AddMentor() {
+  const [mentor, setMentor] = useState({
     name: "",
     dob: "",
     maatramId: "",
     phone: "",
+    email: "",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setStudent({ ...student, [e.target.name]: e.target.value });
+    setMentor({ ...mentor, [e.target.name]: e.target.value });
     // Clear messages when user starts typing
     if (success) setSuccess(false);
     if (error) setError("");
@@ -49,29 +30,38 @@ function AddStudent() {
     setError("");
     setSuccess(false);
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(mentor.email)) {
+      setError("Please enter a valid email address");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch(`${BASE_URL}/add_student`, {
+      const response = await fetch(`${BASE_URL}/add_mentor`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(student),
+        body: JSON.stringify(mentor),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         setSuccess(true);
-        setStudent({
+        setMentor({
           name: "",
           dob: "",
           maatramId: "",
           phone: "",
+          email: "",
         });
         // Auto-hide success message after 3 seconds
         setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(data.message || "Failed to add student");
+        setError(data.message || "Failed to add mentor");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -82,21 +72,22 @@ function AddStudent() {
   };
 
   const handleReset = () => {
-    setStudent({
+    setMentor({
       name: "",
       dob: "",
       maatramId: "",
       phone: "",
+      email: "",
     });
     setSuccess(false);
     setError("");
   };
 
   return (
-    <div className="student-container">
-       <Admintop activeTab="assignments" />
+    <div className="mentor-container">
+      <Admintop activeTab="assignments" />
       <form 
-        className={`student-form ${loading ? 'loading' : ''}`} 
+        className={`mentor-form ${loading ? 'loading' : ''}`} 
         onSubmit={handleSubmit}
       >
         {loading && (
@@ -105,11 +96,16 @@ function AddStudent() {
           </div>
         )}
         
-        <h2>Add Student</h2>
+        <div className="mentor-header">
+          <div className="mentor-icon">
+            👨‍🏫
+          </div>
+          <h2>Add Mentor</h2>
+        </div>
 
         {success && (
           <div className="success-message">
-            Student added successfully!
+            Mentor added successfully!
           </div>
         )}
 
@@ -121,13 +117,13 @@ function AddStudent() {
 
         <div className="form-grid">
           <div className="form-group">
-            <label>Student Name</label>
+            <label>Mentor Name</label>
             <input
               type="text"
               name="name"
-              value={student.name}
+              value={mentor.name}
               onChange={handleChange}
-              placeholder="Enter student name"
+              placeholder="Enter mentor's full name"
               required
               disabled={loading}
             />
@@ -138,7 +134,7 @@ function AddStudent() {
             <input
               type="date"
               name="dob"
-              value={student.dob}
+              value={mentor.dob}
               onChange={handleChange}
               required
               disabled={loading}
@@ -150,7 +146,7 @@ function AddStudent() {
             <input
               type="text"
               name="maatramId"
-              value={student.maatramId}
+              value={mentor.maatramId}
               onChange={handleChange}
               placeholder="Enter Maatram ID"
               required
@@ -163,11 +159,29 @@ function AddStudent() {
             <input
               type="tel"
               name="phone"
-              value={student.phone}
+              value={mentor.phone}
               onChange={handleChange}
-              placeholder="Enter phone number (optional)"
+              placeholder="Enter phone number"
+              required
               disabled={loading}
             />
+          </div>
+
+          <div className="form-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              name="email"
+              value={mentor.email}
+              onChange={handleChange}
+              placeholder="mentor@example.com"
+              required
+              disabled={loading}
+            />
+            <div className="email-hint">
+              <span>✓</span>
+              Will be used for mentor communications
+            </div>
           </div>
         </div>
 
@@ -185,7 +199,7 @@ function AddStudent() {
             className="submit-button"
             disabled={loading}
           >
-            {loading ? 'Adding...' : 'Add Student'}
+            {loading ? 'Adding Mentor...' : 'Add Mentor'}
           </button>
         </div>
       </form>
@@ -193,4 +207,4 @@ function AddStudent() {
   );
 }
 
-export default AddStudent;
+export default AddMentor;

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import StudentTopBar from "../../nav/studenttop";
+import API_URL from "../../../baseurl";
+
 import { 
   Plus, 
   Trash2, 
@@ -14,10 +16,9 @@ import {
   ChevronDown,
   ChevronUp
 } from "lucide-react";
-//import "./Stu_Bookmark.css";
+import styles from "./Stu_Bookmark.module.css";
 
 // Add these constants at the top (you might want to move them to a config file)
-const API_BASE = "http://localhost:5000/api"; // Adjust based on your backend URL
 const username = "student_username"; // You should get this from auth context or localStorage
 
 export default function StudentNotes() {
@@ -37,25 +38,39 @@ export default function StudentNotes() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [filteredNotes, setFilteredNotes] = useState([]);
   const [tagInput, setTagInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Fetch notes from backend
-  const fetchNotes = () => {
-    fetch(`${API_BASE}/student/bookmark/${username}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          const formatted = data.notes.map(n => ({
-            id: n.note_id,
-            title: n.title,
-            description: n.description,
-            date: n.date,
-            tags: n.tags || [],
-            lastModified: n.updated_at || n.created_at
-          }));
-          setNotes(formatted);
-        }
-      })
-      .catch(err => console.error(err));
+  const fetchNotes = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_URL}/student/bookmark/${username}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      
+      if (data.success) {
+        const formatted = data.notes.map(n => ({
+          id: n.note_id,
+          title: n.title,
+          description: n.description,
+          date: n.date,
+          tags: Array.isArray(n.tags) ? n.tags : [],
+          lastModified: n.updated_at || n.created_at
+        }));
+        setNotes(formatted);
+      } else {
+        throw new Error(data.message || "Failed to fetch notes");
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError("Failed to load notes. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Load notes from backend on component mount
@@ -147,28 +162,37 @@ export default function StudentNotes() {
     };
 
     try {
-      if (isEditing) {
-        await fetch(`${API_BASE}/student/bookmark/update`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...payload,
-            note_id: currentNote.id
-          })
-        });
-      } else {
-        await fetch(`${API_BASE}/student/bookmark/add`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+      const url = isEditing 
+        ? `${API_URL}/student/bookmark/update`
+        : `${API_URL}/student/bookmark/add`;
+      
+      const method = isEditing ? "PUT" : "POST";
+      
+      const body = isEditing 
+        ? { ...payload, note_id: currentNote.id }
+        : payload;
+
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      fetchNotes();
-      resetForm();
+      const data = await response.json();
+      
+      if (data.success) {
+        fetchNotes();
+        resetForm();
+      } else {
+        throw new Error(data.message || "Save failed");
+      }
     } catch (error) {
       console.error("Save failed:", error);
-      alert("Failed to save note");
+      alert("Failed to save note: " + error.message);
     }
   };
 
@@ -177,7 +201,7 @@ export default function StudentNotes() {
     setIsAdding(true);
     setCurrentNote({
       ...note,
-      tags: note.tags.join(", ")
+      tags: Array.isArray(note.tags) ? note.tags.join(", ") : note.tags
     });
   };
 
@@ -185,7 +209,7 @@ export default function StudentNotes() {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
 
     try {
-      await fetch(`${API_BASE}/student/bookmark/delete`, {
+      const response = await fetch(`${API_URL}/student/bookmark/delete`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -194,10 +218,20 @@ export default function StudentNotes() {
         })
       });
 
-      fetchNotes();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        fetchNotes();
+      } else {
+        throw new Error(data.message || "Delete failed");
+      }
     } catch (error) {
       console.error("Delete failed:", error);
-      alert("Failed to delete note");
+      alert("Failed to delete note: " + error.message);
     }
   };
 
@@ -227,6 +261,7 @@ export default function StudentNotes() {
 
   const addNewTag = (e) => {
     if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
       const newTag = tagInput.trim();
       if (!selectedTags.includes(newTag)) {
         setSelectedTags([...selectedTags, newTag]);
@@ -252,10 +287,12 @@ export default function StudentNotes() {
   };
 
   const getNoteSummary = (description) => {
+    if (!description) return "No description";
     return description.length > 150 ? description.substring(0, 150) + "..." : description;
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return "No date";
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       month: 'short',
@@ -265,44 +302,52 @@ export default function StudentNotes() {
   };
 
   return (
-    <div className="student-notes">
+    <div className={styles.studentNotes}>
       <StudentTopBar />
 
-      <div className="notes-container">
+      <div className={styles.notesContainer}>
         {/* Header */}
-        <div className="notes-header">
-          <div className="header-content">
+        <div className={styles.notesHeader}>
+          <div className={styles.headerContent}>
             <h1>My Notes</h1>
             <p>Organize your study notes, ideas, and important information</p>
           </div>
-          <button className="add-note-btn" onClick={handleAddNote}>
+          <button className={styles.addNoteBtn} onClick={handleAddNote}>
             <Plus size={20} />
             Add New Note
           </button>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className={styles.errorMessage}>
+            <p>{error}</p>
+            <button onClick={fetchNotes}>Retry</button>
+          </div>
+        )}
+
         {/* Add/Edit Note Form */}
         {isAdding && (
-          <div className="note-form-container">
-            <div className="note-form">
-              <div className="form-header">
+          <div className={styles.noteFormContainer}>
+            <div className={styles.noteForm}>
+              <div className={styles.formHeader}>
                 <h3>{isEditing ? "Edit Note" : "Create New Note"}</h3>
-                <div className="form-actions">
-                  <button className="btn-secondary" onClick={handleCancel}>
+                <div className={styles.formActions}>
+                  <button className={styles.btnSecondary} onClick={handleCancel}>
                     <X size={18} />
                     Cancel
                   </button>
-                  <button className="btn-primary" onClick={handleSaveNote}>
+                  <button className={styles.btnPrimary} onClick={handleSaveNote}>
                     <Save size={18} />
                     {isEditing ? "Update Note" : "Save Note"}
                   </button>
                 </div>
               </div>
 
-              <div className="form-content">
-                <div className="form-group">
+              <div className={styles.formContent}>
+                <div className={styles.formGroup}>
                   <label htmlFor="title">
-                    Title <span className="required">*</span>
+                    Title <span className={styles.required}>*</span>
                   </label>
                   <input
                     type="text"
@@ -312,26 +357,13 @@ export default function StudentNotes() {
                     placeholder="Enter note title"
                     maxLength={100}
                   />
-                  <div className="char-count">
+                  <div className={styles.charCount}>
                     {currentNote.title.length}/100
                   </div>
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="date">
-                      <Calendar size={16} />
-                      Date
-                    </label>
-                    <input
-                      type="date"
-                      id="date"
-                      value={currentNote.date}
-                      onChange={(e) => setCurrentNote({...currentNote, date: e.target.value})}
-                    />
-                  </div>
-
-                  <div className="form-group">
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
                     <label htmlFor="tags">
                       <Tag size={16} />
                       Tags (comma separated)
@@ -346,7 +378,7 @@ export default function StudentNotes() {
                   </div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label htmlFor="description">Description</label>
                   <textarea
                     id="description"
@@ -355,7 +387,7 @@ export default function StudentNotes() {
                     placeholder="Write your note content here..."
                     rows={8}
                   />
-                  <div className="char-count">
+                  <div className={styles.charCount}>
                     {currentNote.description.length} characters
                   </div>
                 </div>
@@ -365,8 +397,8 @@ export default function StudentNotes() {
         )}
 
         {/* Filters and Search */}
-        <div className="notes-controls">
-          <div className="search-container">
+        <div className={styles.notesControls}>
+          <div className={styles.searchContainer}>
             <Search size={20} />
             <input
               type="text"
@@ -376,18 +408,18 @@ export default function StudentNotes() {
             />
           </div>
 
-          <div className="controls-right">
-            <div className="sort-container">
-              <span className="sort-label">Sort by:</span>
-              <div className="sort-options">
+          <div className={styles.controlsRight}>
+            <div className={styles.sortContainer}>
+              <span className={styles.sortLabel}>Sort by:</span>
+              <div className={styles.sortOptions}>
                 <button 
-                  className={`sort-btn ${sortBy === 'date' ? 'active' : ''}`}
+                  className={`${styles.sortBtn} ${sortBy === 'date' ? styles.active : ''}`}
                   onClick={() => handleSort('date')}
                 >
                   Date {sortBy === 'date' && (sortOrder === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
                 </button>
                 <button 
-                  className={`sort-btn ${sortBy === 'title' ? 'active' : ''}`}
+                  className={`${styles.sortBtn} ${sortBy === 'title' ? styles.active : ''}`}
                   onClick={() => handleSort('title')}
                 >
                   Title {sortBy === 'title' && (sortOrder === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
@@ -396,7 +428,7 @@ export default function StudentNotes() {
             </div>
 
             {(searchTerm || selectedTags.length > 0) && (
-              <button className="clear-filters" onClick={clearFilters}>
+              <button className={styles.clearFilters} onClick={clearFilters}>
                 Clear Filters
               </button>
             )}
@@ -405,16 +437,16 @@ export default function StudentNotes() {
 
         {/* Tags Filter */}
         {allTags.length > 0 && (
-          <div className="tags-filter">
-            <div className="tags-header">
+          <div className={styles.tagsFilter}>
+            <div className={styles.tagsHeader}>
               <Tag size={18} />
               <span>Filter by Tags:</span>
             </div>
-            <div className="tags-list">
+            <div className={styles.tagsList}>
               {allTags.map(tag => (
                 <button
                   key={tag}
-                  className={`tag-btn ${selectedTags.includes(tag) ? 'active' : ''}`}
+                  className={`${styles.tagBtn} ${selectedTags.includes(tag) ? styles.active : ''}`}
                   onClick={() => handleTagToggle(tag)}
                 >
                   {tag}
@@ -422,7 +454,7 @@ export default function StudentNotes() {
                 </button>
               ))}
             </div>
-            <div className="add-tag-input">
+            <div className={styles.addTagInput}>
               <input
                 type="text"
                 placeholder="Add custom tag and press Enter"
@@ -434,86 +466,98 @@ export default function StudentNotes() {
           </div>
         )}
 
-        {/* Notes Grid */}
-        {filteredNotes.length === 0 ? (
-          <div className="empty-notes">
-            <FileText size={64} />
-            <h3>No notes found</h3>
-            <p>
-              {searchTerm || selectedTags.length > 0 
-                ? "Try changing your search or filter criteria"
-                : "Create your first note to get started"}
-            </p>
-            {!isAdding && (
-              <button className="btn-primary" onClick={handleAddNote}>
-                <Plus size={20} />
-                Create Your First Note
-              </button>
-            )}
+        {/* Loading State */}
+        {isLoading ? (
+          <div className={styles.loading}>
+            <div className={styles.spinner}></div>
+            <p>Loading notes...</p>
           </div>
         ) : (
           <>
-            <div className="notes-summary">
-              <span className="notes-count">{filteredNotes.length} note{filteredNotes.length !== 1 ? 's' : ''} found</span>
-              <span className="notes-info">
-                <Clock size={14} />
-                Last modified: {formatDate(notes[0]?.lastModified || new Date())}
-              </span>
-            </div>
+            {/* Notes Grid */}
+            {filteredNotes.length === 0 ? (
+              <div className={styles.emptyNotes}>
+                <FileText size={64} />
+                <h3>No notes found</h3>
+                <p>
+                  {searchTerm || selectedTags.length > 0 
+                    ? "Try changing your search or filter criteria"
+                    : "Create your first note to get started"}
+                </p>
+                {!isAdding && (
+                  <button className={styles.btnPrimary} onClick={handleAddNote}>
+                    <Plus size={20} />
+                    Create Your First Note
+                  </button>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className={styles.notesSummary}>
+                  <span className={styles.notesCount}>
+                    {filteredNotes.length} note{filteredNotes.length !== 1 ? 's' : ''} found
+                  </span>
+                  <span className={styles.notesInfo}>
+                    <Clock size={14} />
+                    Last modified: {formatDate(notes[0]?.lastModified || new Date())}
+                  </span>
+                </div>
 
-            <div className="notes-grid">
-              {filteredNotes.map(note => (
-                <div key={note.id} className="note-card">
-                  <div className="note-header">
-                    <div className="note-title">
-                      <h3>{note.title}</h3>
-                      {note.tags.length > 0 && (
-                        <div className="note-tags">
-                          {note.tags.slice(0, 3).map(tag => (
-                            <span key={tag} className="note-tag">
-                              {tag}
-                            </span>
-                          ))}
-                          {note.tags.length > 3 && (
-                            <span className="note-tag-more">
-                              +{note.tags.length - 3}
-                            </span>
+                <div className={styles.notesGrid}>
+                  {filteredNotes.map(note => (
+                    <div key={note.id} className={styles.noteCard}>
+                      <div className={styles.noteHeader}>
+                        <div className={styles.noteTitle}>
+                          <h3>{note.title}</h3>
+                          {note.tags && note.tags.length > 0 && (
+                            <div className={styles.noteTags}>
+                              {note.tags.slice(0, 3).map(tag => (
+                                <span key={tag} className={styles.noteTag}>
+                                  {tag}
+                                </span>
+                              ))}
+                              {note.tags.length > 3 && (
+                                <span className={styles.noteTagMore}>
+                                  +{note.tags.length - 3}
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                    <div className="note-actions">
-                      <button 
-                        className="icon-btn edit"
-                        onClick={() => handleEditNote(note)}
-                      >
-                        <Edit2 size={18} />
-                      </button>
-                      <button 
-                        className="icon-btn delete"
-                        onClick={() => handleDeleteNote(note.id)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </div>
+                        <div className={styles.noteActions}>
+                          <button 
+                            className={`${styles.iconBtn} ${styles.edit}`}
+                            onClick={() => handleEditNote(note)}
+                          >
+                            <Edit2 size={18} />
+                          </button>
+                          <button 
+                            className={`${styles.iconBtn} ${styles.delete}`}
+                            onClick={() => handleDeleteNote(note.id)}
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </div>
 
-                  <div className="note-content">
-                    <p>{getNoteSummary(note.description)}</p>
-                  </div>
+                      <div className={styles.noteContent}>
+                        <p>{getNoteSummary(note.description)}</p>
+                      </div>
 
-                  <div className="note-footer">
-                    <div className="note-date">
-                      <Calendar size={14} />
-                      {formatDate(note.date)}
+                      <div className={styles.noteFooter}>
+                        <div className={styles.noteDate}>
+                          <Calendar size={14} />
+                          {formatDate(note.date)}
+                        </div>
+                        <div className={styles.noteLength}>
+                          {note.description?.length || 0} characters
+                        </div>
+                      </div>
                     </div>
-                    <div className="note-length">
-                      {note.description.length} characters
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </>
         )}
       </div>

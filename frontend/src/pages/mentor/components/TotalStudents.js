@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  User,
+  Target,
+  LineChart,
+  Award,
+  Search
+} from "lucide-react";
 import baseurl from "../../../baseurl";
 import "./TotalStudents.css";
 import MentorTopBar from "../../mentornav/mentortop";
@@ -7,8 +14,9 @@ import MentorTopBar from "../../mentornav/mentortop";
 export default function TotalStudents() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const [expandedStudent, setExpandedStudent] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ added
+
 
   useEffect(() => {
     const mentorUsername = localStorage.getItem("loggedUser");
@@ -30,7 +38,15 @@ export default function TotalStudents() {
   };
 
   // ✅ filter logic
-  const filteredStudents = students.filter(student => {
+  const filteredStudents = [...students]
+  // 🔹 SORT A → Z by student name
+  .sort((a, b) =>
+    (a.name || "").toLowerCase().localeCompare(
+      (b.name || "").toLowerCase()
+    )
+  )
+  // 🔹 THEN FILTER
+  .filter(student => {
     const term = searchTerm.toLowerCase();
     return (
       student.name?.toLowerCase().includes(term) ||
@@ -39,106 +55,84 @@ export default function TotalStudents() {
     );
   });
 
+
   if (loading) return <p className="loading-text">Loading students...</p>;
 
   return (
     <div className="TotalStudents">
       <MentorTopBar />
 
-      {/* ✅ Search Bar *
-      <div style={{ padding: "10px 20px" }}>
-        <input
-          type="text"
-          placeholder="Search by Name / Maatram ID / Phone"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "10px",
-            fontSize: "16px"
-          }}
-        />
-      </div>*/}
-
       <div className="students-list-container">
         <h2 className="students-title">Students Assigned to You</h2>
+
+        {/* Search */}
+        <div className="search-bar">
+          <Search size={18} className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search by Name / Maatram ID / Phone"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
         {filteredStudents.length === 0 && (
           <p className="no-students">No matching students found</p>
         )}
-         <div style={{ padding: "10px 20px" }}>
-        <input
-          type="text"
-          placeholder="Search by Name / Maatram ID / Phone"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "10px",
-            fontSize: "16px"
-          }}
-        />
-      </div>
 
-        <div className="students-list">
+        {/* Students Grid */}
+        <div className="students-grid">
           {filteredStudents.map(student => (
             <div
               key={student.id || student.username}
-              className={`student-item ${expandedStudent === student.id ? "expanded" : ""}`}
+              className="student-card"
             >
-              <div
-                className="student-main-info"
-                onClick={() => toggleStudentExpansion(student.id)}
-              >
+              {/* Header */}
+              <div className="student-card-header">
                 <div className="student-avatar">
-                  <div className="student-avatar-placeholder">
-                    {student.name?.charAt(0).toUpperCase() || "S"}
-                  </div>
+                  {student.name?.charAt(0).toUpperCase() || "S"}
                 </div>
 
-                <div className="student-info">
-                  <div className="student-name">{student.name || "Unknown Student"}</div>
-                  <div className="student-email">{student.username}</div>
-                  {/*<div className="student-phone">{student.phno || "No phone"}</div>*/}
-                  <div className="expansion-indicator">
-                    {expandedStudent === student.id ? "▼" : "▶"}
-                  </div>
+                <div className="student-basic-info">
+                  <h3>{student.name || "Unknown Student"}</h3>
+                  <p>{student.username}</p>
                 </div>
               </div>
 
-              {expandedStudent === student.id && (
-                <div className="student-actions-panel">
-                  <div className="actions-grid">
-                    <Link
-                      to={`/mentor/student/${student.username}/profile`}
-                      className="action-btn profile-btn"
-                    >
-                      👤 View Profile
-                    </Link>
+              {/* Actions */}
+              <div className="student-card-actions">
+                <Link
+                  to={`/mentor/student/${student.username}/profile`}
+                  className="card-btn profile-btn"
+                >
+                  <User size={16} />
+                  <span>Profile</span>
+                </Link>
 
-                    <Link
-                      to={`/mentor/student/${student.username}/career`}
-                      className="action-btn career-btn"
-                    >
-                      🎯 Selected Career
-                    </Link>
+                <Link
+                  to={`/mentor/student/${student.username}/career`}
+                  className="card-btn career-btn"
+                >
+                  <Target size={16} />
+                  <span>Career</span>
+                </Link>
 
-                    <Link
-                      to={`/mentor/student/${student.username}/progress`}
-                      className="action-btn progress-btn"
-                    >
-                      📊 Progress Graph
-                    </Link>
+                <Link
+                  to={`/mentor/student/${student.username}/progress`}
+                  className="card-btn progress-btn"
+                >
+                  <LineChart size={16} />
+                  <span>Progress</span>
+                </Link>
 
-                    <Link
-                      to={`/mentor/student/${student.username}/certifications`}
-                      className="action-btn certification-btn"
-                    >
-                      🏆 View Certification
-                    </Link>
-                  </div>
-                </div>
-              )}
+                <Link
+                  to={`/mentor/student/${student.username}/certifications`}
+                  className="card-btn certification-btn"
+                >
+                  <Award size={16} />
+                  <span>Certificates</span>
+                </Link>
+              </div>
             </div>
           ))}
         </div>

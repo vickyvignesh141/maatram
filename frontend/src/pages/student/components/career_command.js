@@ -449,10 +449,10 @@ export default function StudentCareer() {
               <p>For {selectedCareer} • {studyPlan.status === 'beginner' ? 'Beginner Path' : 'Advanced Path'}</p>
             </div>
             <div className="header-actions">
-              <button className="icon-btn">
+              {/* <button className="icon-btn">
                 <Download size={20} />
                 Export Plan
-              </button>
+              </button> */}
               <button className="icon-btn" onClick={() => setStep(2)}>
                 <ArrowRight size={20} />
                 Change Career
@@ -492,10 +492,10 @@ export default function StudentCareer() {
                             onChange={(e) => updateTopicProgress(topic, parseInt(e.target.value))}
                             className="progress-slider"
                           />
-                          <button className="small-btn">
+                          {/* <button className="small-btn">
                             <PlayCircle size={16} />
                             Resources
-                          </button>
+                          </button> */}
                         </div>
                       </div>
                     );
