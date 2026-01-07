@@ -248,6 +248,7 @@
 .dashboard-columns {
   display: grid;
   grid-template-columns: 1fr 350px;
+  padding: 50px;
   gap: 2rem;
 }
 

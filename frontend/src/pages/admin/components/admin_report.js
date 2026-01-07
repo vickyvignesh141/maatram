@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Admintop from "../../nav/admintop";
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
-  PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line 
+  PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line,
+  AreaChart, Area, RadialBarChart, RadialBar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from 'recharts';
+import { 
+  Search, Filter, Calendar, Users, TrendingUp, DollarSign, 
+  Award, Star, ChevronDown, Download, TrendingDown, BarChart3,
+  Activity, Target, Eye, RefreshCw
+} from 'lucide-react';
 
 const sangamamData = [
   {
@@ -14,15 +20,24 @@ const sangamamData = [
     averagePercentage: 80,
     chiefGuests: ["Dr. A. P. J. Abdul Kalam", "Prof. R. Narayanan"],
     events: [
-      { name: "Cultural Dance", winner: "Chennai College", participants: 45 },
-      { name: "Technical Quiz", winner: "Madurai Institute", participants: 32 },
-      { name: "Debate Competition", winner: "Coimbatore University", participants: 28 },
-      { name: "Music Festival", winner: "Trichy Arts College", participants: 56 },
+      { name: "Cultural Dance", winner: "Chennai College", participants: 45, category: "Cultural" },
+      { name: "Technical Quiz", winner: "Madurai Institute", participants: 32, category: "Technical" },
+      { name: "Debate Competition", winner: "Coimbatore University", participants: 28, category: "Academic" },
+      { name: "Music Festival", winner: "Trichy Arts College", participants: 56, category: "Cultural" },
     ],
     attendees: ["Arun", "Priya", "Karthik", "Divya", "Rajesh", "Deepa"],
     budget: 125000,
+    expenses: {
+      venue: 40000,
+      food: 30000,
+      logistics: 25000,
+      marketing: 20000,
+      prizes: 10000
+    },
     venue: "Main Auditorium",
     feedbackScore: 4.2,
+    theme: "Cultural Fusion",
+    duration: "3 days"
   },
   {
     year: 2006,
@@ -32,15 +47,24 @@ const sangamamData = [
     averagePercentage: 83,
     chiefGuests: ["Dr. Mylsamy Annadurai"],
     events: [
-      { name: "Drama", winner: "Coimbatore Arts College", participants: 38 },
-      { name: "Hackathon", winner: "Trichy Engineering College", participants: 65 },
-      { name: "Art Exhibition", winner: "Madurai Fine Arts", participants: 42 },
-      { name: "Science Expo", winner: "Chennai Tech Institute", participants: 51 },
+      { name: "Drama", winner: "Coimbatore Arts College", participants: 38, category: "Cultural" },
+      { name: "Hackathon", winner: "Trichy Engineering College", participants: 65, category: "Technical" },
+      { name: "Art Exhibition", winner: "Madurai Fine Arts", participants: 42, category: "Cultural" },
+      { name: "Science Expo", winner: "Chennai Tech Institute", participants: 51, category: "Academic" },
     ],
     attendees: ["Suresh", "Meena", "Vignesh", "Anitha", "Gopal", "Lakshmi"],
     budget: 142000,
+    expenses: {
+      venue: 45000,
+      food: 35000,
+      logistics: 30000,
+      marketing: 22000,
+      prizes: 10000
+    },
     venue: "University Convention Center",
     feedbackScore: 4.5,
+    theme: "Innovation & Creativity",
+    duration: "3 days"
   },
   {
     year: 2007,
@@ -50,15 +74,24 @@ const sangamamData = [
     averagePercentage: 90,
     chiefGuests: ["Dr. Kiran Bedi", "Dr. R. Chidambaram"],
     events: [
-      { name: "Robotics Workshop", winner: "Anna University", participants: 78 },
-      { name: "Literary Fest", winner: "Presidency College", participants: 45 },
-      { name: "Sports Meet", winner: "Loyola College", participants: 120 },
-      { name: "Startup Pitch", winner: "IIT Madras Incubator", participants: 34 },
+      { name: "Robotics Workshop", winner: "Anna University", participants: 78, category: "Technical" },
+      { name: "Literary Fest", winner: "Presidency College", participants: 45, category: "Academic" },
+      { name: "Sports Meet", winner: "Loyola College", participants: 120, category: "Sports" },
+      { name: "Startup Pitch", winner: "IIT Madras Incubator", participants: 34, category: "Technical" },
     ],
     attendees: ["Rahul", "Swathi", "Manoj", "Geetha", "Vinod", "Chitra"],
     budget: 168000,
+    expenses: {
+      venue: 55000,
+      food: 40000,
+      logistics: 35000,
+      marketing: 25000,
+      prizes: 13000
+    },
     venue: "Sports Complex & Auditorium",
     feedbackScore: 4.7,
+    theme: "Technology & Sports",
+    duration: "4 days"
   },
   {
     year: 2008,
@@ -68,119 +101,332 @@ const sangamamData = [
     averagePercentage: 85,
     chiefGuests: ["Narayana Murthy", "Dr. Tessy Thomas"],
     events: [
-      { name: "AI Symposium", winner: "PSG College", participants: 89 },
-      { name: "Cultural Night", winner: "Women's Christian College", participants: 67 },
-      { name: "Case Study", winner: "XLRI Jamshedpur", participants: 41 },
-      { name: "Film Making", winner: "FTII Pune", participants: 28 },
+      { name: "AI Symposium", winner: "PSG College", participants: 89, category: "Technical" },
+      { name: "Cultural Night", winner: "Women's Christian College", participants: 67, category: "Cultural" },
+      { name: "Case Study", winner: "XLRI Jamshedpur", participants: 41, category: "Academic" },
+      { name: "Film Making", winner: "FTII Pune", participants: 28, category: "Cultural" },
     ],
     attendees: ["Anand", "Pooja", "Satish", "Rekha", "Dinesh", "Shalini"],
     budget: 155000,
+    expenses: {
+      venue: 50000,
+      food: 35000,
+      logistics: 30000,
+      marketing: 23000,
+      prizes: 17000
+    },
     venue: "International Convention Center",
     feedbackScore: 4.4,
+    theme: "Digital Renaissance",
+    duration: "3 days"
+  },
+  {
+    year: 2009,
+    totalStudents: 450,
+    attended: 405,
+    notAttended: 45,
+    averagePercentage: 90,
+    chiefGuests: ["Dr. Kasturirangan", "Ms. Sudha Murthy"],
+    events: [
+      { name: "AI Symposium", winner: "PSG College", participants: 92, category: "Technical" },
+      { name: "Cultural Night", winner: "Women's Christian College", participants: 71, category: "Cultural" },
+      { name: "Case Study", winner: "XLRI Jamshedpur", participants: 48, category: "Academic" },
+      { name: "Film Making", winner: "FTII Pune", participants: 35, category: "Cultural" },
+    ],
+    attendees: ["Ravi", "Shweta", "Kumar", "Nisha", "Prakash", "Radha"],
+    budget: 175000,
+    expenses: {
+      venue: 58000,
+      food: 42000,
+      logistics: 38000,
+      marketing: 27000,
+      prizes: 20000
+    },
+    venue: "International Convention Center",
+    feedbackScore: 4.6,
+    theme: "Sustainable Innovation",
+    duration: "3 days"
   },
 ];
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d'];
+const CATEGORY_COLORS = {
+  Cultural: '#FF6B6B',
+  Technical: '#4ECDC4',
+  Academic: '#45B7D1',
+  Sports: '#96CEB4'
+};
 
 const AdminSangamamAnalytics = () => {
   const [selectedYear, setSelectedYear] = useState(sangamamData[sangamamData.length - 1]);
-  const [viewMode, setViewMode] = useState('detailed'); // 'detailed' or 'comparison'
+  const [viewMode, setViewMode] = useState('detailed');
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredData, setFilteredData] = useState(sangamamData);
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('year');
+  const [exportLoading, setExportLoading] = useState(false);
 
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = sangamamData.filter(year => 
-        year.year.toString().includes(searchTerm) ||
-        year.chiefGuests.some(guest => 
-          guest.toLowerCase().includes(searchTerm.toLowerCase())
-        ) ||
-        year.events.some(event => 
-          event.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-      setFilteredData(filtered);
-    } else {
-      setFilteredData(sangamamData);
-    }
-  }, [searchTerm]);
-
-  const calculateStatistics = () => {
+  // Memoized calculations
+  const stats = useMemo(() => {
     const totalYears = sangamamData.length;
     const totalParticipants = sangamamData.reduce((sum, year) => sum + year.totalStudents, 0);
     const avgAttendance = sangamamData.reduce((sum, year) => sum + year.averagePercentage, 0) / totalYears;
     const highestAttendance = Math.max(...sangamamData.map(year => year.averagePercentage));
     const totalBudget = sangamamData.reduce((sum, year) => sum + year.budget, 0);
+    const avgBudget = totalBudget / totalYears;
+    const growthRate = ((sangamamData[sangamamData.length - 1].totalStudents - sangamamData[0].totalStudents) / sangamamData[0].totalStudents * 100).toFixed(1);
     
-    return { totalYears, totalParticipants, avgAttendance, highestAttendance, totalBudget };
+    return { 
+      totalYears, 
+      totalParticipants, 
+      avgAttendance, 
+      highestAttendance, 
+      totalBudget,
+      avgBudget,
+      growthRate 
+    };
+  }, []);
+
+  // Filter and sort data
+  const filteredData = useMemo(() => {
+    let data = [...sangamamData];
+
+    // Apply search filter
+    if (searchTerm) {
+      data = data.filter(year => 
+        year.year.toString().includes(searchTerm) ||
+        year.chiefGuests.some(guest => 
+          guest.toLowerCase().includes(searchTerm.toLowerCase())
+        ) ||
+        year.events.some(event => 
+          event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.category.toLowerCase().includes(searchTerm.toLowerCase())
+        ) ||
+        year.theme.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply category filter
+    if (categoryFilter !== 'all') {
+      data = data.filter(year => 
+        year.events.some(event => event.category === categoryFilter)
+      );
+    }
+
+    // Apply sorting
+    data.sort((a, b) => {
+      switch(sortBy) {
+        case 'year': return b.year - a.year;
+        case 'attendance': return b.averagePercentage - a.averagePercentage;
+        case 'budget': return b.budget - a.budget;
+        case 'feedback': return b.feedbackScore - a.feedbackScore;
+        default: return 0;
+      }
+    });
+
+    return data;
+  }, [searchTerm, categoryFilter, sortBy]);
+
+  // Chart data calculations
+  const attendanceData = useMemo(() => 
+    sangamamData.map(year => ({
+      year: year.year,
+      attended: year.attended,
+      notAttended: year.notAttended,
+      percentage: year.averagePercentage,
+      growth: year.year > 2005 ? 
+        ((year.totalStudents - sangamamData.find(y => y.year === year.year - 1)?.totalStudents || 0) / 
+         sangamamData.find(y => y.year === year.year - 1)?.totalStudents || 0 * 100).toFixed(1) : 0
+    })), []);
+
+  const budgetData = useMemo(() => 
+    sangamamData.map(year => ({
+      year: year.year,
+      budget: year.budget / 1000,
+      attendees: year.totalStudents,
+      costPerStudent: (year.budget / year.totalStudents).toFixed(0)
+    })), []);
+
+  const categoryData = useMemo(() => {
+    const categories = {};
+    sangamamData.forEach(year => {
+      year.events.forEach(event => {
+        categories[event.category] = (categories[event.category] || 0) + 1;
+      });
+    });
+    return Object.entries(categories).map(([name, value]) => ({ name, value }));
+  }, []);
+
+  const expensesData = useMemo(() => 
+    Object.entries(selectedYear.expenses).map(([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value,
+      percentage: ((value / selectedYear.budget) * 100).toFixed(1)
+    })), [selectedYear]);
+
+  // Handle export
+  const handleExport = async () => {
+    setExportLoading(true);
+    try {
+      const headers = ['Year', 'Theme', 'Total Students', 'Attendance %', 'Budget', 'Feedback', 'Duration'];
+      const csvData = sangamamData.map(year => [
+        year.year,
+        year.theme,
+        year.totalStudents,
+        year.averagePercentage,
+        year.budget,
+        year.feedbackScore,
+        year.duration
+      ]);
+      
+      const csvContent = [
+        headers.join(','),
+        ...csvData.map(row => row.join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `sangamam_analytics_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export failed:', error);
+    } finally {
+      setExportLoading(false);
+    }
   };
-
-  const stats = calculateStatistics();
-
-  const attendanceData = sangamamData.map(year => ({
-    year: year.year,
-    attended: year.attended,
-    notAttended: year.notAttended,
-    percentage: year.averagePercentage,
-  }));
-
-  const eventParticipationData = selectedYear.events.map(event => ({
-    name: event.name,
-    participants: event.participants,
-  }));
-
-  const yearlyComparisonData = sangamamData.map(year => ({
-    year: year.year,
-    attendance: year.averagePercentage,
-    budget: year.budget / 1000,
-    feedback: year.feedbackScore,
-  }));
 
   return (
     <div className="admin-sangamam-analytics">
       <Admintop activeTab="sangamam" />
       
       <div className="container">
-        {/* Header with Stats */}
-        <div className="header-section">
-          <div className="header-main">
-            <h1>Sangamam Annual Fest Analytics Dashboard</h1>
+        {/* Header */}
+        <div className="dashboard-header">
+          <div className="header-content">
+            <h1>
+              <Activity size={32} />
+              Sangamam Fest Analytics Dashboard
+            </h1>
             <p className="subtitle">
-              Comprehensive analytics and insights for Sangamam cultural fest management
-              and performance tracking across years.
             </p>
           </div>
           
-          <div className="quick-stats">
-            <div className="stat-card">
-              <div className="stat-value">{stats.totalYears}</div>
-              <div className="stat-label">Total Years</div>
+          <button 
+            className="export-btn"
+            onClick={handleExport}
+            disabled={exportLoading}
+          >
+            <Download size={18} />
+            {exportLoading ? 'Exporting...' : 'Export Report'}
+          </button>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="quick-stats-grid">
+          <div className="stat-card primary">
+            <div className="stat-icon">
+              <Calendar size={24} />
             </div>
-            <div className="stat-card">
+            <div className="stat-content">
+              <div className="stat-value">{stats.totalYears} Years</div>
+              <div className="stat-label">Historical Data</div>
+            </div>
+          </div>
+          
+          <div className="stat-card success">
+            <div className="stat-icon">
+              <Users size={24} />
+            </div>
+            <div className="stat-content">
               <div className="stat-value">{stats.totalParticipants.toLocaleString()}</div>
               <div className="stat-label">Total Participants</div>
+              <div className="stat-trend positive">
+                <TrendingUp size={14} />
+                {stats.growthRate}% growth
+              </div>
             </div>
-            <div className="stat-card">
+          </div>
+          
+          <div className="stat-card warning">
+            <div className="stat-icon">
+              <BarChart3 size={24} />
+            </div>
+            <div className="stat-content">
               <div className="stat-value">{stats.avgAttendance.toFixed(1)}%</div>
               <div className="stat-label">Avg Attendance</div>
+              <div className="stat-trend positive">
+                <Target size={14} />
+                {stats.highestAttendance}% peak
+              </div>
             </div>
-            <div className="stat-card">
+          </div>
+          
+          <div className="stat-card info">
+            <div className="stat-icon">
+              <DollarSign size={24} />
+            </div>
+            <div className="stat-content">
               <div className="stat-value">₹{(stats.totalBudget / 100000).toFixed(1)}L</div>
-              <div className="stat-label">Total Budget</div>
+              <div className="stat-label">Total Investment</div>
+              <div className="stat-trend">
+                ₹{(stats.avgBudget / 1000).toFixed(0)}K avg/year
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Controls */}
+        {/* Filters & Controls */}
         <div className="controls-section">
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search by year, guest, or event..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
+          <div className="filters-grid">
+            <div className="search-container">
+              <Search size={20} className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search by year, theme, guest, or event..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+              {searchTerm && (
+                <button 
+                  className="clear-search"
+                  onClick={() => setSearchTerm('')}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            
+            <div className="filter-group">
+              <Filter size={18} />
+              <select 
+                className="filter-select"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="all">All Categories</option>
+                <option value="Cultural">Cultural</option>
+                <option value="Technical">Technical</option>
+                <option value="Academic">Academic</option>
+                <option value="Sports">Sports</option>
+              </select>
+            </div>
+            
+            <div className="filter-group">
+              <Eye size={18} />
+              <select 
+                className="filter-select"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="year">Sort by: Year</option>
+                <option value="attendance">Sort by: Attendance</option>
+                <option value="budget">Sort by: Budget</option>
+                <option value="feedback">Sort by: Feedback</option>
+              </select>
+            </div>
           </div>
           
           <div className="view-toggle">
@@ -196,265 +442,40 @@ const AdminSangamamAnalytics = () => {
             >
               Year Comparison
             </button>
+            <button 
+              className={`toggle-btn ${viewMode === 'trends' ? 'active' : ''}`}
+              onClick={() => setViewMode('trends')}
+            >
+              Trends & Insights
+            </button>
           </div>
         </div>
 
         {viewMode === 'detailed' ? (
-          <>
-            {/* Year Selection */}
-            <div className="year-selection">
-              <h3>Select Year for Detailed Analysis</h3>
-              <div className="year-grid">
-                {filteredData.map(year => (
-                  <div
-                    key={year.year}
-                    className={`year-card ${selectedYear.year === year.year ? 'selected' : ''}`}
-                    onClick={() => setSelectedYear(year)}
-                  >
-                    <div className="year-header">
-                      <h3>Sangamam {year.year}</h3>
-                      <span className="attendance-badge">{year.averagePercentage}%</span>
-                    </div>
-                    <div className="year-stats">
-                      <div className="stat">
-                        <span className="stat-label">Students</span>
-                        <span className="stat-value">{year.totalStudents}</span>
-                      </div>
-                      <div className="stat">
-                        <span className="stat-label">Budget</span>
-                        <span className="stat-value">₹{(year.budget/1000).toFixed(0)}K</span>
-                      </div>
-                      <div className="stat">
-                        <span className="stat-label">Events</span>
-                        <span className="stat-value">{year.events.length}</span>
-                      </div>
-                    </div>
-                    <div className="year-venue">{year.venue}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Detailed Analytics */}
-            {selectedYear && (
-              <div className="detailed-analytics">
-                <div className="analytics-header">
-                  <h2>Sangamam {selectedYear.year} - Comprehensive Analysis</h2>
-                  <div className="year-rating">
-                    <span className="rating-value">{selectedYear.feedbackScore}/5.0</span>
-                    <span className="rating-label">Feedback Score</span>
-                  </div>
-                </div>
-
-                {/* Attendance Overview */}
-                <div className="analytics-section">
-                  <h3>Attendance Overview</h3>
-                  <div className="attendance-overview">
-                    <div className="attendance-stats">
-                      <div className="attendance-stat">
-                        <div className="stat-number">{selectedYear.attended}</div>
-                        <div className="stat-desc">Students Attended</div>
-                        <div className="stat-percentage">({selectedYear.averagePercentage}%)</div>
-                      </div>
-                      <div className="attendance-stat">
-                        <div className="stat-number">{selectedYear.notAttended}</div>
-                        <div className="stat-desc">Not Attended</div>
-                        <div className="stat-percentage">({(100 - selectedYear.averagePercentage)}%)</div>
-                      </div>
-                      <div className="attendance-stat">
-                        <div className="stat-number">{selectedYear.totalStudents}</div>
-                        <div className="stat-desc">Total Students</div>
-                      </div>
-                    </div>
-                    
-                    <div className="attendance-chart">
-                      <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                          <Pie
-                            data={[
-                              { name: 'Attended', value: selectedYear.attended },
-                              { name: 'Not Attended', value: selectedYear.notAttended },
-                            ]}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={60}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            paddingAngle={5}
-                            dataKey="value"
-                          >
-                            <Cell fill="#4CAF50" />
-                            <Cell fill="#F44336" />
-                          </Pie>
-                          <Tooltip />
-                          <Legend />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Events Analytics */}
-                <div className="analytics-section">
-                  <h3>Event Participation</h3>
-                  <div className="events-chart">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={eventParticipationData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="participants" fill="#2196F3" name="Participants" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-                {/* Chief Guests & Details */}
-                <div className="details-grid">
-                  <div className="detail-card">
-                    <h4>Chief Guests</h4>
-                    <ul className="guest-list">
-                      {selectedYear.chiefGuests.map((guest, index) => (
-                        <li key={index} className="guest-item">
-                          <span className="guest-name">{guest}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="detail-card">
-                    <h4>Event Winners</h4>
-                    <div className="winners-list">
-                      {selectedYear.events.map((event, index) => (
-                        <div key={index} className="winner-item">
-                          <span className="event-name">{event.name}</span>
-                          <span className="winner-name">{event.winner}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="detail-card">
-                    <h4>Financial Overview</h4>
-                    <div className="financial-details">
-                      <div className="financial-item">
-                        <span>Total Budget</span>
-                        <span className="amount">₹{selectedYear.budget.toLocaleString()}</span>
-                      </div>
-                      <div className="financial-item">
-                        <span>Cost per Student</span>
-                        <span className="amount">₹{(selectedYear.budget / selectedYear.totalStudents).toFixed(0)}</span>
-                      </div>
-                      <div className="financial-item">
-                        <span>Venue</span>
-                        <span className="venue">{selectedYear.venue}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sample Attendees */}
-                <div className="analytics-section">
-                  <h3>Sample Attendees ({selectedYear.attendees.length})</h3>
-                  <div className="attendees-list">
-                    {selectedYear.attendees.map((attendee, index) => (
-                      <span key={index} className="attendee-tag">{attendee}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
+          <DetailedView 
+            selectedYear={selectedYear}
+            filteredData={filteredData}
+            setSelectedYear={setSelectedYear}
+            expensesData={expensesData}
+          />
+        ) : viewMode === 'comparison' ? (
+          <ComparisonView 
+            sangamamData={sangamamData}
+            attendanceData={attendanceData}
+            budgetData={budgetData}
+          />
         ) : (
-          /* Year Comparison View */
-          <div className="comparison-view">
-            <h2>Year-wise Comparison</h2>
-            
-            <div className="comparison-charts">
-              <div className="chart-container">
-                <h4>Attendance Trend</h4>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={attendanceData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="percentage" stroke="#4CAF50" name="Attendance %" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className="chart-container">
-                <h4>Yearly Performance Metrics</h4>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={yearlyComparisonData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar yAxisId="left" dataKey="budget" fill="#2196F3" name="Budget (K)" />
-                    <Bar yAxisId="right" dataKey="feedback" fill="#FF9800" name="Feedback Score" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="comparison-table">
-              <h4>Detailed Year Comparison</h4>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Year</th>
-                    <th>Total Students</th>
-                    <th>Attendance %</th>
-                    <th>Budget (₹)</th>
-                    <th>Events</th>
-                    <th>Feedback</th>
-                    <th>Chief Guests</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sangamamData.map(year => (
-                    <tr key={year.year}>
-                      <td>{year.year}</td>
-                      <td>{year.totalStudents}</td>
-                      <td>
-                        <div className="percentage-bar">
-                          <div 
-                            className="percentage-fill" 
-                            style={{ width: `${year.averagePercentage}%` }}
-                          >
-                            {year.averagePercentage}%
-                          </div>
-                        </div>
-                      </td>
-                      <td>₹{year.budget.toLocaleString()}</td>
-                      <td>{year.events.length}</td>
-                      <td>
-                        <div className="feedback-score">
-                          {year.feedbackScore}
-                          <div className="stars">{"★".repeat(Math.floor(year.feedbackScore))}</div>
-                        </div>
-                      </td>
-                      <td>{year.chiefGuests.length}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <TrendsView 
+            sangamamData={sangamamData}
+            categoryData={categoryData}
+            attendanceData={attendanceData}
+          />
         )}
       </div>
 
-      {/* CSS Styles */}
       <style jsx>{`
         .admin-sangamam-analytics {
-          background: #f5f7fa;
+          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
           min-height: 100vh;
         }
 
@@ -464,567 +485,1160 @@ const AdminSangamamAnalytics = () => {
           padding: 1.5rem;
         }
 
-        /* Header Section */
-        .header-section {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 12px;
-          padding: 2rem;
+        /* Header */
+        .dashboard-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
           margin-bottom: 2rem;
-          color: white;
+          gap: 2rem;
         }
 
-        .header-main h1 {
-          margin: 0;
+        .header-content {
+          flex: 1;
+        }
+
+        .header-content h1 {
+          margin: 0 0 0.5rem 0;
           font-size: 2rem;
-          font-weight: 600;
+          font-weight: 700;
+          color:white;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
         }
 
         .subtitle {
-          margin-top: 0.5rem;
-          opacity: 0.9;
+          margin: 0;
           font-size: 1.1rem;
+          color: #718096;
+          line-height: 1.6;
+          max-width: 800px;
         }
 
-        .quick-stats {
+        .export-btn {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 8px;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          cursor: pointer;
+          transition: all 0.3s;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .export-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .export-btn:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        /* Quick Stats */
+        .quick-stats-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 1rem;
-          margin-top: 2rem;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 1.5rem;
+          margin-bottom: 2rem;
         }
 
         .stat-card {
-          background: rgba(255, 255, 255, 0.1);
-          padding: 1.2rem;
-          border-radius: 8px;
-          text-align: center;
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: white;
+          border-radius: 12px;
+          padding: 1.5rem;
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.primary { border-left: 4px solid #667eea; }
+        .stat-card.success { border-left: 4px solid #10b981; }
+        .stat-card.warning { border-left: 4px solid #f59e0b; }
+        .stat-card.info { border-left: 4px solid #3b82f6; }
+
+        .stat-icon {
+          width: 56px;
+          height: 56px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .stat-card.primary .stat-icon { background: #e0e7ff; color: #667eea; }
+        .stat-card.success .stat-icon { background: #d1fae5; color: #10b981; }
+        .stat-card.warning .stat-icon { background: #fef3c7; color: #f59e0b; }
+        .stat-card.info .stat-icon { background: #dbeafe; color: #3b82f6; }
+
+        .stat-content {
+          flex: 1;
         }
 
         .stat-value {
-          font-size: 1.8rem;
+          font-size: 1.75rem;
           font-weight: 700;
+          color: #1f2937;
+          line-height: 1.2;
           margin-bottom: 0.25rem;
         }
 
         .stat-label {
           font-size: 0.9rem;
-          opacity: 0.9;
+          color: #6b7280;
+          margin-bottom: 0.25rem;
         }
 
-        /* Controls */
-        .controls-section {
+        .stat-trend {
+          font-size: 0.8rem;
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          margin-bottom: 2rem;
-          gap: 1rem;
-          flex-wrap: wrap;
+          gap: 0.25rem;
         }
 
-        .search-box {
-          flex: 1;
-          min-width: 300px;
+        .stat-trend.positive {
+          color: #10b981;
+        }
+
+        /* Filters */
+        .controls-section {
+          background: white;
+          border-radius: 12px;
+          padding: 1.5rem;
+          margin-bottom: 2rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .filters-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+          .filters-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .search-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .search-icon {
+          position: absolute;
+          left: 1rem;
+          color: #9ca3af;
         }
 
         .search-input {
           width: 100%;
-          padding: 0.75rem 1rem;
-          border: 2px solid #e0e0e0;
+          padding: 0.75rem 1rem 0.75rem 3rem;
+          border: 2px solid #e5e7eb;
           border-radius: 8px;
-          font-size: 1rem;
-          transition: border-color 0.3s;
+          font-size: 0.95rem;
+          transition: all 0.3s;
         }
 
         .search-input:focus {
           outline: none;
           border-color: #667eea;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .clear-search {
+          position: absolute;
+          right: 1rem;
+          background: none;
+          border: none;
+          color: #9ca3af;
+          cursor: pointer;
+          padding: 0.25rem;
+          font-size: 1.25rem;
+          line-height: 1;
+        }
+
+        .clear-search:hover {
+          color: #6b7280;
+        }
+
+        .filter-group {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          background: #f9fafb;
+          padding: 0.75rem 1rem;
+          border-radius: 8px;
+          border: 1px solid #e5e7eb;
+        }
+
+        .filter-select {
+          flex: 1;
+          background: none;
+          border: none;
+          outline: none;
+          font-size: 0.95rem;
+          color: #374151;
+          cursor: pointer;
         }
 
         .view-toggle {
           display: flex;
           gap: 0.5rem;
-          background: white;
+          background: #f9fafb;
           padding: 0.25rem;
           border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          width: fit-content;
+          margin: 0 auto;
         }
 
         .toggle-btn {
-          padding: 0.5rem 1rem;
+          padding: 0.75rem 1.5rem;
           border: none;
           background: transparent;
           border-radius: 6px;
-          cursor: pointer;
           font-weight: 500;
+          color: #6b7280;
+          cursor: pointer;
           transition: all 0.3s;
+          white-space: nowrap;
         }
 
         .toggle-btn.active {
-          background: #667eea;
-          color: white;
-          box-shadow: 0 2px 4px rgba(102, 126, 234, 0.4);
-        }
-
-        /* Year Selection */
-        .year-selection {
           background: white;
-          border-radius: 12px;
-          padding: 1.5rem;
-          margin-bottom: 2rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .year-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 1rem;
-          margin-top: 1rem;
-        }
-
-        .year-card {
-          background: white;
-          border: 2px solid #e0e0e0;
-          border-radius: 8px;
-          padding: 1.2rem;
-          cursor: pointer;
-          transition: all 0.3s;
-          position: relative;
-        }
-
-        .year-card:hover {
-          border-color: #667eea;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .year-card.selected {
-          border-color: #667eea;
-          background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-        }
-
-        .year-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
-        }
-
-        .year-header h3 {
-          margin: 0;
-          font-size: 1.2rem;
-          color: #333;
-        }
-
-        .attendance-badge {
-          background: #4CAF50;
-          color: white;
-          padding: 0.25rem 0.75rem;
-          border-radius: 20px;
-          font-size: 0.9rem;
-          font-weight: 600;
-        }
-
-        .year-stats {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-          margin-bottom: 1rem;
-        }
-
-        .stat {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .stat-label {
-          font-size: 0.8rem;
-          color: #666;
-          margin-bottom: 0.25rem;
-        }
-
-        .stat-value {
-          font-size: 1.1rem;
-          font-weight: 600;
-          color: #333;
-        }
-
-        .year-venue {
-          font-size: 0.9rem;
-          color: #666;
-          padding-top: 0.5rem;
-          border-top: 1px solid #eee;
-        }
-
-        /* Detailed Analytics */
-        .detailed-analytics {
-          background: white;
-          border-radius: 12px;
-          padding: 2rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .analytics-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 2rem;
-          padding-bottom: 1rem;
-          border-bottom: 2px solid #f0f0f0;
-        }
-
-        .analytics-header h2 {
-          margin: 0;
-          color: #333;
-        }
-
-        .year-rating {
-          text-align: center;
-          background: linear-gradient(135deg, #FFD700, #FFA500);
-          padding: 0.5rem 1rem;
-          border-radius: 8px;
-          color: white;
-          font-weight: 600;
-        }
-
-        .rating-value {
-          display: block;
-          font-size: 1.5rem;
-        }
-
-        .rating-label {
-          font-size: 0.9rem;
-          opacity: 0.9;
-        }
-
-        .analytics-section {
-          margin-bottom: 2.5rem;
-        }
-
-        .analytics-section h3 {
-          margin-bottom: 1rem;
-          color: #444;
-          font-size: 1.3rem;
-        }
-
-        .attendance-overview {
-          display: grid;
-          grid-template-columns: 1fr 2fr;
-          gap: 2rem;
-          align-items: center;
-        }
-
-        .attendance-stats {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
-        }
-
-        .attendance-stat {
-          text-align: center;
-          padding: 1.5rem;
-          border-radius: 8px;
-          background: #f8f9fa;
-          border: 1px solid #e9ecef;
-        }
-
-        .stat-number {
-          font-size: 2rem;
-          font-weight: 700;
-          color: #333;
-          margin-bottom: 0.5rem;
-        }
-
-        .stat-desc {
-          color: #666;
-          margin-bottom: 0.25rem;
-          font-size: 0.9rem;
-        }
-
-        .stat-percentage {
-          color: #888;
-          font-size: 0.85rem;
-        }
-
-        /* Details Grid */
-        .details-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 1.5rem;
-          margin-bottom: 2rem;
-        }
-
-        .detail-card {
-          background: #f8f9fa;
-          border-radius: 8px;
-          padding: 1.5rem;
-          border: 1px solid #e9ecef;
-        }
-
-        .detail-card h4 {
-          margin-top: 0;
-          margin-bottom: 1rem;
-          color: #444;
-        }
-
-        .guest-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-
-        .guest-item {
-          padding: 0.75rem;
-          border-bottom: 1px solid #eee;
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-
-        .guest-item:last-child {
-          border-bottom: none;
-        }
-
-        .guest-name {
-          flex: 1;
-          color: #333;
-        }
-
-        .winners-list {
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-        }
-
-        .winner-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0.75rem;
-          background: white;
-          border-radius: 6px;
-          border: 1px solid #eee;
-        }
-
-        .event-name {
-          font-weight: 500;
-          color: #333;
-        }
-
-        .winner-name {
           color: #667eea;
-          font-weight: 600;
-        }
-
-        .financial-details {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .financial-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-bottom: 0.75rem;
-          border-bottom: 1px solid #eee;
-        }
-
-        .financial-item:last-child {
-          border-bottom: none;
-        }
-
-        .amount {
-          font-weight: 600;
-          color: #333;
-        }
-
-        .venue {
-          color: #667eea;
-          font-weight: 500;
-        }
-
-        /* Attendees */
-        .attendees-list {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-        }
-
-        .attendee-tag {
-          background: #e3f2fd;
-          color: #1976d2;
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-size: 0.9rem;
-          border: 1px solid #bbdefb;
-        }
-
-        /* Comparison View */
-        .comparison-view {
-          background: white;
-          border-radius: 12px;
-          padding: 2rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .comparison-view h2 {
-          margin-top: 0;
-          margin-bottom: 2rem;
-          color: #333;
-        }
-
-        .comparison-charts {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-          gap: 2rem;
-          margin-bottom: 2rem;
-        }
-
-        .chart-container {
-          background: #f8f9fa;
-          padding: 1.5rem;
-          border-radius: 8px;
-          border: 1px solid #e9ecef;
-        }
-
-        .chart-container h4 {
-          margin-top: 0;
-          margin-bottom: 1rem;
-          color: #444;
-        }
-
-        .comparison-table {
-          margin-top: 2rem;
-        }
-
-        .comparison-table h4 {
-          margin-bottom: 1rem;
-          color: #444;
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          background: white;
-          border-radius: 8px;
-          overflow: hidden;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        th, td {
-          padding: 1rem;
-          text-align: left;
-          border-bottom: 1px solid #e9ecef;
-        }
-
-        th {
-          background: #f8f9fa;
-          font-weight: 600;
-          color: #444;
-        }
-
-        tr:hover {
-          background: #f8f9fa;
-        }
-
-        .percentage-bar {
-          width: 100%;
-          background: #e9ecef;
-          border-radius: 4px;
-          overflow: hidden;
-          height: 24px;
-        }
-
-        .percentage-fill {
-          background: linear-gradient(90deg, #4CAF50, #8BC34A);
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 0.85rem;
-          font-weight: 500;
-          min-width: 50px;
-          padding: 0 8px;
-        }
-
-        .feedback-score {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .stars {
-          color: #FFD700;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .container {
-            padding: 1rem;
-          }
-
-          .header-main h1 {
-            font-size: 1.5rem;
-          }
-
-          .subtitle {
-            font-size: 1rem;
-          }
-
-          .quick-stats {
-            grid-template-columns: repeat(2, 1fr);
-          }
-
-          .controls-section {
-            flex-direction: column;
-          }
-
-          .search-box {
-            min-width: 100%;
-          }
-
-          .attendance-overview {
-            grid-template-columns: 1fr;
-          }
-
-          .attendance-stats {
-            grid-template-columns: repeat(3, 1fr);
-          }
-
-          .comparison-charts {
-            grid-template-columns: 1fr;
-          }
-
-          .details-grid {
-            grid-template-columns: 1fr;
-          }
-
-          table {
-            display: block;
-            overflow-x: auto;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .year-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .attendance-stats {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-          }
-
-          .stat-value {
-            font-size: 1.2rem;
-          }
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
       `}</style>
     </div>
   );
 };
 
+// Detailed View Component
+const DetailedView = ({ selectedYear, filteredData, setSelectedYear, expensesData }) => (
+  <div className="detailed-view">
+    {/* Year Selection */}
+    <div className="year-selection-section">
+      <h3>Select Year for Detailed Analysis</h3>
+      <div className="year-cards-grid">
+        {filteredData.map(year => (
+          <div
+            key={year.year}
+            className={`year-card ${selectedYear.year === year.year ? 'selected' : ''}`}
+            onClick={() => setSelectedYear(year)}
+          >
+            <div className="year-header">
+              <h4>Sangamam {year.year}</h4>
+              <span className="theme-tag">{year.theme}</span>
+            </div>
+            <div className="year-metrics">
+              <div className="metric">
+                <Users size={16} />
+                <span>{year.totalStudents} Students</span>
+              </div>
+              <div className="metric">
+                <TrendingUp size={16} />
+                <span>{year.averagePercentage}% Attendance</span>
+              </div>
+              <div className="metric">
+                <DollarSign size={16} />
+                <span>₹{(year.budget/1000).toFixed(0)}K Budget</span>
+              </div>
+            </div>
+            <div className="year-footer">
+              <span className="duration">{year.duration}</span>
+              <div className="feedback">
+                <Star size={14} fill="#fbbf24" />
+                <span>{year.feedbackScore.toFixed(1)}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Year Details */}
+    {selectedYear && (
+      <div className="year-details">
+        <div className="details-header">
+          <div>
+            <h2>Sangamam {selectedYear.year} - {selectedYear.theme}</h2>
+            <p className="venue-info">{selectedYear.venue} • {selectedYear.duration}</p>
+          </div>
+          <div className="header-stats">
+            <div className="stat">
+              <div className="value">{selectedYear.averagePercentage}%</div>
+              <div className="label">Attendance Rate</div>
+            </div>
+            <div className="stat">
+              <div className="value">₹{(selectedYear.budget/1000).toFixed(0)}K</div>
+              <div className="label">Total Budget</div>
+            </div>
+            <div className="stat">
+              <div className="value">{selectedYear.feedbackScore.toFixed(1)}</div>
+              <div className="label">Feedback Score</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Charts Grid */}
+        <div className="charts-grid">
+          <div className="chart-card">
+            <h4>Attendance Distribution</h4>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Attended', value: selectedYear.attended, color: '#10b981' },
+                    { name: 'Not Attended', value: selectedYear.notAttended, color: '#ef4444' },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  <Cell fill="#10b981" />
+                  <Cell fill="#ef4444" />
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="chart-card">
+            <h4>Budget Allocation</h4>
+            <ResponsiveContainer width="100%" height={300}>
+              <RadialBarChart 
+                innerRadius="20%" 
+                outerRadius="90%" 
+                data={expensesData} 
+                startAngle={180} 
+                endAngle={0}
+              >
+                <PolarGrid />
+                <PolarAngleAxis type="number" domain={[0, 100]} dataKey="value" />
+                <RadialBar dataKey="value" background />
+                <Tooltip />
+              </RadialBarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Events & Guests */}
+        <div className="details-section">
+          <div className="events-section">
+            <h4>Event Highlights</h4>
+            <div className="events-grid">
+              {selectedYear.events.map((event, index) => (
+                <div key={index} className="event-card">
+                  <div className="event-header">
+                    <span className="event-name">{event.name}</span>
+                    <span 
+                      className="event-category"
+                      style={{ backgroundColor: CATEGORY_COLORS[event.category] }}
+                    >
+                      {event.category}
+                    </span>
+                  </div>
+                  <div className="event-details">
+                    <div className="winner">
+                      <Award size={14} />
+                      <span>{event.winner}</span>
+                    </div>
+                    <div className="participants">
+                      <Users size={14} />
+                      <span>{event.participants} participants</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="guests-section">
+            <h4>Chief Guests</h4>
+            <div className="guests-list">
+              {selectedYear.chiefGuests.map((guest, index) => (
+                <div key={index} className="guest-card">
+                  <div className="guest-avatar">
+                    {guest.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div className="guest-info">
+                    <div className="guest-name">{guest}</div>
+                    <div className="guest-year">{selectedYear.year}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+// Comparison View Component
+const ComparisonView = ({ sangamamData, attendanceData, budgetData }) => (
+  <div className="comparison-view">
+    <h2>Year-wise Performance Comparison</h2>
+    
+    <div className="comparison-charts-grid">
+      <div className="chart-card">
+        <h4>Attendance Trend</h4>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={attendanceData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="year" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line 
+              type="monotone" 
+              dataKey="percentage" 
+              stroke="#10b981" 
+              strokeWidth={2}
+              name="Attendance %" 
+              dot={{ r: 4 }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="growth" 
+              stroke="#3b82f6" 
+              strokeWidth={2}
+              name="Growth %" 
+              strokeDasharray="5 5"
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="chart-card">
+        <h4>Budget & Participation</h4>
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={budgetData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="year" />
+            <YAxis yAxisId="left" />
+            <YAxis yAxisId="right" orientation="right" />
+            <Tooltip />
+            <Legend />
+            <Area 
+              yAxisId="left"
+              type="monotone" 
+              dataKey="budget" 
+              fill="#667eea" 
+              stroke="#667eea" 
+              name="Budget (K)"
+            />
+            <Line 
+              yAxisId="right"
+              type="monotone" 
+              dataKey="attendees" 
+              stroke="#f59e0b" 
+              strokeWidth={2}
+              name="Participants"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+
+    <div className="comparison-table-section">
+      <h4>Detailed Performance Metrics</h4>
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Theme</th>
+              <th>Total Students</th>
+              <th>Attendance %</th>
+              <th>Budget (₹)</th>
+              <th>Events</th>
+              <th>Feedback</th>
+              <th>Cost/Student</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sangamamData.map(year => {
+              const costPerStudent = (year.budget / year.totalStudents).toFixed(0);
+              return (
+                <tr key={year.year}>
+                  <td>
+                    <strong>{year.year}</strong>
+                  </td>
+                  <td>{year.theme}</td>
+                  <td>{year.totalStudents}</td>
+                  <td>
+                    <div className="attendance-cell">
+                      <div className="percentage-bar">
+                        <div 
+                          className="percentage-fill"
+                          style={{ width: `${year.averagePercentage}%` }}
+                        />
+                      </div>
+                      <span>{year.averagePercentage}%</span>
+                    </div>
+                  </td>
+                  <td>₹{year.budget.toLocaleString()}</td>
+                  <td>{year.events.length}</td>
+                  <td>
+                    <div className="feedback-cell">
+                      <div className="stars">
+                        {"★".repeat(Math.floor(year.feedbackScore))}
+                        {"☆".repeat(5 - Math.floor(year.feedbackScore))}
+                      </div>
+                      <span>{year.feedbackScore.toFixed(1)}</span>
+                    </div>
+                  </td>
+                  <td>₹{costPerStudent}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+);
+
+// Trends View Component
+const TrendsView = ({ sangamamData, categoryData, attendanceData }) => (
+  <div className="trends-view">
+    <h2>Trends & Insights</h2>
+    
+    <div className="insights-grid">
+      <div className="insight-card">
+        <h4>Event Categories Distribution</h4>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={categoryData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {categoryData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.name]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="insight-card">
+        <h4>Attendance Growth Pattern</h4>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={attendanceData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="year" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="attended" fill="#10b981" name="Attended" />
+            <Bar dataKey="notAttended" fill="#ef4444" name="Not Attended" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+
+    <div className="key-metrics">
+      <h4>Performance Metrics</h4>
+      <div className="metrics-grid">
+        {sangamamData.map((year, index) => {
+          const prevYear = sangamamData[index - 1];
+          const attendanceGrowth = prevYear 
+            ? (((year.averagePercentage - prevYear.averagePercentage) / prevYear.averagePercentage) * 100).toFixed(1)
+            : '0.0';
+          const budgetGrowth = prevYear 
+            ? (((year.budget - prevYear.budget) / prevYear.budget) * 100).toFixed(1)
+            : '0.0';
+          
+          return (
+            <div key={year.year} className="metric-card">
+              <div className="metric-header">
+                <h5>Sangamam {year.year}</h5>
+                <span className="theme">{year.theme}</span>
+              </div>
+              <div className="metric-body">
+                <div className="metric-row">
+                  <span>Attendance</span>
+                  <span className={`value ${parseFloat(attendanceGrowth) > 0 ? 'positive' : 'negative'}`}>
+                    {year.averagePercentage}%
+                    {prevYear && (
+                      <span className="trend">
+                        {parseFloat(attendanceGrowth) > 0 ? '↗' : '↘'}
+                        {Math.abs(parseFloat(attendanceGrowth))}%
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <div className="metric-row">
+                  <span>Budget</span>
+                  <span className={`value ${parseFloat(budgetGrowth) > 0 ? 'positive' : 'negative'}`}>
+                    ₹{(year.budget/1000).toFixed(0)}K
+                    {prevYear && (
+                      <span className="trend">
+                        {parseFloat(budgetGrowth) > 0 ? '↗' : '↘'}
+                        {Math.abs(parseFloat(budgetGrowth))}%
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <div className="metric-row">
+                  <span>Student Growth</span>
+                  <span className="value">
+                    {prevYear 
+                      ? `${(((year.totalStudents - prevYear.totalStudents) / prevYear.totalStudents) * 100).toFixed(1)}%`
+                      : 'New'
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+);
+
+// Add additional CSS for the components
+const additionalStyles = `
+  /* Detailed View Styles */
+  .detailed-view {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .year-selection-section h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #2d3748;
+  }
+
+  .year-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .year-card {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .year-card:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+  }
+
+  .year-card.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  }
+
+  .year-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .year-header h4 {
+    margin: 0;
+    color: #2d3748;
+  }
+
+  .theme-tag {
+    background: #e0e7ff;
+    color: #667eea;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .year-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .metric {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+  }
+
+  .year-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .duration {
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  .feedback {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #f59e0b;
+    font-weight: 600;
+  }
+
+  /* Year Details */
+  .year-details {
+    margin-top: 2rem;
+  }
+
+  .details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f0f0f0;
+  }
+
+  .details-header h2 {
+    margin: 0;
+    color: #2d3748;
+  }
+
+  .venue-info {
+    margin: 0.5rem 0 0 0;
+    color: #6b7280;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .header-stats .stat {
+    text-align: center;
+  }
+
+  .header-stats .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #667eea;
+  }
+
+  .header-stats .label {
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+
+  /* Charts Grid */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .chart-card {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .chart-card h4 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #374151;
+  }
+
+  /* Details Section */
+  .details-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+  }
+
+  @media (max-width: 1024px) {
+    .details-section {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .event-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  .event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+  }
+
+  .event-name {
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .event-category {
+    font-size: 0.75rem;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+
+  .event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .winner, .participants {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+
+  /* Guests Section */
+  .guests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .guest-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+
+  .guest-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .guest-info {
+    flex: 1;
+  }
+
+  .guest-name {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+  }
+
+  .guest-year {
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  /* Comparison View Styles */
+  .comparison-view, .trends-view {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .comparison-view h2, .trends-view h2 {
+    margin-top: 0;
+    margin-bottom: 2rem;
+    color: #2d3748;
+  }
+
+  .comparison-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .comparison-table-section {
+    margin-top: 2rem;
+  }
+
+  .comparison-table-section h4 {
+    margin-bottom: 1rem;
+    color: #374151;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+  }
+
+  th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #374151;
+    position: sticky;
+    top: 0;
+  }
+
+  tr:hover {
+    background: #f8fafc;
+  }
+
+  .attendance-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .percentage-bar {
+    flex: 1;
+    height: 24px;
+    background: #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .percentage-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .feedback-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .stars {
+    color: #fbbf24;
+  }
+
+  /* Trends View Styles */
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .key-metrics {
+    margin-top: 2rem;
+  }
+
+  .key-metrics h4 {
+    margin-bottom: 1.5rem;
+    color: #374151;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .metric-card {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .metric-header {
+    margin-bottom: 1rem;
+  }
+
+  .metric-header h5 {
+    margin: 0 0 0.5rem 0;
+    color: #2d3748;
+  }
+
+  .metric-header .theme {
+    font-size: 0.85rem;
+    color: #667eea;
+    background: #e0e7ff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+  }
+
+  .metric-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .metric-row span:first-child {
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+
+  .metric-row .value {
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .metric-row .value.positive {
+    color: #10b981;
+  }
+
+  .metric-row .value.negative {
+    color: #ef4444;
+  }
+
+  .metric-row .trend {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem;
+    }
+
+    .dashboard-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .quick-stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .charts-grid,
+    .comparison-charts-grid,
+    .insights-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .year-cards-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .header-stats {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .details-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .quick-stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .year-cards-grid,
+    .events-grid,
+    .metrics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .toggle-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+`;
+
 export default AdminSangamamAnalytics;
+
+// Inject additional styles
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = additionalStyles;
+  document.head.appendChild(style);
+}

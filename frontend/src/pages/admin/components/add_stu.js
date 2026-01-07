@@ -4,6 +4,7 @@ import { User, ChevronDown, Bell, Settings, LogOut } from "lucide-react";
 import logo from "../../../imgs/logo.png";
 import "./add_stu"; // Create this CSS file
 
+
 export default function Admintop() {
   const [Admin, setAdmin] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);

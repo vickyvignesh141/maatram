@@ -6,11 +6,17 @@
 
 /* Wrapper */
 .dashboard-wrapper {
+  position: relative;
   font-family: "Poppins", sans-serif;
   background: url('../imgs/whiteimage.jpeg') no-repeat center center fixed;
   background-size: cover;
   color: #333;
 }
+
+
+
+
+
 
 /* Header */
 /* Header */
