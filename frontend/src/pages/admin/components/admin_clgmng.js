@@ -1,310 +1,610 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Admintop from "../../nav/admintop";
-import {
-  Search,
-  Eye,
-  ChevronLeft,
-  ChevronRight,
-  Building2
-} from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Building2, Users, GraduationCap } from "lucide-react";
 
 const AdminCollegeManagement = () => {
-  const navigate = useNavigate();
-
-  const [activeTab, setActiveTab] = useState("college_management");
+  const [activeTab] = useState("college_management");
   const [loading, setLoading] = useState(true);
   const [colleges, setColleges] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-
   const itemsPerPage = 8;
 
   useEffect(() => {
+    // Simulate API call
     setTimeout(() => {
       setColleges([
-        {
-          id: 1,
-          name: "Government College of Engineering, Salem",
-          totalStudents: 420,
-          batches: ["2019-2023", "2020-2024", "2021-2025"],
-          placement: "Infosys, TCS, Wipro",
-          partnership: "Active"
-        },
-        {
-          id: 2,
-          name: "Anna University Regional Campus, Coimbatore",
-          totalStudents: 310,
-          batches: ["2018-2022", "2019-2023"],
-          placement: "Cognizant, Accenture",
-          partnership: "Active"
-        },
-        {
-          id: 3,
-          name: "XYZ Arts and Science College",
-          totalStudents: 185,
-          batches: ["2020-2023", "2021-2024"],
-          placement: "Local Industries",
-          partnership: "Inactive"
-        }
+        { id: 1, name: "Velammal Engineering College, Chennai", totalStudents: 56, batches: ["2019-2023", "2020-2024", "2021-2025", "2022-2026"] },
+        { id: 2, name: "Sri Sairam Engineering College, Chennai", totalStudents: 48, batches: ["2018-2022", "2019-2023", "2020-2024"] },
+        { id: 3, name: "Sathyabama Institute of Technology, Chennai", totalStudents: 230, batches: ["2020-2023", "2021-2024", "2022-2025"] },
+        { id: 4, name: "St.joseph's institude of technology ,chennai", totalStudents: 24, batches: ["2018-2022", "2019-2023", "2020-2024", "2021-2025"] },
+        { id: 5, name: "JJ engineering college,trichy,", totalStudents: 87, batches: ["2019-2023", "2020-2024", "2021-2025"] },
+        { id: 6, name: "Jnn engineering college,chennai", totalStudents: 68, batches: ["2019-2023", "2020-2024", "2021-2025"] },
+        { id: 7, name: "Kumaraguru engineering college, Coimbatore", totalStudents: 35, batches: ["2019-2023", "2020-2024"] },
+        { id: 8, name: "Loyolo college,chennai", totalStudents: 53, batches: ["2020-2024", "2021-2025"] },
+        { id: 9, name: "Amrita Vishwa Vidyapeetham, Coimbatore", totalStudents: 92, batches: ["2019-2023", "2020-2024", "2021-2025"] },
+        { id: 10, name: "Kumaraguru College of Technology", totalStudents: 73, batches: ["2020-2024", "2021-2025"] },
+        { id: 11, name: "Thiagarajar College of Engineering, Madurai", totalStudents: 35, batches: ["2019-2023", "2020-2024"] },
+        { id: 12, name: "Madras Institute of Technology", totalStudents: 51, batches: ["2020-2024", "2021-2025"] },
+        { id: 13, name: "Government College of Technology, Coimbatore", totalStudents: 93, batches: ["2019-2023", "2020-2024"] },
+        { id: 14, name: "R.M.K. Engineering College, Chennai", totalStudents: 45, batches: ["2020-2024", "2021-2025"] },
+        { id: 15, name: "St. Joseph's College of Engineering, Chennai", totalStudents: 71, batches: ["2020-2024"] }
       ]);
       setLoading(false);
     }, 500);
   }, []);
 
-  const filteredColleges = colleges.filter(c =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter colleges based on search term
+  const filteredColleges = colleges.filter(college =>
+    college.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Calculate pagination
   const totalPages = Math.ceil(filteredColleges.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentColleges = filteredColleges.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  const currentColleges = filteredColleges.slice(startIndex, startIndex + itemsPerPage);
 
+  // Calculate total students across all colleges
+  const totalStudentsAllColleges = colleges.reduce((sum, college) => sum + college.totalStudents, 0);
+  const averageStudents = Math.round(totalStudentsAllColleges / colleges.length);
+
+  // Loading state
   if (loading) {
     return (
-      <div style={loaderStyle}>
+      <div className="loader-container">
+        <div className="loader-spinner"></div>
         <p>Loading college information...</p>
       </div>
     );
   }
 
   return (
-    <div style={pageStyle}>
-      <Admintop activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      <div style={containerStyle}>
-        {/* Header */}
-        <div style={headerStyle}>
-          <div>
-            <h1 style={titleStyle}>College Management</h1>
-            <p style={subtitleStyle}>
-              View college-wise student distribution and placement partnerships
+    <div className="admin-college-page">
+      <Admintop activeTab={activeTab} />
+      
+      <div className="college-container">
+        {/* Header Section */}
+        <div className="header-section">
+          <div className="header-content">
+            <div className="title-wrapper">
+              <Building2 className="header-icon" />
+              <h1 className="page-title">College Management</h1>
+            </div>
+            <p className="page-subtitle">
+              Manage and view college-wise student distribution and batch details
             </p>
           </div>
-          <Building2 size={34} color="#2563eb" />
+          
+          <div className="stats-card">
+            <div className="stat-item">
+              <div className="stat-icon-wrapper">
+                <Users className="stat-icon" />
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{totalStudentsAllColleges.toLocaleString()}</div>
+                <div className="stat-label">Total Students</div>
+              </div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-icon-wrapper">
+                <GraduationCap className="stat-icon" />
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{colleges.length}</div>
+                <div className="stat-label">Colleges</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Search */}
-        <div style={searchWrapper}>
-          <Search size={18} style={searchIconStyle} />
-          <input
-            type="text"
-            placeholder="Search by college name"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            style={searchInputStyle}
-          />
+        {/* Search Bar */}
+        <div className="search-section">
+          <div className="search-wrapper">
+            <Search className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search colleges by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          <div className="results-info">
+            Showing {currentColleges.length} of {filteredColleges.length} colleges
+          </div>
         </div>
 
-        {/* Table */}
-        <div style={tableWrapper}>
-          <table style={tableStyle}>
-            <thead>
-              <tr style={theadRow}>
-                <th style={th}>College Name</th>
-                <th style={th}>Total Students</th>
-                <th style={th}>Batches (Year-wise)</th>
-                <th style={th}>Placement Details</th>
-                <th style={th}>Partnership</th>
-                <th style={th}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentColleges.length === 0 ? (
+        {/* Table Section */}
+        <div className="table-section">
+          <div className="table-wrapper">
+            <table className="college-table">
+              <thead>
                 <tr>
-                  <td colSpan="6" style={emptyCell}>
-                    No college records found
-                  </td>
+                  <th>College Name</th>
+                  <th>Total Students</th>
+                  <th>Active Batches</th>
                 </tr>
-              ) : (
-                currentColleges.map(college => (
-                  <tr key={college.id} style={tbodyRow}>
-                    <td style={td}><strong>{college.name}</strong></td>
-                    <td style={td}>{college.totalStudents}</td>
-                    <td style={td}>{college.batches.join(", ")}</td>
-                    <td style={td}>{college.placement}</td>
-                    <td style={td}>
-                      <span
-                        style={{
-                          ...badgeStyle,
-                          backgroundColor:
-                            college.partnership === "Active"
-                              ? "#dcfce7"
-                              : "#fee2e2"
-                        }}
-                      >
-                        {college.partnership}
-                      </span>
-                    </td>
-                    <td style={td}>
-                      <Eye
-                        size={18}
-                        style={{ cursor: "pointer" }}
-                        onClick={() =>
-                          navigate(`/admin/college/${college.id}`)
-                        }
-                      />
+              </thead>
+              <tbody>
+                {currentColleges.length === 0 ? (
+                  <tr>
+                    <td colSpan="3" className="empty-state">
+                      <div className="empty-content">
+                        <Search size={40} />
+                        <p>No colleges found matching your search</p>
+                      </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  currentColleges.map((college) => (
+                    <tr key={college.id} className="table-row">
+                      <td>
+                        <div className="college-name-cell">
+                          <div className="college-name">{college.name}</div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="students-cell">
+                          <div className="student-count">{college.totalStudents.toLocaleString()}</div>
+                          <div className="student-label">students</div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="batches-cell">
+                          {college.batches.map((batch, index) => (
+                            <span key={index} className="batch-tag">
+                              {batch}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Pagination */}
-        <div style={paginationStyle}>
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(p => p - 1)}
-            style={pageBtn}
-          >
-            <ChevronLeft size={16} /> Previous
-          </button>
-
-          <span style={{ fontSize: "0.9rem" }}>
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(p => p + 1)}
-            style={pageBtn}
-          >
-            Next <ChevronRight size={16} />
-          </button>
-        </div>
+        {filteredColleges.length > 0 && (
+          <div className="pagination-section">
+            <button
+              className={`pagination-btn prev-btn ${currentPage === 1 ? 'disabled' : ''}`}
+              onClick={() => setCurrentPage(p => p - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft size={18} />
+              Previous
+            </button>
+            
+            <div className="page-info">
+              Page {currentPage} of {totalPages}
+              <span className="total-info"> • {filteredColleges.length} colleges</span>
+            </div>
+            
+            <button
+              className={`pagination-btn next-btn ${currentPage === totalPages ? 'disabled' : ''}`}
+              onClick={() => setCurrentPage(p => p + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        )}
       </div>
+
+      <style jsx>{`
+        .admin-college-page {
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          min-height: 100vh;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .college-container {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 2rem;
+        }
+
+        /* Header Section */
+        .header-section {
+          background: linear-gradient(135deg, #4a00e0 0%, #4a00e0 100%);
+          border-radius: 16px;
+          padding: 2.5rem;
+          margin-bottom: 2rem;
+          color: white;
+          box-shadow: 0 8px 32px rgba(10, 239, 102, 0.1);
+        }
+
+        .header-content {
+          margin-bottom: 2rem;
+        }
+
+        .title-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .header-icon {
+          width: 40px;
+          height: 40px;
+          color: #60a5fa;
+        }
+
+        .page-title {
+          font-size: 2.25rem;
+          font-weight: 700;
+          margin: 0;
+          background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+
+        .page-subtitle {
+          font-size: 1rem;
+          color: #cbd5e1;
+          margin: 0;
+          font-weight: 400;
+        }
+
+        .stats-card {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .stat-item {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border-radius: 12px;
+          padding: 1.5rem;
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          transition: transform 0.2s ease;
+        }
+
+        .stat-item:hover {
+          transform: translateY(-2px);
+          background: rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-icon-wrapper {
+          width: 56px;
+          height: 56px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .stat-icon {
+          width: 24px;
+          height: 24px;
+          color: white;
+        }
+
+        .stat-content {
+          flex: 1;
+        }
+
+        .stat-value {
+          font-size: 1.75rem;
+          font-weight: 700;
+          margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+          font-size: 0.875rem;
+          color: #cbd5e1;
+          font-weight: 500;
+        }
+
+        /* Search Section */
+        .search-section {
+          background: white;
+          border-radius: 12px;
+          padding: 1.5rem;
+          margin-bottom: 1.5rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-wrapper {
+          position: relative;
+          margin-bottom: 0.75rem;
+        }
+
+        .search-icon {
+          position: absolute;
+          left: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #64748b;
+          width: 20px;
+          height: 20px;
+        }
+
+        .search-input {
+          width: 100%;
+          padding: 0.875rem 1rem 0.875rem 3rem;
+          border: 2px solid #e2e8f0;
+          border-radius: 10px;
+          font-size: 1rem;
+          color: #1e293b;
+          transition: all 0.2s ease;
+          background: #f8fafc;
+        }
+
+        .search-input:focus {
+          outline: none;
+          border-color: #3b82f6;
+          background: white;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-input::placeholder {
+          color: #94a3b8;
+        }
+
+        .results-info {
+          font-size: 0.875rem;
+          color: #64748b;
+          font-weight: 500;
+        }
+
+        /* Table Section */
+        .table-section {
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-wrapper {
+          overflow-x: auto;
+        }
+
+        .college-table {
+          width: 100%;
+          border-collapse: collapse;
+          min-width: 800px;
+        }
+
+        .college-table thead {
+          background: #f8fafc;
+          border-bottom: 2px solid #e2e8f0;
+        }
+
+        .college-table th {
+          padding: 1.25rem 1.5rem;
+          text-align: left;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #475569;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          white-space: nowrap;
+        }
+
+        .table-row {
+          border-bottom: 1px solid #f1f5f9;
+          transition: background-color 0.2s ease;
+        }
+
+        .table-row:hover {
+          background-color: #f8fafc;
+        }
+
+        .college-table td {
+          padding: 1.5rem;
+          vertical-align: top;
+        }
+
+        /* Cell Styles */
+        .college-name-cell {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .college-name {
+          font-weight: 600;
+          color: #1e293b;
+          font-size: 1.1rem;
+          line-height: 1.4;
+          margin-bottom: 0.25rem;
+        }
+
+        .students-cell {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .student-count {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #1e40af;
+          margin-bottom: 0.25rem;
+        }
+
+        .student-label {
+          font-size: 0.875rem;
+          color: #64748b;
+          font-weight: 500;
+        }
+
+        .batches-cell {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+
+        .batch-tag {
+          background: #e0f2fe;
+          color: #0369a1;
+          padding: 0.375rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
+        /* Empty State */
+        .empty-state {
+          padding: 4rem 2rem;
+        }
+
+        .empty-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+          color: #94a3b8;
+        }
+
+        .empty-content p {
+          margin: 0;
+          font-size: 1rem;
+          font-weight: 500;
+        }
+
+        /* Pagination */
+        .pagination-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.5rem;
+          background: white;
+          border-radius: 12px;
+          margin-top: 1.5rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .pagination-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1.5rem;
+          border: 2px solid #e2e8f0;
+          border-radius: 10px;
+          background: white;
+          color: #475569;
+          font-weight: 600;
+          font-size: 0.875rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .pagination-btn:hover:not(.disabled) {
+          border-color: #3b82f6;
+          color: #3b82f6;
+          transform: translateY(-1px);
+        }
+
+        .pagination-btn.disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .page-info {
+          font-size: 0.875rem;
+          color: #475569;
+          font-weight: 600;
+        }
+
+        .total-info {
+          color: #94a3b8;
+          font-weight: 400;
+        }
+
+        /* Loader */
+        .loader-container {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1rem;
+          color: #475569;
+        }
+
+        .loader-spinner {
+          width: 40px;
+          height: 40px;
+          border: 3px solid #e2e8f0;
+          border-top-color: #3b82f6;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .college-container {
+            padding: 1rem;
+          }
+
+          .header-section {
+            padding: 1.5rem;
+          }
+
+          .page-title {
+            font-size: 1.75rem;
+          }
+
+          .stats-card {
+            grid-template-columns: 1fr;
+          }
+
+          .college-table th,
+          .college-table td {
+            padding: 1rem;
+          }
+
+          .pagination-section {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+          }
+
+          .page-info {
+            order: -1;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .header-icon {
+            width: 32px;
+            height: 32px;
+          }
+
+          .page-title {
+            font-size: 1.5rem;
+          }
+
+          .stat-item {
+            padding: 1rem;
+          }
+
+          .stat-icon-wrapper {
+            width: 48px;
+            height: 48px;
+          }
+        }
+      `}</style>
     </div>
   );
-};
-
-/* ---------------- Styles ---------------- */
-
-const pageStyle = {
-  background: "#f8fafc",
-  minHeight: "100vh"
-};
-
-const containerStyle = {
-  maxWidth: "1400px",
-  margin: "0 auto",
-  padding: "1.5rem"
-};
-
-const headerStyle = {
-  background: "#ffffff",
-  padding: "1.5rem",
-  borderRadius: "12px",
-  marginBottom: "1.5rem",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  boxShadow: "0 4px 6px rgba(0,0,0,0.05)"
-};
-
-const titleStyle = {
-  margin: 0,
-  fontSize: "1.8rem",
-  fontWeight: 600
-};
-
-const subtitleStyle = {
-  marginTop: "0.4rem",
-  color: "#6b7280"
-};
-
-const searchWrapper = {
-  position: "relative",
-  marginBottom: "1.5rem"
-};
-
-const searchIconStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "12px",
-  transform: "translateY(-50%)",
-  color: "#9ca3af"
-};
-
-const searchInputStyle = {
-  width: "100%",
-  padding: "0.75rem 0.75rem 0.75rem 2.5rem",
-  borderRadius: "8px",
-  border: "1px solid #d1d5db"
-};
-
-const tableWrapper = {
-  background: "#ffffff",
-  borderRadius: "12px",
-  overflowX: "auto",
-  boxShadow: "0 4px 6px rgba(0,0,0,0.05)"
-};
-
-const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse"
-};
-
-const theadRow = {
-  background: "#f3f4f6"
-};
-
-const th = {
-  padding: "1rem",
-  textAlign: "left",
-  fontWeight: 600,
-  whiteSpace: "nowrap"
-};
-
-const td = {
-  padding: "1rem",
-  verticalAlign: "top"
-};
-
-const tbodyRow = {
-  borderBottom: "1px solid #e5e7eb"
-};
-
-const badgeStyle = {
-  padding: "0.3rem 0.6rem",
-  borderRadius: "6px",
-  fontSize: "0.75rem",
-  fontWeight: 500
-};
-
-const paginationStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginTop: "1.5rem"
-};
-
-const pageBtn = {
-  display: "flex",
-  alignItems: "center",
-  gap: "0.4rem",
-  padding: "0.4rem 0.8rem",
-  borderRadius: "6px",
-  border: "1px solid #d1d5db",
-  background: "#ffffff",
-  cursor: "pointer"
-};
-
-const emptyCell = {
-  padding: "1.5rem",
-  textAlign: "center",
-  color: "#6b7280"
-};
-
-const loaderStyle = {
-  minHeight: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center"
 };
 
 export default AdminCollegeManagement;
