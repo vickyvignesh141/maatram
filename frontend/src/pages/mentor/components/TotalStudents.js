@@ -17,7 +17,6 @@ export default function TotalStudents() {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedStudent, setExpandedStudent] = useState(null);
 
-
   useEffect(() => {
     const mentorUsername = localStorage.getItem("loggedUser");
     if (!mentorUsername) return;
@@ -33,28 +32,27 @@ export default function TotalStudents() {
       .finally(() => setLoading(false));
   }, []);
 
-  const toggleStudentExpansion = (studentId) => {
-    setExpandedStudent(expandedStudent === studentId ? null : studentId);
+  const toggleStudentExpansion = (studentUsername) => {
+    setExpandedStudent(
+      expandedStudent === studentUsername ? null : studentUsername
+    );
   };
 
-  // ✅ filter logic
+  // ✅ SORT + FILTER
   const filteredStudents = [...students]
-  // 🔹 SORT A → Z by student name
-  .sort((a, b) =>
-    (a.name || "").toLowerCase().localeCompare(
-      (b.name || "").toLowerCase()
+    .sort((a, b) =>
+      (a.name || "").toLowerCase().localeCompare(
+        (b.name || "").toLowerCase()
+      )
     )
-  )
-  // 🔹 THEN FILTER
-  .filter(student => {
-    const term = searchTerm.toLowerCase();
-    return (
-      student.name?.toLowerCase().includes(term) ||
-      student.username?.toLowerCase().includes(term) ||
-      student.phno?.toString().includes(term)
-    );
-  });
-
+    .filter(student => {
+      const term = searchTerm.toLowerCase();
+      return (
+        student.name?.toLowerCase().includes(term) ||
+        student.username?.toLowerCase().includes(term) ||
+        student.phno?.toString().includes(term)
+      );
+    });
 
   if (loading) return <p className="loading-text">Loading students...</p>;
 
@@ -84,11 +82,14 @@ export default function TotalStudents() {
         <div className="students-grid">
           {filteredStudents.map(student => (
             <div
-              key={student.id || student.username}
+              key={student.username}
               className="student-card"
             >
               {/* Header */}
-              <div className="student-card-header">
+              <div
+                className="student-card-header"
+                onClick={() => toggleStudentExpansion(student.username)}
+              >
                 <div className="student-avatar">
                   {student.name?.charAt(0).toUpperCase() || "S"}
                 </div>
@@ -97,42 +98,48 @@ export default function TotalStudents() {
                   <h3>{student.name || "Unknown Student"}</h3>
                   <p>{student.username}</p>
                 </div>
+
+                <div className="expansion-indicator">
+                  {expandedStudent === student.username ? "▼" : "▶"}
+                </div>
               </div>
 
-              {/* Actions */}
-              <div className="student-card-actions">
-                <Link
-                  to={`/mentor/student/${student.username}/profile`}
-                  className="card-btn profile-btn"
-                >
-                  <User size={16} />
-                  <span>Profile</span>
-                </Link>
+              {/* Actions (expandable) */}
+              {expandedStudent === student.username && (
+                <div className="student-card-actions">
+                  <Link
+                    to={`/mentor/student/${student.username}/profile`}
+                    className="card-btn profile-btn"
+                  >
+                    <User size={16} />
+                    <span>Profile</span>
+                  </Link>
 
-                <Link
-                  to={`/mentor/student/${student.username}/career`}
-                  className="card-btn career-btn"
-                >
-                  <Target size={16} />
-                  <span>Career</span>
-                </Link>
+                  <Link
+                    to={`/mentor/student/${student.username}/career`}
+                    className="card-btn career-btn"
+                  >
+                    <Target size={16} />
+                    <span>Career</span>
+                  </Link>
 
-                <Link
-                  to={`/mentor/student/${student.username}/progress`}
-                  className="card-btn progress-btn"
-                >
-                  <LineChart size={16} />
-                  <span>Progress</span>
-                </Link>
+                  <Link
+                    to={`/mentor/student/${student.username}/progress`}
+                    className="card-btn progress-btn"
+                  >
+                    <LineChart size={16} />
+                    <span>Progress</span>
+                  </Link>
 
-                <Link
-                  to={`/mentor/student/${student.username}/certifications`}
-                  className="card-btn certification-btn"
-                >
-                  <Award size={16} />
-                  <span>Certificates</span>
-                </Link>
-              </div>
+                  <Link
+                    to={`/mentor/student/${student.username}/certifications`}
+                    className="card-btn certification-btn"
+                  >
+                    <Award size={16} />
+                    <span>Certificates</span>
+                  </Link>
+                </div>
+              )}
             </div>
           ))}
         </div>

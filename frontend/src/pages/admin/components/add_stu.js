@@ -1,3 +1,24 @@
+import React, { useEffect, useState } from "react";
+import baseurl from "../../../baseurl";
+import { User, ChevronDown, Bell, Settings, LogOut } from "lucide-react";
+import logo from "../../../imgs/logo.png";
+import "./add_stu"; // Create this CSS file
+
+
+export default function Admintop() {
+  const [Admin, setAdmin] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notifications, setNotifications] = useState(3); // Mock notifications count
+
+  useEffect(() => {
+    const username = localStorage.getItem("loggedUser");
+    if (username) {
+      fetch(`${baseurl}/get_admin/${username}`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success) setAdmin(json.data);
+        })
+        .catch(() => console.log("Error fetching Admin data"));
 // Updated AddStudent.js with improved UI
 import React, { useState } from "react";
 import BASE_URL from "../../../baseurl";

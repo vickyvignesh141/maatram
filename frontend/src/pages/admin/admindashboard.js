@@ -16,7 +16,8 @@ import {
   BarChart3,
   FileText,
   recharts,
-  List
+  List,
+  UserCheck // Added new icon
 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -96,7 +97,7 @@ const AdminDashboard = () => {
           <p>Manage foundation activities</p>
         </div>
 
-        {/* Main Actions Grid */}
+        {/* Main Actions Grid - ADDED NEW COMPONENT HERE */}
         <div className="main-actions-grid">
           <div
             className="main-action-card"
@@ -135,6 +136,7 @@ const AdminDashboard = () => {
               <ArrowRight size={20} />
             </span>
           </div>
+
 
           <div
             className="main-action-card"
@@ -198,6 +200,15 @@ const AdminDashboard = () => {
                   Add Mentor
                 </button>
 
+                {/* NEW QUICK ACTION BUTTON 
+                <button
+                  className="quick-action-btn"
+                  onClick={() => navigate("/admin/assign-mentor")}
+                >
+                  <UserCheck size={24} />
+                  Assign Mentor
+                </button>*/}
+
                 <button
                   className="quick-action-btn"
                   onClick={() => navigate("/admin/reports")}
@@ -216,7 +227,7 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* College Distribution */}
+            {/* College Distribution 
             <div className="student-info-card">
               <h3>College Distribution</h3>
               <div className="info-grid">
@@ -237,7 +248,7 @@ const AdminDashboard = () => {
                 <List size={20} />
                 View All Colleges
               </button>
-            </div>
+            </div>*/}
           </div>
 
           <div />
