@@ -24,6 +24,7 @@ from blueprints.mentors.studentresult import result_bp
 from blueprints.mentors.studentcareers import careers_bp
 from blueprints.mentors.studentcertificate import certificate_bp
 from blueprints.mentors.studentprofile import studetails_bp
+from blueprints.mentors.studentsummary import summary_bp
 
 
 app = Flask(__name__)
@@ -53,6 +54,7 @@ app.register_blueprint(adminstu_bp,url_prefix="/api")
 app.register_blueprint(adminmen_bp,url_prefix="/api")
 app.register_blueprint(addmen_bp,url_prefix="/api")
 app.register_blueprint(addstu_bp,url_prefix="/api")
+app.register_blueprint(summary_bp,url_prefix="/api")
 
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0", port=5000)
