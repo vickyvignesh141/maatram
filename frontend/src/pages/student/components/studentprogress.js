@@ -169,21 +169,26 @@ export default function StudentProgress() {
 
   // Filter progress data based on selected filters
   const filteredProgress = progressData.filter(item => {
-    if (timeFilter !== "all") {
-      const daysAgo = parseInt(timeFilter);
-      const itemDate = new Date(item.date);
-      const today = new Date();
-      const diffDays = Math.floor((today - itemDate) / (1000 * 60 * 60 * 24));
-      
-      if (diffDays > daysAgo) return false;
-    }
-    
-    if (subjectFilter !== "all" && item.subject !== subjectFilter) {
-      return false;
-    }
-    
-    return true;
-  });
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const itemDate = new Date(item.created_at);
+  itemDate.setHours(0, 0, 0, 0);
+
+  if (timeFilter !== "all") {
+    const daysAgo = Number(timeFilter);
+    const diffDays = (today - itemDate) / (1000 * 60 * 60 * 24);
+    if (diffDays > daysAgo) return false;
+  }
+
+  if (subjectFilter !== "all" && item.subject !== subjectFilter) {
+    return false;
+  }
+
+  return true;
+});
+
+
 
   // Get unique subjects for filter
   const uniqueSubjects = [...new Set(progressData.map(p => p.subject))];
@@ -338,13 +343,14 @@ export default function StudentProgress() {
   };
 
   // Format date for display
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric"
+function formatDate(isoDate) {
+  return new Date(isoDate).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
   });
 }
+
 
 
   // Export data as CSV
@@ -402,14 +408,7 @@ function formatDate(dateString) {
             </p>
           </div>
           <div className="header-actions">
-            <button 
-              className="action-btn secondary"
-              onClick={fetchProgressData}
-              disabled={loading}
-            >
-              <RefreshCw size={18} />
-              Refresh Data
-            </button>
+            
             <button 
               className="action-btn primary"
               onClick={exportToCSV}
@@ -468,15 +467,7 @@ function formatDate(dateString) {
             </div>
           </div>
 
-          <div className="stat-card stat-card-info">
-            <div className="stat-icon">
-              <Zap size={24} />
-            </div>
-            <div className="stat-content">
-              <h3>{overallStats.streakDays}</h3>
-              <p>Day Streak</p>
-            </div>
-          </div>
+          
         </div>
 
         {/* Filters and Controls */}
@@ -631,7 +622,7 @@ function formatDate(dateString) {
                           </span>
                         </td>
                         <td className="date-cell">
-                          {test.date}
+                          {formatDate(test.date)}
                         </td>
                         {/* <td>
                           <div className="performance-bar">
@@ -673,11 +664,7 @@ function formatDate(dateString) {
                 <small>Over last 10 tests</small>
               </div>
               
-              <div className="insight-card">
-                <h4>🔥 Current Streak</h4>
-                <p>{overallStats.streakDays} days</p>
-                <small>Consecutive test days</small>
-              </div>
+              
               
               <div className="insight-card">
                 <h4>🎯 Next Goal</h4>

@@ -75,13 +75,7 @@ export default function MentorTopBar() {
       {/* Right Section */}
       <div className="rightSection">
         {/* Notifications */}
-        <button className="notificationBtn">
-          <Bell size={22} />
-          {notifications > 0 && (
-            <span className="notificationBadge">{notifications}</span>
-          )}
-        </button>
-
+        
         {/* User Profile */}
         <div className="userProfileWrapper">
           <div

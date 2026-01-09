@@ -27,7 +27,7 @@ export default function MentorDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [stats, setStats] = useState({
-    totalStudents: 15,
+    totalStudents:0,
     
   });
   const [students, setStudents] = useState([]);
@@ -55,13 +55,18 @@ export default function MentorDashboard() {
   }, []);
 
   const loadMockData = () => {
-    const mentorUsername = localStorage.getItem("loggedUser"); 
+  const mentorUsername = localStorage.getItem("loggedUser");
 
-    fetch(`${baseurl}/students/${mentorUsername}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          const formattedStudents = data.students
+  fetch(`${baseurl}/students/${mentorUsername}`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+
+        // ✅ REAL TOTAL COUNT
+        const totalCount = data.students.length;
+
+        // ✅ FORMAT + SORT
+        const formattedStudents = data.students
           .map((stu) => ({
             id: stu.id,
             name: stu.name,
@@ -69,25 +74,27 @@ export default function MentorDashboard() {
             phno: stu.phno,
             progress: Math.floor(Math.random() * 40) + 60,
             status: "active",
-            lastActive: "Recently"
+            lastActive: "Recently",
           }))
-          // 🔹 SORT A → Z by name
           .sort((a, b) =>
             a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-        )
-        // 🔹 TAKE FIRST 4 AFTER SORT
-        .slice(0, 4);
-        setStudents(formattedStudents);
-        // Update stats
-        setStats(prev => ({
-        ...prev,}));
-  }
+          );
 
-      })
-      .catch((err) => {
-        console.error("Error loading students:", err);
-      });
-  };
+        // ✅ SHOW ONLY FIRST 4 IN DASHBOARD
+        setStudents(formattedStudents.slice(0, 4));
+
+        // ✅ UPDATE STATS CORRECTLY
+        setStats((prev) => ({
+          ...prev,
+          totalStudents: totalCount,
+        }));
+      }
+    })
+    .catch((err) => {
+      console.error("Error loading students:", err);
+    });
+};
+
 
   const handleStudentSelect = (student) => {
     console.log("Selected student:", student);
@@ -337,10 +344,7 @@ export default function MentorDashboard() {
                       <span className="stat-value">{stats.totalStudents}</span>
                     </div>
 
-                    <div className="profile-stat">
-                      <span className="stat-label">Experience</span>
-                      <span className="stat-value">5+ Years</span>
-                    </div>
+                    
                   </div>
                 </div>
               </div>

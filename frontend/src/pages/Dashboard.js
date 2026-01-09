@@ -38,7 +38,7 @@ export default function Dashboard() {
           </div>
 
           <div className="info-card">
-            <h2 className="card-heading">🎯 Our Mission</h2>
+            <h2 className="card-heading"> Our Mission</h2>
             <p className="card-text">
               Our mission is to ensure that every deserving student receives the right career guidance at the right time.
               We aim to bridge the gap between education and employability through technology, mentorship, and real-time insights.
@@ -47,7 +47,7 @@ export default function Dashboard() {
           </div>
 
           <div className="info-card">
-            <h2 className="card-heading">🌟 Why Maatram Career Connect Was Born</h2>
+            <h2 className="card-heading"> Why Maatram Career Connect Was Born</h2>
             <p className="card-text">
               Many students in India face the same challenge — scoring good marks but not knowing what comes next.
               Maatram Career Connect was born to solve this confusion. Our platform uses AI algorithms to evaluate a student’s performance, interests, and goals to recommend the best career paths.
@@ -55,7 +55,7 @@ export default function Dashboard() {
           </div>
 
           <div className="info-card">
-            <h2 className="card-heading">❤️ Inspired by Maatram Foundation</h2>
+            <h2 className="card-heading"> Inspired by Maatram Foundation</h2>
             <p className="card-text">
               Maatram Foundation has been a beacon of hope for thousands of students who dream big but come from humble backgrounds.
               Since its inception, the foundation has helped over 3,300 students pursue free higher education across Tamil Nadu.
