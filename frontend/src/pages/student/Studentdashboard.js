@@ -211,7 +211,7 @@ export default function StudentDashboard() {
 
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Course</span>
-              <span className={styles.infoValue}>Engineering</span>
+              <span className={styles.infoValue}>{data.program}  {data.department}</span>
             </div>
 
             <div className={styles.infoItem}>

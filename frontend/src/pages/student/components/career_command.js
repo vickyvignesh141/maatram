@@ -472,31 +472,11 @@ export default function StudentCareer() {
                       <div key={index} className="topic-card">
                         <div className="topic-header">
                           <h4>{topic}</h4>
-                          <span className="progress-badge">{topicProgress}%</span>
+                          
                         </div>
                         <p>Focus: {studyPlan.daily_schedule?.[topic]?.focus_areas || 'Fundamentals & Practice'}</p>
                         
-                        <div className="progress-bar">
-                          <div 
-                            className="progress-fill" 
-                            style={{ width: `${topicProgress}%` }}
-                          ></div>
-                        </div>
                         
-                        <div className="topic-actions">
-                          <input
-                            type="range"
-                            min="0"
-                            max="100"
-                            value={topicProgress}
-                            onChange={(e) => updateTopicProgress(topic, parseInt(e.target.value))}
-                            className="progress-slider"
-                          />
-                          {/* <button className="small-btn">
-                            <PlayCircle size={16} />
-                            Resources
-                          </button> */}
-                        </div>
                       </div>
                     );
                   })}
@@ -504,50 +484,10 @@ export default function StudentCareer() {
               </div>
 
               {/* Daily Schedule */}
-              <div className="schedule-section">
-                <h3><Clock size={24} /> Daily Study Schedule</h3>
-                <div className="schedule-card">
-                  <div className="schedule-header">
-                    <span>Total Daily Hours: {studyPlan.daily_schedule ? 
-                      Object.values(studyPlan.daily_schedule)[0]?.hours_per_day : 2}</span>
-                  </div>
-                  <div className="schedule-grid">
-                    {studyPlan.missing_topics?.map((topic, index) => (
-                      <div key={index} className="schedule-item">
-                        <div className="time-slot">
-                          <Clock size={16} />
-                          <span>{studyPlan.daily_schedule?.[topic]?.hours_per_day || 0.5}h</span>
-                        </div>
-                        <div className="schedule-topic">
-                          <h5>{topic}</h5>
-                          <p>Daily study session</p>
-                        </div>
-                        <div className="schedule-actions">
-                          <button className="icon-btn small">
-                            <FileText size={16} />
-                          </button>
-                          <button className="icon-btn small">
-                            <PlayCircle size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              
 
               {/* Recommendations */}
-              <div className="recommendations-card">
-                <h3><Sparkles size={24} /> Learning Recommendations</h3>
-                <ul className="recommendations-list">
-                  {studyPlan.recommendations?.map((rec, index) => (
-                    <li key={index}>
-                      <CheckCircle size={18} />
-                      <span>{rec}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              
             </>
           ) : (
             <div className="advanced-plan-card">
@@ -590,25 +530,7 @@ export default function StudentCareer() {
           )}
 
           {/* Progress Overview */}
-          {progress.topic_progress && Object.keys(progress.topic_progress).length > 0 && (
-            <div className="progress-overview">
-              <h3><BarChart3 size={24} /> Learning Progress</h3>
-              <div className="progress-chart">
-                {Object.entries(progress.topic_progress).map(([topic, data]) => (
-                  <div key={topic} className="chart-item">
-                    <div className="chart-bar">
-                      <div 
-                        className="chart-fill"
-                        style={{ height: `${data.percentage}%` }}
-                      ></div>
-                    </div>
-                    <span className="chart-label">{topic}</span>
-                    <span className="chart-value">{data.percentage}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+         
         </div>
       )}
     </div>
@@ -629,10 +551,7 @@ export default function StudentCareer() {
             </div>
           </div>
           <div className="banner-actions">
-            <button className="help-btn">
-              <HelpCircle size={20} />
-              Need Help?
-            </button>
+            
           </div>
         </div>
 
@@ -645,38 +564,7 @@ export default function StudentCareer() {
 
         {/* Quick Stats */}
         <div className="quick-stats">
-          <div className="stat-card">
-            <Compass size={24} />
-            <div>
-              <h4>Career Paths</h4>
-              <p>{recommendations?.career_options?.length || 0} Options</p>
-            </div>
-          </div>
-          <div className="stat-card">
-            <BookOpen size={24} />
-            <div>
-              <h4>Topics</h4>
-              <p>{studyPlan?.missing_topics?.length || studyPlan?.topics?.length || 0} to Learn</p>
-            </div>
-          </div>
-          <div className="stat-card">
-            <Clock size={24} />
-            <div>
-              <h4>Time Commitment</h4>
-              <p>{studyPlan?.total_weekly_hours || 10} hrs/week</p>
-            </div>
-          </div>
-          <div className="stat-card">
-            <TrendingUp size={24} />
-            <div>
-              <h4>Progress</h4>
-              <p>
-                {progress.topic_progress ? 
-                  Math.round(Object.values(progress.topic_progress).reduce((a, b) => a + b.percentage, 0) / 
-                  Object.keys(progress.topic_progress).length) || 0 : 0}% Overall
-              </p>
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>
