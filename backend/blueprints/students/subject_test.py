@@ -25,23 +25,93 @@ def call_llm(prompt, temperature=0.3):
     )
     return res.choices[0].message.content.strip()
 
+def is_valid_text(text: str) -> bool:
+    if not text or not isinstance(text, str):
+        return False
+
+    text = text.strip()
+
+    if len(text) < 3:
+        return False
+
+    # must contain letters
+    if not re.search(r"[a-zA-Z]", text):
+        return False
+
+    # reject gibberish (vowel ratio)
+    letters = re.findall(r"[a-zA-Z]", text.lower())
+    if letters:
+        vowels = sum(1 for c in letters if c in "aeiou")
+        if vowels / len(letters) < 0.25:
+            return False
+
+    # reject repeated junk
+    if re.fullmatch(r"(.)\1{3,}", text):
+        return False
+
+    return True
+
+def is_legitimate_subject(subject: str) -> bool:
+    prompt = f"""
+Answer ONLY with YES or NO.
+
+Is "{subject}" a real academic or professional subject that can be taught or tested?
+Examples of valid subjects:
+- Mathematics
+- Physics
+- Python Programming
+- Data Structures
+- Organic Chemistry
+- History
+
+Invalid:
+- asdfgh
+- bdffns
+- randomword
+"""
+
+    try:
+        response = call_llm(prompt, temperature=0)
+        return response.strip().upper().startswith("YES")
+    except:
+        return False
+
+
 
 # ==================================================
 # 1️ Generate MCQs (NO DIAGNOSTIC)
 # ==================================================
 @subject_bp.route("/subject-test/mcq", methods=["POST"])
 def generate_mcqs():
-    data = request.json
-    subject = data.get("subject")
-    level = data.get("level")
+    try:
+        data = request.json or {}
+        subject = data.get("subject", "").strip()
+        level = data.get("level", "").strip()
 
-    if not subject or not level:
-        return jsonify({"success": False, "msg": "Subject and level required"}), 400
+        if not subject or not level:
+            return jsonify({
+                "success": False,
+                "msg": "Subject and level required"
+            }), 400
 
-    if level not in ["Beginner", "Intermediate", "Hard"]:
-        level = "Beginner"
+        # 🚫 BASIC TEXT VALIDATION
+        if not is_valid_text(subject):
+            return jsonify({
+                "success": False,
+                "msg": "Invalid subject entered"
+            }), 422
 
-    prompt = f"""
+        # 🚫 SEMANTIC VALIDATION (LLM)
+        if not is_legitimate_subject(subject):
+            return jsonify({
+                "success": False,
+                "msg": "Subject not recognized as a valid academic topic"
+            }), 422
+
+        if level not in ["Beginner", "Intermediate", "Hard"]:
+            level = "Beginner"
+
+        prompt = f"""
 You are a professional exam question designer.
 
 Create exactly 10 MCQs ONLY about {subject}.
@@ -63,22 +133,31 @@ FORMAT:
 ]
 """
 
-    raw = call_llm(prompt)
-    raw = re.sub(r"```json|```", "", raw).strip()
+        raw = call_llm(prompt)
+        raw = re.sub(r"```json|```", "", raw).strip()
 
-    start, end = raw.find("["), raw.rfind("]")
-    if start == -1 or end == -1:
-        return jsonify({"success": False, "error": "Invalid AI response"}), 500
+        start, end = raw.find("["), raw.rfind("]")
+        if start == -1 or end == -1:
+            return jsonify({
+                "success": False,
+                "msg": "AI returned invalid question format"
+            }), 500
 
-    try:
         mcqs = json.loads(raw[start:end + 1])
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
 
-    return jsonify({
-        "success": True,
-        "mcqs": mcqs
-    })
+        return jsonify({
+            "success": True,
+            "mcqs": mcqs
+        })
+
+    except Exception as e:
+        print("MCQ ERROR:", e)
+        return jsonify({
+            "success": False,
+            "msg": "Failed to generate test questions"
+        }), 500
+
+
 
 
 # ==================================================
