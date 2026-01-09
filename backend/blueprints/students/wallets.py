@@ -116,3 +116,127 @@ def delete_certificate(username, cert_id):
     )
 
     return jsonify({"success": True, "message": "Deleted"})
+
+
+
+    
+# ================= GET SEMESTERS =================
+@wallet_bp.route("/student/<username>/academics/semesters", methods=["GET"])
+def get_semesters(username):
+    wallet = wallet_collection.find_one(
+        {"username": username},
+        {"_id": 0, "academics.semesters": 1}
+    )
+
+    if not wallet:
+        return jsonify([])
+
+    return jsonify(wallet.get("academics", {}).get("semesters", []))
+
+# ================= ADD SEMESTER =================
+
+@wallet_bp.route("/student/<username>/academics/semester", methods=["POST"])
+def add_semester(username):
+    data = request.json
+    semester = {
+        "id": uuid.uuid4().hex,
+        "semester": int(data["semester"]),
+        "internals": [],
+        "final_result": None
+    }
+
+    wallet_collection.update_one(
+        {"username": username},
+        {"$push": {"academics.semesters": semester}},
+        upsert=True
+    )
+    return jsonify(semester)
+
+# ================= ADD INTERNAL =================
+
+@wallet_bp.route("/student/<username>/academics/internal", methods=["POST"])
+def add_internal(username):
+    data = request.json
+
+    internal = {
+        "id": uuid.uuid4().hex,
+        "name": data["name"],
+        "subjects": []
+    }
+
+    wallet_collection.update_one(
+        {
+          "username": username,
+          "academics.semesters.id": data["semester_id"]
+        },
+        {
+          "$push": {
+            "academics.semesters.$.internals": internal
+          }
+        }
+    )
+    return jsonify(internal)
+
+# ================= ADD SUBJECT =================
+
+@wallet_bp.route("/student/<username>/academics/subject", methods=["POST"])
+def add_subject(username):
+    data = request.json
+
+    subject = {
+        "id": uuid.uuid4().hex,
+        "name": data["name"],
+        "marks": None
+    }
+
+    wallet_collection.update_one(
+        {
+          "username": username,
+          "academics.semesters.id": data["semester_id"],
+          "academics.semesters.internals.id": data["internal_id"]
+        },
+        {
+          "$push": {
+            "academics.semesters.$[].internals.$[i].subjects": subject
+          }
+        },
+        array_filters=[{"i.id": data["internal_id"]}]
+    )
+
+    return jsonify(subject)
+
+
+# ================= ADD OR EDIT MARK =================
+@wallet_bp.route("/student/<username>/academics/marks", methods=["PUT"])
+def update_marks(username):
+    data = request.json
+
+    wallet_collection.update_one(
+        {"username": username},
+        {"$set": {
+            "academics.semesters.$[].internals.$[].subjects.$[s].marks": int(data["marks"])
+        }},
+        array_filters=[{"s.id": data["subject_id"]}]
+    )
+
+    return jsonify({"success": True})
+# ================= SAVE SEM MARK =================
+
+@wallet_bp.route("/student/<username>/academics/final", methods=["POST"])
+def save_final_result(username):
+    data = request.json
+
+    final = {
+        "total": data["total"],
+        "percentage": data["percentage"],
+        "grade": data["grade"],
+        "gpa": data["gpa"]
+    }
+
+    wallet_collection.update_one(
+        {"username": username, "academics.semesters.id": data["semester_id"]},
+        {"$set": {"academics.semesters.$.final_result": final}}
+    )
+
+    return jsonify(final)
+
