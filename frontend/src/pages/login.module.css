@@ -470,3 +470,16 @@
 .loginContainer .submitBtn {
   background: linear-gradient(135deg, #1e3a8a 0%, #2e6be6 100%);
 }
+
+
+.eyeIcon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+}
+
+.eyeIcon:hover {
+  color: #111827;
+}
