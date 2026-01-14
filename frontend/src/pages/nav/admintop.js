@@ -55,14 +55,7 @@ export default function Admintop() {
       {/* Right Section */}
       <div className="topbar-right-section">
         {/* Notifications */}
-        <div className="notification-wrapper">
-          <button className="notification-btn">
-            <Bell size={22} />
-            {notifications > 0 && (
-              <span className="notification-badge">{notifications}</span>
-            )}
-          </button>
-        </div>
+        
 
         {/* User Profile */}
         <div className="user-profile-wrapper">

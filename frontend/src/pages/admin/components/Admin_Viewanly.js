@@ -423,10 +423,7 @@ const AdminStudentAnalytics = () => {
         <div className="header">
           <div className="header-content">
             <h1>📊 Student Analytics Dashboard</h1>
-            <p className="subtitle">
-              Comprehensive insights into student admissions, academic progress, 
-              dropout rates, and placement statistics across all batches.
-            </p>
+            
           </div>
           <div className="header-actions">
             <div className="filter-group">

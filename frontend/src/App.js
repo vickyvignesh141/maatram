@@ -31,7 +31,7 @@ import MentorProfile from "./pages/mentor/components/MentorProfile";
 import GetAdmin from "./pages/admin/admindashboard";
 import AdminStudent from "./pages/admin/components/Admin_stu"
 import AdminMentor from "./pages/admin/components/admin_men"
-import AdminMentorStudent from "./pages/admin/components/admin_MenStu"
+import AdminMentorStudent from "./pages/admin/components/admin_MenStuAssign"
 import AdminClgMan from "./pages/admin/components/admin_clgmng"
 import AdminAnalytics from "./pages/admin/components/Admin_Viewanly"
 import Adminreport from "./pages/admin/components/admin_report"
