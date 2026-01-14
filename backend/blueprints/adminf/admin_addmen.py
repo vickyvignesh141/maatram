@@ -13,14 +13,14 @@ def add_mentor():
         data = request.get_json()
 
         mentor = {
-            "mentor_name": data.get("name"),   # ✅ FIX HERE
+            "name": data.get("name"),   # ✅ FIX HERE
             "dob": data.get("dob"),
-            "maatram_id": data.get("maatramId"),
-            "phone": data.get("phone"),
+            "username": data.get("maatramId"),
+            "phoneNumber": data.get("phone"),
             "email": data.get("email")
         }
 
-        if not mentor["mentor_name"]:
+        if not mentor["name"]:
             return jsonify({"message": "Mentor name is required"}), 400
 
         mentor_collection.insert_one(mentor)

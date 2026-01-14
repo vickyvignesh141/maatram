@@ -24,14 +24,15 @@ load_dotenv()
 # Configuration
 # PROGRESS_FILE = r"C:\Users\prave\OneDrive\Documents\maatram\progress.json"
 QUESTIONS = [
-    "What subjects do you enjoy the most in school?",
-    "What hobbies or activities do you like?",
-    "Do you prefer working with people, technology, or ideas?",
-    "Do you like creative or analytical tasks more?",
-    "What are your strengths or skills?",
-    "Do you have any career ideas in mind already?",
-    "Currently pursuing degree and course?"
+    "What subjects do you enjoy the most in school? eg: Tamil, English",
+    "What hobbies or activities do you like? eg: Painting, Football",
+    "Do you prefer working with people, technology, or ideas? eg: Technology, People",
+    "Do you like creative or analytical tasks more? eg: Creative, Analytical",
+    "What are your strengths or skills? eg: Problem-solving, Communication",
+    "Do you have any career ideas in mind already? eg: Software Engineer, Teacher",
+    "Currently pursuing degree and course? eg: B.Sc Computer Science, B.A English"
 ]
+
 
 FALLBACK_TOPICS = {
     "Research and Development Engineer": ["Materials Science", "CAD Design", "Prototyping", "Research Methods", "Python/MATLAB"],
@@ -346,13 +347,15 @@ def assess_career():
                 "message": "Missing student ID or responses"
             }), 400
 
-        # ✅ INPUT VALIDATION (FIXED INDENTATION)
-        if not validate_student_responses(responses):
-            return jsonify({
-                "success": False,
-                "message": "Your answers seem unclear or invalid. Please provide meaningful responses."
-            }), 422
+        # ✅ Remove validation restriction
+        # Previously, responses were validated and could fail
+        # if not validate_student_responses(responses):
+        #     return jsonify({
+        #         "success": False,
+        #         "message": "Your answers seem unclear or invalid. Please provide meaningful responses."
+        #     }), 422
 
+        # Proceed regardless of content
         recommendations = career_agent.get_career_recommendations(responses)
 
         progress_collection.update_one(
@@ -381,6 +384,7 @@ def assess_career():
             "success": False,
             "message": "Assessment failed"
         }), 500
+
 
 
 @career_bp.route('/select-career', methods=['POST'])

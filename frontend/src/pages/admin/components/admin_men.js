@@ -45,168 +45,7 @@ const AdminMentors = () => {
   const [viewType, setViewType] = useState("all"); // "all", "available", "required"
 
   // Add more fake mentors data
-  const additionalMentors = [
-    {
-      id: 101,
-      name: "Dr. Rajesh Kumar",
-      username: "dr_rajesh",
-      email: "rajesh@example.com",
-      phone: "9876543210",
-      student_count: 8,
-      status: "active",
-      expertise: ["Python", "Data Science", "Machine Learning"],
-      experience: "7 years",
-      availability: "Full-time",
-      capacity: 15,
-      current_students: 8,
-      rating: 4.9,
-      bio: "Data science expert with extensive industry experience"
-    },
-    {
-      id: 102,
-      name: "Prof. Anita Sharma",
-      username: "anita_sharma",
-      email: "anita@example.com",
-      phone: "8765432109",
-      student_count: 25,
-      status: "active",
-      expertise: ["Java", "Spring Boot", "Microservices"],
-      experience: "10 years",
-      availability: "Full-time",
-      capacity: 25,
-      current_students: 25,
-      rating: 4.7,
-      bio: "Enterprise Java specialist with focus on scalable systems"
-    },
-    {
-      id: 103,
-      name: "Dr. Michael Chen",
-      username: "michael_c",
-      email: "michael@example.com",
-      phone: "7654321098",
-      student_count: 5,
-      status: "available",
-      expertise: ["React", "TypeScript", "Next.js"],
-      experience: "6 years",
-      availability: "Part-time",
-      capacity: 10,
-      current_students: 5,
-      rating: 4.8,
-      bio: "Frontend architect with focus on modern web technologies"
-    },
-    {
-      id: 104,
-      name: "Lisa Wang",
-      username: "lisa_wang",
-      email: "lisa@example.com",
-      phone: "6543210987",
-      student_count: 18,
-      status: "active",
-      expertise: ["UI/UX Design", "Figma", "Adobe XD"],
-      experience: "5 years",
-      availability: "Full-time",
-      capacity: 20,
-      current_students: 18,
-      rating: 4.6,
-      bio: "Design thinking expert with background in user research"
-    },
-    {
-      id: 105,
-      name: "David Brown",
-      username: "david_b",
-      email: "david@example.com",
-      phone: "5432109876",
-      student_count: 0,
-      status: "available",
-      expertise: ["DevOps", "AWS", "Docker", "Kubernetes"],
-      experience: "8 years",
-      availability: "Full-time",
-      capacity: 15,
-      current_students: 0,
-      rating: 4.9,
-      bio: "Cloud infrastructure specialist with focus on automation"
-    },
-    {
-      id: 106,
-      name: "Sarah Johnson",
-      username: "sarah_j",
-      email: "sarah@example.com",
-      phone: "4321098765",
-      student_count: 22,
-      status: "required",
-      expertise: ["Mobile Development", "Flutter", "React Native"],
-      experience: "7 years",
-      availability: "Full-time",
-      capacity: 25,
-      current_students: 22,
-      rating: 4.8,
-      bio: "Cross-platform mobile development expert"
-    },
-    {
-      id: 107,
-      name: "Alex Rodriguez",
-      username: "alex_r",
-      email: "alex@example.com",
-      phone: "3210987654",
-      student_count: 12,
-      status: "active",
-      expertise: ["Cyber Security", "Ethical Hacking", "Network Security"],
-      experience: "9 years",
-      availability: "Full-time",
-      capacity: 20,
-      current_students: 12,
-      rating: 4.9,
-      bio: "Security specialist with focus on threat prevention"
-    },
-    {
-      id: 108,
-      name: "Emma Wilson",
-      username: "emma_w",
-      email: "emma@example.com",
-      phone: "2109876543",
-      student_count: 3,
-      status: "available",
-      expertise: ["Blockchain", "Solidity", "Web3"],
-      experience: "4 years",
-      availability: "Part-time",
-      capacity: 10,
-      current_students: 3,
-      rating: 4.5,
-      bio: "Blockchain developer with focus on decentralized applications"
-    },
-    {
-      id: 109,
-      name: "James Miller",
-      username: "james_m",
-      email: "james@example.com",
-      phone: "1098765432",
-      student_count: 20,
-      status: "required",
-      expertise: ["AI/ML", "TensorFlow", "Computer Vision"],
-      experience: "8 years",
-      availability: "Full-time",
-      capacity: 25,
-      current_students: 20,
-      rating: 4.8,
-      bio: "AI research scientist with focus on computer vision"
-    },
-    {
-      id: 110,
-      name: "Sophia Lee",
-      username: "sophia_l",
-      email: "sophia@example.com",
-      phone: "0987654321",
-      student_count: 7,
-      status: "available",
-      expertise: ["Database", "SQL", "NoSQL", "MongoDB"],
-      experience: "6 years",
-      availability: "Full-time",
-      capacity: 15,
-      current_students: 7,
-      rating: 4.7,
-      bio: "Database architect with expertise in both SQL and NoSQL"
-    }
-  ];
+ 
 
   // Calculate mentor statistics
   const mentorStats = useMemo(() => {
@@ -323,15 +162,13 @@ const AdminMentors = () => {
       setLoading(true);
       const res = await axios.get(`${baseurl}/admin/mentors`);
       // Merge API data with additional fake data
-      const allMentorsData = [...res.data.data, ...additionalMentors];
+      const allMentorsData = [...res.data.data];
       setMentors(allMentorsData);
       setAllMentors(allMentorsData);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching mentors:", error);
       // Use fake data if API fails
-      setMentors(additionalMentors);
-      setAllMentors(additionalMentors);
       setLoading(false);
     }
   };
