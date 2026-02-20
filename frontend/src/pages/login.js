@@ -20,8 +20,7 @@ import {
   Lock,
   Eye,EyeOff ,
   HelpCircle
-} from "lucide-react";
-import logo from "../imgs/logo.png"; 
+} from "lucide-react"; 
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -116,15 +115,14 @@ return (
         <div className={styles.brandLogo}>
           <div>
             {/* <h1 className="brand-title">Maatram</h1> */}
-            <img src={logo} alt="Maatram Logo" className={styles.header1Logo} />
-            <p className={styles.brandSubtitle}>Student Profiling Platform</p>
+            <p className={styles.brandSubtitle}>   </p>
           </div>
         </div>
       </div>
 
       <div className={styles.welcomeContent}>
         <h2>Welcome Back</h2>
-        <p>Sign in to continue your journey with Maatram Foundation</p>
+        <p>Sign in to continue your journey </p>
 
         <div className={styles.features}>
           <div className={styles.featureItem}>

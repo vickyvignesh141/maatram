@@ -6,7 +6,6 @@ import {
   LogOut,
   Trash2
 } from "lucide-react";
-import logo from "../../imgs/logo.png";
 import BASE_URL from "../../baseurl";
 import "./mentortop.css";
 
@@ -68,7 +67,7 @@ export default function MentorTopBar() {
     <div className="topbar">
       {/* Logo Section */}
       <div className="logoSection">
-        <img src={logo} alt="Logo" className="logo" />
+   
         <h2 className="appName">Mentor Dashboard</h2>
       </div>
 
