@@ -126,13 +126,13 @@ function AddStudent() {
           </div>
 
           <div className="form-group">
-            <label>Maatram ID</label>
+            <label>Student ID</label>
             <input
               type="text"
               name="maatramId"
               value={student.maatramId}
               onChange={handleChange}
-              placeholder="Enter Maatram ID"
+              placeholder="Enter student ID"
               required
               disabled={loading}
             />

@@ -168,14 +168,14 @@ return (
         <div className={styles.formGroup}>
           <label className={styles.formLabel}>
             <User size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
-            Maatram ID <span>*</span>
+            Student ID <span>*</span>
           </label>
           <div className={styles.inputWithIcon}>
             <User size={20} className={styles.inputIcon} />
             <input
   type="text"
   className={styles.formInput}
-  placeholder="Enter your Maatram ID (e.g., MAA000001)"
+  placeholder="Enter your Student ID (e.g., MAA000001)"
   value={username}
   onChange={(e) => {
     const value = e.target.value.toUpperCase();
@@ -185,7 +185,7 @@ return (
 
     if (detected === "INVALID") {
       setUserType("");
-      setMsg("Invalid Maatram ID. Only MAA0, MAA1, MAA2 are allowed.");
+      setMsg("Invalid  ID. Only MAA0, MAA1, MAA2 are allowed.");
     } else {
       setUserType(detected);
       setMsg("");

@@ -62,7 +62,7 @@ const AdminDashboard = () => {
               Welcome back, <span className="highlight">Praveen</span> 👋
             </h1>
             <p className="subtitle">
-              Manage students, mentors, and track Maatram Foundation's impact
+              Manage students, mentors, and track Student impact
             </p>
           </div>
           <div className="date-display">

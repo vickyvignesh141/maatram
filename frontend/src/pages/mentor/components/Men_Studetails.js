@@ -82,7 +82,7 @@ const MentorViewStudentProfile = () => {
           </div>
           <div className={styles.profileInfo}>
             <h2>{s.name || "N/A"}</h2>
-            <p>Maatram ID: {s.username || "N/A"}</p>
+            <p>student ID: {s.username || "N/A"}</p>
           </div>
         </div>
 
