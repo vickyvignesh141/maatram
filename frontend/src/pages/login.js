@@ -175,7 +175,7 @@ return (
             <input
   type="text"
   className={styles.formInput}
-  placeholder="Enter your Student ID (e.g., MAA000001)"
+  placeholder="Enter your  ID (e.g., MAA000001)"
   value={username}
   onChange={(e) => {
     const value = e.target.value.toUpperCase();

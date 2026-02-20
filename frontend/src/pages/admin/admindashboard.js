@@ -120,7 +120,7 @@ const AdminDashboard = () => {
                 </span>
               </div>
 
-              <div
+              {/* <div
                 className="main-action-card"
                 onClick={() => navigate("/admin/assignments")}
               >
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
                 <span className="action-arrow">
                   <ArrowRight size={20} />
                 </span>
-              </div>
+              </div> */}
 
               <div
                 className="main-action-card"
@@ -194,7 +194,7 @@ const AdminDashboard = () => {
                   </div>
                 </button>
 
-                <button
+                {/* <button
                   className="quick-action-btn"
                   onClick={() => navigate("/admin/reports")}
                 >
@@ -205,7 +205,7 @@ const AdminDashboard = () => {
                     <span className="action-title">Generate Report</span>
                     <span className="action-desc">Create activity reports</span>
                   </div>
-                </button>
+                </button> */}
 
                 <button
                   className="quick-action-btn"
