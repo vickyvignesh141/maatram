@@ -149,9 +149,9 @@ const AdminDashboard = () => {
                 >
                   <Building2 size={32} />
                 </div>
-                <h3>College Management</h3>
+                <h3>Department Management</h3>
                 <p>
-                  View college-wise student distribution and partnerships
+                  View Dept-wise student distribution and partnerships
                 </p>
                 <span className="action-arrow">
                   <ArrowRight size={20} />

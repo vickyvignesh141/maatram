@@ -661,7 +661,7 @@ const MentorProfile = ({ loginData }) => {
                   </select>
                 </div>
 
-                <div className={styles.formGroup}>
+                {/* <div className={styles.formGroup}>
                   <label>
                     Current Company <span className={styles.required}>*</span>
                     {errors.workingCompany && <span className={styles.errorText}> - {errors.workingCompany}</span>}
@@ -675,11 +675,11 @@ const MentorProfile = ({ loginData }) => {
                     className={`${styles.input} ${errors.workingCompany ? styles.error : ''}`}
                     disabled={!isEditing}
                   />
-                </div>
+                </div> */}
 
                 <div className={styles.formGroup}>
                   <label>
-                    Current Role <span className={styles.required}>*</span>
+                    Subject Role <span className={styles.required}>*</span>
                     {errors.role && <span className={styles.errorText}> - {errors.role}</span>}
                   </label>
                   <select
@@ -740,7 +740,7 @@ const MentorProfile = ({ loginData }) => {
                 <h3>Address Information</h3>
               </div>
               <div className={styles.formGrid}>
-                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                {/* <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label>Company Address</label>
                   <div className={styles.textareaContainer}>
                     <Building size={18} />
@@ -754,7 +754,7 @@ const MentorProfile = ({ loginData }) => {
                       disabled={!isEditing}
                     />
                   </div>
-                </div>
+                </div> */}
 
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label>Home Address</label>
@@ -785,7 +785,7 @@ const MentorProfile = ({ loginData }) => {
                   <div className={styles.addressPreference}>
                     <label>Preferred Contact Address:</label>
                     <div className={styles.preferenceOptions}>
-                      <label className={styles.radioOption}>
+                      {/* <label className={styles.radioOption}>
                         <input
                           type="radio"
                           name="preferredAddress"
@@ -797,8 +797,8 @@ const MentorProfile = ({ loginData }) => {
                           }))}
                           disabled={!isEditing}
                         />
-                        <span>Company Address</span>
-                      </label>
+                        <span>College Address</span>
+                      </label> */}
                       <label className={styles.radioOption}>
                         <input
                           type="radio"
