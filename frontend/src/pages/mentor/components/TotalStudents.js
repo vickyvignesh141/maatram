@@ -68,7 +68,7 @@ export default function TotalStudents() {
           <Search size={18} className="search-icon" />
           <input
             type="text"
-            placeholder="Search by Name / Maatram ID / Phone"
+            placeholder="Search by Name /  ID / Phone"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

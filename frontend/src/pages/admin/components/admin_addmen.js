@@ -142,13 +142,13 @@ function AddMentor() {
           </div>
 
           <div className="form-group">
-            <label>Maatram ID</label>
+            <label>Mentor ID</label>
             <input
               type="text"
               name="maatramId"
               value={mentor.maatramId}
               onChange={handleChange}
-              placeholder="Enter Maatram ID"
+              placeholder="Enter Mentor ID"
               required
               disabled={loading}
             />

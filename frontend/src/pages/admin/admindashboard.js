@@ -62,7 +62,7 @@ const AdminDashboard = () => {
               Welcome back, <span className="highlight">Praveen</span> 👋
             </h1>
             <p className="subtitle">
-              Manage students, mentors, and track Maatram Foundation's impact
+              Manage students, mentors, and track Student impact
             </p>
           </div>
           <div className="date-display">
@@ -120,7 +120,7 @@ const AdminDashboard = () => {
                 </span>
               </div>
 
-              <div
+              {/* <div
                 className="main-action-card"
                 onClick={() => navigate("/admin/assignments")}
               >
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
                 <span className="action-arrow">
                   <ArrowRight size={20} />
                 </span>
-              </div>
+              </div> */}
 
               <div
                 className="main-action-card"
@@ -149,9 +149,9 @@ const AdminDashboard = () => {
                 >
                   <Building2 size={32} />
                 </div>
-                <h3>College Management</h3>
+                <h3>Department Management</h3>
                 <p>
-                  View college-wise student distribution and partnerships
+                  View Dept-wise student distribution and partnerships
                 </p>
                 <span className="action-arrow">
                   <ArrowRight size={20} />
@@ -194,7 +194,7 @@ const AdminDashboard = () => {
                   </div>
                 </button>
 
-                <button
+                {/* <button
                   className="quick-action-btn"
                   onClick={() => navigate("/admin/reports")}
                 >
@@ -205,7 +205,7 @@ const AdminDashboard = () => {
                     <span className="action-title">Generate Report</span>
                     <span className="action-desc">Create activity reports</span>
                   </div>
-                </button>
+                </button> */}
 
                 <button
                   className="quick-action-btn"

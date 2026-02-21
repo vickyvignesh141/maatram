@@ -475,7 +475,7 @@ const StudentProfile = ({ loginData }) => {
               </h2>
               <div className={styles.studentId}>
                 <Clipboard size={16} />
-                <span>Maatram ID: {studentInfo.maatramId || 'Not assigned'}</span>
+                <span>Student ID: {studentInfo.maatramId || 'Not assigned'}</span>
               </div>
             </div>
             
@@ -605,7 +605,7 @@ const StudentProfile = ({ loginData }) => {
               </div>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>Maatram ID</label>
+                  <label>Student ID</label>
                   <div className={styles.inputWithIcon}>
                     <Clipboard size={18} />
                     <input

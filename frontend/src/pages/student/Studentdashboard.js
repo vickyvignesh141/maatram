@@ -99,7 +99,7 @@ export default function StudentDashboard() {
 
     {name: "About Mentor",icon: <BarChart2 size={20} />,route: data?.assigned_mentor? `/student/mentor/${data.assigned_mentor}`: null,},
     { name: "Bookmarks", icon: <Bookmark size={20} />, route: "/student/bookmarks" },
-    { name: "About Maatram", icon: <Users size={20} />, route: "https://maatramfoundation.com/" },
+    { name: "About College", icon: <Users size={20} />, route: "https://velammal.edu.in/" },
   ];
 
   
