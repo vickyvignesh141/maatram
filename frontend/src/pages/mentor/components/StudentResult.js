@@ -29,22 +29,33 @@ export default function StudentProgress() {
   const [subjectData, setSubjectData] = useState([]);
   const [activePerformanceChart, setActivePerformanceChart] = useState("line");
   const [activeSubjectChart, setActiveSubjectChart] = useState("bar");
+  const [searchSubject, setSearchSubject] = useState("");
+
 
   // Colors for charts
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+
+  const filteredPerformanceData = performanceData.filter((test) =>
+    test.subject?.toLowerCase().includes(searchSubject.toLowerCase())
+  );
 
   useEffect(() => {
     if (!student_id) return;
 
     const fetchStudentTests = async () => {
+    
+
       try {
         const res = await axios.get(`${BASE_URL}/mentor/student/${student_id}/progress`);
         const fetchedTests = res.data.tests || [];
         setTests(fetchedTests);
         
+        
+        
         if (fetchedTests.length > 0) {
           prepareChartData(fetchedTests);
         }
+        
         
         setLoading(false);
       } catch (err) {
@@ -58,6 +69,8 @@ export default function StudentProgress() {
   }, [student_id]);
 
   const prepareChartData = (testsData) => {
+   
+
     // Sort by date
     const sortedTests = [...testsData].sort((a, b) => {
       return new Date(a.date) - new Date(b.date);
@@ -459,6 +472,22 @@ export default function StudentProgress() {
             </div>
 
             {/* Tests Table Section */}
+            <div style={{ marginBottom: "15px", display: "flex", justifyContent: "flex-end" }}>
+  <input
+    type="text"
+    placeholder="Search by subject..."
+    value={searchSubject}
+    onChange={(e) => setSearchSubject(e.target.value)}
+    style={{
+      padding: "8px 12px",
+      borderRadius: "6px",
+      border: "1px solid #ccc",
+      fontSize: "14px",
+      width: "250px"
+    }}
+  />
+</div>
+
             <div className="table-card">
               <h3>Detailed Test Results</h3>
               <div style={{ overflowX: "auto", marginTop: "20px" }}>
@@ -474,8 +503,9 @@ export default function StudentProgress() {
                       <th>Time</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {performanceData.map((test, index) => (
+                  <tbody> 
+                    {filteredPerformanceData.map((test, index) => (
+
                       <tr key={index}>
                         <td style={{ fontWeight: "500" }}>{test.name}</td>
                         <td>{test.subject}</td>

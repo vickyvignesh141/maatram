@@ -18,6 +18,7 @@ import {
   BarChart3,
   Mail,
   Lock,
+  Eye,EyeOff ,
   HelpCircle
 } from "lucide-react";
 import logo from "../imgs/logo.png"; 
@@ -28,6 +29,25 @@ export default function Login() {
   const [userType, setUserType] = useState("");
   const [msg, setMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const detectUserType = (value) => {
+  if (!value.startsWith("MAA")) return "";
+
+  const roleDigit = value.charAt(3); // 4th character
+
+  if (roleDigit === "0") return "Student";
+  if (roleDigit === "1") return "Mentor";
+  if (roleDigit === "2") return "Admin";
+
+  if (["3", "4", "5", "6", "7", "8", "9"].includes(roleDigit)) {
+    return "INVALID";
+  }
+
+  return "";
+};
+
+
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -155,33 +175,59 @@ return (
           <div className={styles.inputWithIcon}>
             <User size={20} className={styles.inputIcon} />
             <input
-              type="text"
-              className={styles.formInput}
-              placeholder="Enter your Maatram ID (e.g., MAA000001)"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+  type="text"
+  className={styles.formInput}
+  placeholder="Enter your Maatram ID (e.g., MAA000001)"
+  value={username}
+  onChange={(e) => {
+    const value = e.target.value.toUpperCase();
+    setUsername(value);
+
+    const detected = detectUserType(value);
+
+    if (detected === "INVALID") {
+      setUserType("");
+      setMsg("Invalid Maatram ID. Only MAA0, MAA1, MAA2 are allowed.");
+    } else {
+      setUserType(detected);
+      setMsg("");
+    }
+  }}
+  required
+/>
+
           </div>
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.formLabel}>
-            <Lock size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
-            Password <span>*</span>
-          </label>
-          <div className={styles.inputWithIcon}>
-            <Key size={20} className={styles.inputIcon} />
-            <input
-              type="password"
-              className={styles.formInput}
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-        </div>
+  <label className={styles.formLabel}>
+    <Lock size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
+    Password <span>*</span>
+  </label>
+
+  <div className={styles.inputWithIcon}>
+    <Key size={20} className={styles.inputIcon} />
+
+    <input
+      type={showPassword ? "text" : "password"}
+      className={styles.formInput}
+      placeholder="Enter your password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      required
+    />
+
+    {/* Eye Toggle Icon */}
+    <span
+      className={styles.eyeIcon}
+      onClick={() => setShowPassword(!showPassword)}
+      style={{ cursor: "pointer" }}
+    >
+      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+    </span>
+  </div>
+</div>
+
 
         <div className={styles.userTypeGroup}>
           <label className={styles.userTypeLabel}>
@@ -192,12 +238,14 @@ return (
             {["Student", "Mentor", "Admin"].map((type) => (
               <label key={type} className={styles.userTypeOption}>
                 <input
-                  type="radio"
-                  value={type}
-                  checked={userType === type}
-                  onChange={(e) => setUserType(e.target.value)}
-                  required
-                />
+  type="radio"
+  value={type}
+  checked={userType === type}
+  disabled={["Student", "Mentor", "Admin"].includes(userType)}
+  onChange={(e) => setUserType(e.target.value)}
+/>
+
+
                 <div className={styles.userTypeCard}>
                   <span className={styles.userTypeIcon}>
                     {userTypeIcons[type]}

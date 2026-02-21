@@ -211,12 +211,12 @@ export default function StudentDashboard() {
 
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Course</span>
-              <span className={styles.infoValue}>Engineering</span>
+              <span className={styles.infoValue}>{data.program}  {data.department}</span>
             </div>
 
             <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Mentor</span>
-              <span className={styles.infoValue}>Esakki Rajan</span>
+              <span className={styles.infoLabel}>Mentor ID</span>
+              <span className={styles.infoValue}>  {data.assignedMentor}</span>
             </div>
           </div>
         </div>

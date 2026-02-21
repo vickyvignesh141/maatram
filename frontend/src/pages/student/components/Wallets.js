@@ -1,1165 +1,761 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Wallets.css";
+import styles from "./Wallets.module.css";
 import StudentTopBar from "../../nav/studenttop";
 import BASE_URL from "../../../baseurl";
-
-/* ✅ Lucide Icons */
-import { 
-  BookOpen, 
-  Edit3, 
-  ClipboardList, 
-  Trash2, 
-  Save, 
-  X,
-  Plus,
+import {
   FileText,
-  GraduationCap,
-  Calculator,
-  Calendar,
-  TrendingUp,
-  CheckCircle,
-  ChevronDown,
-  ChevronUp,
+  Trash2,
   Eye,
-  Download
+  GraduationCap,
+  Plus,
+  Save,
+  Download,
+  Upload,
+  BookOpen,
+  Award,
+  Calendar,
+  Edit,
+  X,
+  Check,
+  ChevronRight,
+  Folder,
+  ExternalLink,
+  Filter,
+  Search,
+  BarChart3,
+  TrendingUp,
+  FileUp,
+  FilePlus
 } from "lucide-react";
 
 export default function StudentWallet() {
   const username = localStorage.getItem("loggedUser");
+  const [activeTab, setActiveTab] = useState("certificates");
 
-  /* ================= CERTIFICATE STATES ================= */
+  /* ================= CERTIFICATES ================= */
   const [certificates, setCertificates] = useState([]);
   const [certName, setCertName] = useState("");
   const [certFile, setCertFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [editingCertId, setEditingCertId] = useState(null);
-  const [editCertName, setEditCertName] = useState("");
+  const [certFilePreview, setCertFilePreview] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  /* ================= ACADEMIC STATES ================= */
-  const [semester, setSemester] = useState(1);
-  const [semesterGPA, setSemesterGPA] = useState("");
-  const [semesterGrade, setSemesterGrade] = useState("");
-  const [cgpa, setCgpa] = useState(null);
-  
-  /* Subject Management - Store in localStorage */
-  const [allSubjects, setAllSubjects] = useState(() => {
-    const saved = localStorage.getItem(`student_${username}_subjects`);
-    return saved ? JSON.parse(saved) : [];
+  /* ================= ACADEMICS ================= */
+  const [semesters, setSemesters] = useState([]);
+  const [expandedSemester, setExpandedSemester] = useState(null);
+  const [editingSubject, setEditingSubject] = useState(null);
+  const [editingMarks, setEditingMarks] = useState("");
+  const [semesterStats, setSemesterStats] = useState({});
+  const [isAddingSemester, setIsAddingSemester] = useState(false);
+  const [newSemesterName, setNewSemesterName] = useState("");
+
+  // Filter certificates
+  const filteredCertificates = certificates.filter(cert => {
+    const matchesSearch = cert.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         cert.category?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === "all" || cert.category === filterCategory;
+    return matchesSearch && matchesCategory;
   });
-  
-  const [currentSubjects, setCurrentSubjects] = useState([]);
-  const [newSubject, setNewSubject] = useState("");
-  const [editingSubjectId, setEditingSubjectId] = useState(null);
-  const [editSubjectName, setEditSubjectName] = useState("");
-  
-  /* Marks Management - Store in localStorage */
-  const [subjectMarks, setSubjectMarks] = useState(() => {
-    const saved = localStorage.getItem(`student_${username}_marks`);
-    return saved ? JSON.parse(saved) : {};
-  });
-  
-  const [semesterResults, setSemesterResults] = useState(() => {
-    const saved = localStorage.getItem(`student_${username}_results`);
-    return saved ? JSON.parse(saved) : [];
-  });
-  
-  /* UI States */
-  const [activeTab, setActiveTab] = useState("subjects");
-  const [isAddingSubject, setIsAddingSubject] = useState(false);
-  const [expandedSubjects, setExpandedSubjects] = useState({});
-  const [viewMode, setViewMode] = useState(false); // true = view, false = edit
-  const [selectedSubjectForView, setSelectedSubjectForView] = useState(null);
 
-  /* ================= FETCH CERTIFICATES ================= */
-  const fetchCertificates = async () => {
-    try {
-      const res = await axios.get(
-        `${BASE_URL}/student/${username}/certificates`
-      );
-      setCertificates(res.data?.certificates || []);
-    } catch {
-      setCertificates([]);
-    }
-  };
-
-  /* ================= CERTIFICATE OPERATIONS ================= */
-  const uploadCertificate = async () => {
-    if (!certName || !certFile) return alert("Enter name and file");
-
-    const formData = new FormData();
-    formData.append("file", certFile);
-    formData.append("name", certName);
-
-    try {
-      setLoading(true);
-      await axios.post(
-        `${BASE_URL}/student/${username}/certificate`,
-        formData
-      );
-      setCertName("");
-      setCertFile(null);
-      fetchCertificates();
-      alert("Certificate uploaded successfully!");
-    } catch (error) {
-      alert("Error uploading certificate");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateCertificate = async (certId) => {
-    if (!editCertName) return alert("Enter certificate name");
-    
-    try {
-      await axios.put(
-        `${BASE_URL}/student/${username}/certificate/${certId}`,
-        { name: editCertName }
-      );
-      setEditingCertId(null);
-      setEditCertName("");
-      fetchCertificates();
-      alert("Certificate updated successfully!");
-    } catch (error) {
-      alert("Error updating certificate");
-    }
-  };
-
-  const deleteCertificate = async (certId) => {
-    if (!window.confirm("Are you sure you want to delete this certificate?")) return;
-    
-    try {
-      await axios.delete(
-        `${BASE_URL}/student/${username}/certificate/${certId}`
-      );
-      fetchCertificates();
-      alert("Certificate deleted successfully!");
-    } catch (error) {
-      alert("Error deleting certificate");
-    }
-  };
-
-  /* ================= SUBJECT MANAGEMENT ================= */
-  const addSubject = () => {
-    if (!newSubject.trim()) {
-      alert("Please enter a subject name");
-      return;
-    }
-
-    const subjectId = Date.now().toString();
-    const subjectCode = `SUB${subjectId.slice(-4)}`;
-    
-    const newSubjectData = {
-      id: subjectId,
-      name: newSubject,
-      code: subjectCode,
-      semester: semester,
-      credits: 3,
-      createdAt: new Date().toISOString()
-    };
-
-    const updatedAllSubjects = [...allSubjects, newSubjectData];
-    setAllSubjects(updatedAllSubjects);
-    localStorage.setItem(`student_${username}_subjects`, JSON.stringify(updatedAllSubjects));
-    
-    setCurrentSubjects(prev => [...prev, newSubjectData]);
-    
-    const updatedMarks = {
-      ...subjectMarks,
-      [subjectId]: {
-        internal1: "",
-        internal2: "",
-        internal3: "",
-        semesterEndMarks: "",
-        semesterEndGrade: "",
-        semester: semester
-      }
-    };
-    setSubjectMarks(updatedMarks);
-    localStorage.setItem(`student_${username}_marks`, JSON.stringify(updatedMarks));
-    
-    setNewSubject("");
-    setIsAddingSubject(false);
-    alert("Subject added successfully!");
-  };
-
-  const updateSubject = (subjectId) => {
-    if (!editSubjectName.trim()) {
-      alert("Please enter a subject name");
-      return;
-    }
-
-    const updatedAllSubjects = allSubjects.map(subject =>
-      subject.id === subjectId 
-        ? { ...subject, name: editSubjectName } 
-        : subject
-    );
-    
-    setAllSubjects(updatedAllSubjects);
-    localStorage.setItem(`student_${username}_subjects`, JSON.stringify(updatedAllSubjects));
-    
-    setCurrentSubjects(prev =>
-      prev.map(subject =>
-        subject.id === subjectId 
-          ? { ...subject, name: editSubjectName } 
-          : subject
-      )
-    );
-    
-    setEditingSubjectId(null);
-    setEditSubjectName("");
-    alert("Subject updated successfully!");
-  };
-
-  const deleteSubject = (subjectId) => {
-    if (!window.confirm("Are you sure you want to delete this subject and all its marks?")) return;
-    
-    const updatedAllSubjects = allSubjects.filter(subject => subject.id !== subjectId);
-    setAllSubjects(updatedAllSubjects);
-    localStorage.setItem(`student_${username}_subjects`, JSON.stringify(updatedAllSubjects));
-    
-    setCurrentSubjects(prev => prev.filter(subject => subject.id !== subjectId));
-    
-    const updatedMarks = { ...subjectMarks };
-    delete updatedMarks[subjectId];
-    setSubjectMarks(updatedMarks);
-    localStorage.setItem(`student_${username}_marks`, JSON.stringify(updatedMarks));
-    
-    alert("Subject deleted successfully!");
-  };
-
-  /* ================= MARKS MANAGEMENT ================= */
-  const handleMarksChange = (subjectId, field, value) => {
-    const updatedMarks = {
-      ...subjectMarks,
-      [subjectId]: {
-        ...subjectMarks[subjectId],
-        [field]: value
-      }
-    };
-    
-    setSubjectMarks(updatedMarks);
-    localStorage.setItem(`student_${username}_marks`, JSON.stringify(updatedMarks));
-  };
-
-  const saveMarksForSubject = (subjectId, subjectName) => {
-    const marks = subjectMarks[subjectId];
-    if (!marks) return;
-    
-    const hasMarks = marks.internal1 || marks.internal2 || marks.internal3 || 
-                    marks.semesterEndMarks || marks.semesterEndGrade;
-    
-    if (!hasMarks) {
-      alert("Please enter at least one mark");
-      return;
-    }
-    
-    alert(`Marks saved for ${subjectName}!`);
-    setExpandedSubjects(prev => ({ ...prev, [subjectId]: false }));
-  };
-
-  const saveAllMarksForSemester = () => {
-    const subjectsWithMarks = currentSubjects.filter(subject => {
-      const marks = subjectMarks[subject.id];
-      return marks && (
-        marks.internal1 || 
-        marks.internal2 || 
-        marks.internal3 || 
-        marks.semesterEndMarks || 
-        marks.semesterEndGrade
-      );
-    });
-
-    if (subjectsWithMarks.length === 0) {
-      alert("No marks entered for any subject");
-      return;
-    }
-
-    alert(`Marks saved for ${subjectsWithMarks.length} subject(s)!`);
-  };
-
-  /* ================= VIEW/EDIT FUNCTIONS ================= */
-  const toggleViewMode = () => {
-    setViewMode(!viewMode);
-    if (viewMode) {
-      setSelectedSubjectForView(null);
-    }
-  };
-
-  const viewSubjectDetails = (subjectId) => {
-    setSelectedSubjectForView(subjectId);
-    setViewMode(true);
-  };
-
-  const exportData = () => {
-    const data = {
-      subjects: allSubjects,
-      marks: subjectMarks,
-      results: semesterResults,
-      cgpa: cgpa,
-      exportedAt: new Date().toISOString()
-    };
-    
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `academic_records_${username}_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    alert("Data exported successfully!");
-  };
-
-  /* ================= SEMESTER RESULTS ================= */
-  const uploadSemesterResults = () => {
-    if (!semesterGPA || !semesterGrade) {
-      alert("Enter Semester GPA and Grade");
-      return;
-    }
-
-    const newResult = {
-      id: Date.now().toString(),
-      semester: semester,
-      gpa: semesterGPA,
-      grade: semesterGrade,
-      timestamp: new Date().toISOString(),
-      status: 'completed'
-    };
-
-    const updatedResults = [...semesterResults, newResult];
-    setSemesterResults(updatedResults);
-    localStorage.setItem(`student_${username}_results`, JSON.stringify(updatedResults));
-    
-    calculateCGPA(updatedResults);
-    
-    alert("Semester results saved successfully!");
-    setSemesterGPA("");
-    setSemesterGrade("");
-  };
-
-  const deleteSemesterResult = (resultId) => {
-    if (!window.confirm("Are you sure you want to delete this semester's result?")) return;
-    
-    const updatedResults = semesterResults.filter(result => result.id !== resultId);
-    setSemesterResults(updatedResults);
-    localStorage.setItem(`student_${username}_results`, JSON.stringify(updatedResults));
-    
-    calculateCGPA(updatedResults);
-    
-    alert("Semester result deleted successfully!");
-  };
-
-  const calculateCGPA = (results) => {
-    if (results.length === 0) {
-      setCgpa(null);
-      return;
-    }
-    
-    const totalGPA = results.reduce((sum, result) => sum + parseFloat(result.gpa), 0);
-    const averageCGPA = (totalGPA / results.length).toFixed(2);
-    setCgpa(averageCGPA);
-  };
-
-  /* ================= HELPER FUNCTIONS ================= */
-  const toggleSubjectExpansion = (subjectId) => {
-    setExpandedSubjects(prev => ({
-      ...prev,
-      [subjectId]: !prev[subjectId]
-    }));
-  };
-
-  const calculateInternalAverage = (subjectId) => {
-    const marks = subjectMarks[subjectId];
-    if (!marks) return 0;
-    
-    const values = [
-      marks.internal1,
-      marks.internal2,
-      marks.internal3
-    ].filter(val => val !== "" && !isNaN(parseFloat(val)));
-    
-    if (values.length === 0) return 0;
-    
-    const sum = values.reduce((acc, val) => acc + parseFloat(val), 0);
-    return (sum / values.length).toFixed(2);
-  };
-
-  const getSubjectStats = (subjectId) => {
-    const marks = subjectMarks[subjectId] || {};
-    
-    const internalTests = ['internal1', 'internal2', 'internal3'];
-    const completedInternals = internalTests.filter(test => marks[test] && marks[test] !== "").length;
-    
-    return {
-      completedInternals,
-      hasSemesterMarks: marks.semesterEndMarks && marks.semesterEndMarks !== "",
-      hasSemesterGrade: marks.semesterEndGrade && marks.semesterEndGrade !== "",
-      totalInternals: 3
-    };
-  };
-
-  /* ================= INITIAL FETCHES ================= */
   useEffect(() => {
     if (username) {
       fetchCertificates();
-      calculateCGPA(semesterResults);
+      fetchSemesters();
     }
   }, [username]);
 
+  // Calculate semester statistics
   useEffect(() => {
-    const currentSemSubjects = allSubjects.filter(subject => subject.semester === semester);
-    setCurrentSubjects(currentSemSubjects);
-  }, [semester, allSubjects]);
+    const stats = {};
+    semesters.forEach(sem => {
+      const subjects = sem.internals?.flatMap(int => int.subjects || []) || [];
+      const totalMarks = subjects.reduce((sum, sub) => sum + (parseFloat(sub.marks) || 0), 0);
+      const avgMarks = subjects.length > 0 ? totalMarks / subjects.length : 0;
+      const maxMarks = subjects.length > 0 ? Math.max(...subjects.map(s => parseFloat(s.marks) || 0)) : 0;
+      
+      stats[sem.id] = {
+        totalSubjects: subjects.length,
+        averageMarks: avgMarks.toFixed(2),
+        maxMarks: maxMarks,
+        totalInternals: sem.internals?.length || 0
+      };
+    });
+    setSemesterStats(stats);
+  }, [semesters]);
 
-  return (
-    <div className="progress-container">
-      <StudentTopBar />
+  /* ================= CERTIFICATE FUNCTIONS ================= */
+  const fetchCertificates = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/student/${username}/certificates`);
+      setCertificates(res.data.certificates || []);
+    } catch (error) {
+      console.error("Error fetching certificates:", error);
+    }
+  };
 
-      <div className="wallet-split-container">
-        {/* ================= LEFT : CERTIFICATES ================= */}
-        <div className="wallet-left">
-          <div className="section-header">
-            <FileText size={24} />
-            <h2>Certificates</h2>
-          </div>
+  const uploadCertificate = async () => {
+    if (!certName || !certFile) {
+      alert("Please provide certificate name and select a file");
+      return;
+    }
 
-          <div className="upload-form">
-            <input
-              type="text"
-              placeholder="Certificate Name"
-              value={certName}
-              onChange={e => setCertName(e.target.value)}
-            />
+    try {
+      const formData = new FormData();
+      formData.append("file", certFile);
+      formData.append("name", certName);
+      formData.append("category", "academic"); // Default category, can be extended
 
-            <input
-              type="file"
-              accept=".pdf,.png,.jpg,.jpeg"
-              onChange={e => setCertFile(e.target.files[0])}
-            />
+      const res = await axios.post(`${BASE_URL}/student/${username}/certificate`, formData, {
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        }
+      });
 
-            <button 
-              onClick={uploadCertificate} 
-              disabled={loading}
-              className="upload-btn"
-            >
-              {loading ? "Uploading..." : "Upload Certificate"}
-            </button>
-          </div>
+      if (res.data.success) {
+        setCertName("");
+        setCertFile(null);
+        setCertFilePreview(null);
+        setUploadProgress(0);
+        fetchCertificates();
+        alert("Certificate uploaded successfully!");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Failed to upload certificate");
+    }
+  };
 
-          <div className="certificates-list">
-            {certificates.map(cert => (
-              <div key={cert.id} className="certificate-item">
-                {editingCertId === cert.id ? (
-                  <div className="edit-mode">
-                    <input
-                      type="text"
-                      value={editCertName}
-                      onChange={e => setEditCertName(e.target.value)}
-                      placeholder="Edit certificate name"
-                    />
-                    <div className="action-buttons">
-                      <button 
-                        onClick={() => updateCertificate(cert.id)}
-                        className="save-btn"
-                      >
-                        <Save size={16} />
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setEditingCertId(null);
-                          setEditCertName("");
-                        }}
-                        className="cancel-btn"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <span className="cert-name">{cert.name}</span>
-                    <div className="cert-actions">
-                      <button
-                        onClick={() => window.open(
-                          `${BASE_URL}/certificate/${username}/${cert.file}`,
-                          "_blank"
-                        )}
-                        className="view-btn"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingCertId(cert.id);
-                          setEditCertName(cert.name);
-                        }}
-                        className="edit-btn"
-                      >
-                        <Edit3 size={16} />
-                      </button>
-                      <button
-                        onClick={() => deleteCertificate(cert.id)}
-                        className="delete-btn"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-            
-            {certificates.length === 0 && (
-              <p className="no-data">No certificates uploaded yet</p>
-            )}
+  const deleteCertificate = async (id) => {
+    if (window.confirm("Are you sure you want to delete this certificate?")) {
+      try {
+        await axios.delete(`${BASE_URL}/student/${username}/certificate/${id}`);
+        fetchCertificates();
+      } catch (error) {
+        console.error("Delete error:", error);
+      }
+    }
+  };
+
+  const downloadCertificate = async (certificate) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/certificate/${username}/${certificate.file}`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', certificate.file);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Download error:", error);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCertFile(file);
+      
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setCertFilePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setCertFilePreview(null);
+      }
+    }
+  };
+
+  /* ================= ACADEMIC FUNCTIONS ================= */
+  const fetchSemesters = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/student/${username}/academics/semesters`);
+      setSemesters(res.data || []);
+    } catch (error) {
+      console.error("Error fetching semesters:", error);
+    }
+  };
+
+  const addSemester = async () => {
+    if (!newSemesterName.trim()) {
+      alert("Please enter a semester name");
+      return;
+    }
+
+    try {
+      const res = await axios.post(`${BASE_URL}/student/${username}/academics/semester`, {
+        name: newSemesterName,
+        semester: semesters.length + 1
+      });
+      
+      setSemesters([...semesters, res.data]);
+      setNewSemesterName("");
+      setIsAddingSemester(false);
+      setExpandedSemester(res.data.id);
+    } catch (error) {
+      console.error("Add semester error:", error);
+    }
+  };
+
+  const deleteSemester = async (semesterId) => {
+    if (window.confirm("Delete this semester and all its data?")) {
+      try {
+        await axios.delete(`${BASE_URL}/student/${username}/academics/semester/${semesterId}`);
+        fetchSemesters();
+      } catch (error) {
+        console.error("Delete semester error:", error);
+      }
+    }
+  };
+
+  const addInternal = async (semesterId) => {
+    const name = prompt("Enter internal name (e.g., Internal 1, Mid-term):");
+    if (!name) return;
+
+    try {
+      const res = await axios.post(`${BASE_URL}/student/${username}/academics/internal`, {
+        semester_id: semesterId,
+        name: name
+      });
+
+      setSemesters(prev =>
+        prev.map(s =>
+          s.id === semesterId
+            ? { ...s, internals: [...(s.internals || []), res.data] }
+            : s
+        )
+      );
+    } catch (error) {
+      console.error("Add internal error:", error);
+    }
+  };
+
+  const deleteInternal = async (semesterId, internalId) => {
+    if (window.confirm("Delete this internal and all its subjects?")) {
+      try {
+        await axios.delete(`${BASE_URL}/student/${username}/academics/internal/${internalId}`);
+        fetchSemesters();
+      } catch (error) {
+        console.error("Delete internal error:", error);
+      }
+    }
+  };
+
+  const addSubject = async (semesterId, internalId) => {
+    const name = prompt("Enter subject name:");
+    if (!name) return;
+
+    try {
+      const res = await axios.post(`${BASE_URL}/student/${username}/academics/subject`, {
+        semester_id: semesterId,
+        internal_id: internalId,
+        name: name
+      });
+
+      setSemesters(prev =>
+        prev.map(s =>
+          s.id === semesterId
+            ? {
+                ...s,
+                internals: s.internals.map(i =>
+                  i.id === internalId
+                    ? { ...i, subjects: [...(i.subjects || []), res.data] }
+                    : i
+                )
+              }
+            : s
+        )
+      );
+    } catch (error) {
+      console.error("Add subject error:", error);
+    }
+  };
+
+  const deleteSubject = async (subjectId) => {
+    if (window.confirm("Delete this subject?")) {
+      try {
+        await axios.delete(`${BASE_URL}/student/${username}/academics/subject/${subjectId}`);
+        fetchSemesters();
+      } catch (error) {
+        console.error("Delete subject error:", error);
+      }
+    }
+  };
+
+  const updateMarks = async (subjectId, marks) => {
+    if (marks === "" || marks > 100) return;
+
+    try {
+      await axios.put(`${BASE_URL}/student/${username}/academics/marks`, {
+        subject_id: subjectId,
+        marks: marks
+      });
+      fetchSemesters();
+    } catch (error) {
+      console.error("Update marks error:", error);
+    }
+  };
+
+  const startEditingMarks = (subjectId, currentMarks) => {
+    setEditingSubject(subjectId);
+    setEditingMarks(currentMarks);
+  };
+
+  const saveEditedMarks = (subjectId) => {
+    updateMarks(subjectId, editingMarks);
+    setEditingSubject(null);
+    setEditingMarks("");
+  };
+
+  /* ================= RENDER FUNCTIONS ================= */
+  const renderCertificatesTab = () => (
+    <div className={styles.certificatesTab}>
+      <div className={styles.certificatesHeader}>
+        <div className={styles.headerLeft}>
+          <FileText size={28} />
+          <div>
+            <h2>My Certificates</h2>
+            <p>Upload and manage your academic certificates</p>
           </div>
         </div>
-
-        {/* ================= RIGHT : ACADEMICS ================= */}
-        <div className="wallet-right">
-          <div className="section-header">
-            <GraduationCap size={24} />
-            <h2>Academic Records - Semester {semester}</h2>
-            <div className="view-edit-controls">
-              <button 
-                className={`mode-toggle-btn ${viewMode ? 'view-mode' : 'edit-mode'}`}
-                onClick={toggleViewMode}
-              >
-                {viewMode ? (
-                  <>
-                    <Edit3 size={16} />
-                    Switch to Edit Mode
-                  </>
-                ) : (
-                  <>
-                    <Eye size={16} />
-                    Switch to View Mode
-                  </>
-                )}
-              </button>
-              <button 
-                className="export-btn"
-                onClick={exportData}
-              >
-                <Download size={16} />
-                Export Data
-              </button>
-            </div>
+        <div className={styles.certificateStats}>
+          <div className={styles.statCard}>
+            <FileText size={20} />
+            <span>{certificates.length} Certificates</span>
           </div>
+        </div>
+      </div>
 
-          {/* Academic Stats Overview */}
-          <div className="academic-stats-overview">
-            <div className="stat-card">
-              <div className="stat-icon">
-                <TrendingUp size={20} />
-              </div>
-              <div className="stat-info">
-                <span className="stat-label">Current Semester</span>
-                <span className="stat-value">Semester {semester}</span>
-              </div>
-            </div>
+      {/* Upload Section */}
+      <div className={styles.uploadSection}>
+        <div className={styles.uploadCard}>
+          <div className={styles.uploadHeader}>
+            <FileUp size={24} />
+            <h3>Upload New Certificate</h3>
+          </div>
+          
+          <div className={styles.uploadForm}>
+            <input
+              type="text"
+              className={styles.textInput}
+              placeholder="Certificate Name (e.g., Python Course Certificate)"
+              value={certName}
+              onChange={(e) => setCertName(e.target.value)}
+            />
             
-            <div className="stat-card">
-              <div className="stat-icon">
-                <Calculator size={20} />
-              </div>
-              <div className="stat-info">
-                <span className="stat-label">CGPA</span>
-                <span className="stat-value">{cgpa || "N/A"}</span>
-              </div>
-            </div>
-            
-            <div className="stat-card">
-              <div className="stat-icon">
-                <BookOpen size={20} />
-              </div>
-              <div className="stat-info">
-                <span className="stat-label">Subjects</span>
-                <span className="stat-value">{currentSubjects.length}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Semester Selector */}
-          <div className="semester-selector-card">
-            <div className="selector-header">
-              <Calendar size={20} />
-              <h3>Select Semester</h3>
-            </div>
-            <div className="semester-buttons">
-              {[1,2,3,4,5,6,7,8].map(sem => (
-                <button
-                  key={sem}
-                  className={`sem-btn ${semester === sem ? 'active' : ''}`}
-                  onClick={() => setSemester(sem)}
-                >
-                  Semester {sem}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Academic Tabs */}
-          <div className="academic-tabs">
-            <button 
-              className={`tab-btn ${activeTab === 'subjects' ? 'active' : ''}`}
-              onClick={() => setActiveTab('subjects')}
-            >
-              <BookOpen size={18} />
-              Subjects & Marks
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'results' ? 'active' : ''}`}
-              onClick={() => setActiveTab('results')}
-            >
-              <CheckCircle size={18} />
-              Final Results
-            </button>
-          </div>
-
-          {/* Subjects & Marks Tab */}
-          {activeTab === 'subjects' && (
-            <div className="subjects-marks-container">
-              <div className="section-header-with-action">
-                <h3>
-                  {viewMode ? 'View Subjects & Marks' : 'Manage Subjects & Marks'} 
-                  {viewMode && selectedSubjectForView && (
-                    <span className="viewing-subject"> - Viewing Subject Details</span>
-                  )}
-                </h3>
-                <div className="action-buttons">
-                  {!viewMode && (
-                    <>
-                      <button 
-                        className="add-subject-btn"
-                        onClick={() => setIsAddingSubject(true)}
-                      >
-                        <Plus size={16} />
-                        Add Subject
-                      </button>
-                      <button 
-                        className="save-all-btn"
-                        onClick={saveAllMarksForSemester}
-                      >
-                        <Save size={16} />
-                        Save All Marks
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Add Subject Input (Only in Edit Mode) */}
-              {!viewMode && isAddingSubject && (
-                <div className="add-subject-form">
-                  <input
-                    type="text"
-                    placeholder="Enter subject name"
-                    value={newSubject}
-                    onChange={(e) => setNewSubject(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addSubject()}
-                  />
-                  <div className="form-actions">
-                    <button 
-                      onClick={addSubject}
-                      className="save-btn"
-                    >
-                      <Save size={16} />
-                      Add
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setIsAddingSubject(false);
-                        setNewSubject("");
-                      }}
-                      className="cancel-btn"
-                    >
-                      <X size={16} />
-                      Cancel
-                    </button>
-                  </div>
+            <div className={styles.fileUploadArea}>
+              <FilePlus size={32} />
+              <p>Drag & drop file or click to browse</p>
+              <input
+                type="file"
+                id="certificate-upload"
+                className={styles.fileInput}
+                onChange={handleFileChange}
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              />
+              <label htmlFor="certificate-upload" className={styles.fileUploadBtn}>
+                <Upload size={16} /> Choose File
+              </label>
+              {certFile && (
+                <div className={styles.filePreview}>
+                  <FileText size={14} />
+                  <span>{certFile.name}</span>
+                  <span className={styles.fileSize}>
+                    ({(certFile.size / 1024 / 1024).toFixed(2)} MB)
+                  </span>
                 </div>
               )}
+            </div>
 
-              {/* View Mode - Subject Details */}
-              {viewMode && selectedSubjectForView && (
-                <div className="subject-detail-view">
-                  <div className="detail-header">
-                    <h4>Subject Details</h4>
-                    <button 
-                      onClick={() => setSelectedSubjectForView(null)}
-                      className="close-view-btn"
-                    >
-                      <X size={16} />
-                    </button>
+            {certFilePreview && (
+              <div className={styles.imagePreview}>
+                <img src={certFilePreview} alt="Preview" />
+              </div>
+            )}
+
+            {uploadProgress > 0 && (
+              <div className={styles.uploadProgress}>
+                <div 
+                  className={styles.progressBar}
+                  style={{ width: `${uploadProgress}%` }}
+                />
+                <span>{uploadProgress}%</span>
+              </div>
+            )}
+
+            <button
+              className={styles.uploadBtn}
+              onClick={uploadCertificate}
+              disabled={!certName || !certFile}
+            >
+              <Upload size={18} />
+              Upload Certificate
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter and Search */}
+      <div className={styles.filterSection}>
+        <div className={styles.searchBox}>
+          <Search size={18} />
+          <input
+            type="text"
+            placeholder="Search certificates..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        
+        <div className={styles.filterButtons}>
+          <button
+            className={`${styles.filterBtn} ${filterCategory === 'all' ? styles.active : ''}`}
+            onClick={() => setFilterCategory('all')}
+          >
+            All
+          </button>
+          <button
+            className={`${styles.filterBtn} ${filterCategory === 'academic' ? styles.active : ''}`}
+            onClick={() => setFilterCategory('academic')}
+          >
+            Academic
+          </button>
+          <button
+            className={`${styles.filterBtn} ${filterCategory === 'achievement' ? styles.active : ''}`}
+            onClick={() => setFilterCategory('achievement')}
+          >
+            Achievements
+          </button>
+          <button
+            className={`${styles.filterBtn} ${filterCategory === 'skill' ? styles.active : ''}`}
+            onClick={() => setFilterCategory('skill')}
+          >
+            Skills
+          </button>
+        </div>
+      </div>
+
+      {/* Certificates Grid */}
+      <div className={styles.certificatesGrid}>
+        {filteredCertificates.length === 0 ? (
+          <div className={styles.emptyState}>
+            <FileText size={48} />
+            <h3>No Certificates Found</h3>
+            <p>Upload your first certificate to get started</p>
+          </div>
+        ) : (
+          filteredCertificates.map(cert => (
+            <div key={cert.id} className={styles.certificateCard}>
+              <div className={styles.certificateHeader}>
+                <div className={styles.certificateIcon}>
+                  <FileText size={24} />
+                </div>
+                <div className={styles.certificateActions}>
+                  <button
+                    className={styles.iconBtn}
+                    onClick={() => downloadCertificate(cert)}
+                    title="Download"
+                  >
+                    <Download size={16} />
+                  </button>
+                  <button
+                    className={styles.iconBtn}
+                    onClick={() => window.open(`${BASE_URL}/certificate/${username}/${cert.file}`, "_blank")}
+                    title="View"
+                  >
+                    <Eye size={16} />
+                  </button>
+                  <button
+                    className={styles.iconBtn}
+                    onClick={() => deleteCertificate(cert.id)}
+                    title="Delete"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className={styles.certificateBody}>
+                <h4>{cert.name}</h4>
+                <div className={styles.certificateMeta}>
+                  <span className={styles.categoryBadge}>{cert.category || 'Academic'}</span>
+                  <span className={styles.date}>
+                    {new Date(cert.upload_date).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className={styles.fileName}>
+                  <FileText size={12} />
+                  {cert.file}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderAcademicsTab = () => (
+    <div className={styles.academicsTab}>
+      <div className={styles.academicsHeader}>
+        <div className={styles.headerLeft}>
+          <GraduationCap size={28} />
+          <div>
+            <h2>Academic Records</h2>
+            <p>Manage your semester-wise academic performance</p>
+          </div>
+        </div>
+        
+        <div className={styles.academicStats}>
+          <div className={styles.statCard}>
+            <BookOpen size={20} />
+            <span>{semesters.length} Semesters</span>
+          </div>
+          
+        </div>
+      </div>
+
+      {/* Add Semester */}
+      {isAddingSemester ? (
+        <div className={styles.addSemesterCard}>
+          <input
+            type="text"
+            className={styles.textInput}
+            placeholder="Semester Name (e.g., Fall 2023, Semester 1)"
+            value={newSemesterName}
+            onChange={(e) => setNewSemesterName(e.target.value)}
+          />
+          <div className={styles.formActions}>
+            <button
+              className={styles.primaryBtn}
+              onClick={addSemester}
+            >
+              <Save size={16} /> Add Semester
+            </button>
+            <button
+              className={styles.secondaryBtn}
+              onClick={() => setIsAddingSemester(false)}
+            >
+              <X size={16} /> Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          className={styles.addSemesterBtn}
+          onClick={() => setIsAddingSemester(true)}
+        >
+          <Plus size={18} /> Add New Semester
+        </button>
+      )}
+
+      {/* Semesters List */}
+      <div className={styles.semestersList}>
+        {semesters.map(sem => (
+          <div key={sem.id} className={styles.semesterCard}>
+            <div className={styles.semesterHeader}>
+              <div className={styles.semesterInfo}>
+                <h3>
+                  <ChevronRight 
+                    size={20} 
+                    className={`${styles.chevron} ${expandedSemester === sem.id ? styles.expanded : ''}`}
+                    onClick={() => setExpandedSemester(expandedSemester === sem.id ? null : sem.id)}
+                  />
+                  {sem.name || `Semester ${sem.semester}`}
+                </h3>
+                <div className={styles.semesterMeta}>
+                  <span className={styles.semesterStats}>
+                    <BookOpen size={14} />
+                    {semesterStats[sem.id]?.totalSubjects || 0} Subjects
+                  </span>
+                  <span className={styles.semesterStats}>
+                    <BarChart3 size={14} />
+                    Avg: {semesterStats[sem.id]?.averageMarks || 0}%
+                  </span>
+                </div>
+              </div>
+              
+              <div className={styles.semesterActions}>
+                <button
+                  className={styles.iconBtn}
+                  onClick={() => setExpandedSemester(expandedSemester === sem.id ? null : sem.id)}
+                >
+                  {expandedSemester === sem.id ? 'Collapse' : 'Expand'}
+                </button>
+                <button
+                  className={styles.iconBtn}
+                  onClick={() => deleteSemester(sem.id)}
+                  title="Delete Semester"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Internals Section (Only show when expanded) */}
+            {expandedSemester === sem.id && (
+              <div className={styles.internalsSection}>
+                <div className={styles.sectionHeader}>
+                  <h4>Internal Assessments</h4>
+                  <button
+                    className={styles.addBtn}
+                    onClick={() => addInternal(sem.id)}
+                  >
+                    <Plus size={16} /> Add Internal
+                  </button>
+                </div>
+
+                {sem.internals?.length === 0 ? (
+                  <div className={styles.emptySection}>
+                    <p>No internal assessments added</p>
                   </div>
-                  {(() => {
-                    const subject = allSubjects.find(s => s.id === selectedSubjectForView);
-                    const marks = subjectMarks[selectedSubjectForView];
-                    if (!subject) return null;
-                    
-                    return (
-                      <div className="detail-content">
-                        <div className="detail-section">
-                          <h5>Subject Information</h5>
-                          <div className="detail-grid">
-                            <div className="detail-item">
-                              <span className="detail-label">Name:</span>
-                              <span className="detail-value">{subject.name}</span>
-                            </div>
-                            <div className="detail-item">
-                              <span className="detail-label">Code:</span>
-                              <span className="detail-value">{subject.code}</span>
-                            </div>
-                            <div className="detail-item">
-                              <span className="detail-label">Semester:</span>
-                              <span className="detail-value">Semester {subject.semester}</span>
-                            </div>
-                            <div className="detail-item">
-                              <span className="detail-label">Credits:</span>
-                              <span className="detail-value">{subject.credits}</span>
-                            </div>
-                          </div>
+                ) : (
+                  sem.internals?.map(int => (
+                    <div key={int.id} className={styles.internalCard}>
+                      <div className={styles.internalHeader}>
+                        <h5>{int.name}</h5>
+                        <div className={styles.internalActions}>
+                          <button
+                            className={styles.iconBtn}
+                            onClick={() => addSubject(sem.id, int.id)}
+                            title="Add Subject"
+                          >
+                            <Plus size={14} />
+                          </button>
+                          <button
+                            className={styles.iconBtn}
+                            onClick={() => deleteInternal(sem.id, int.id)}
+                            title="Delete Internal"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Subjects Table */}
+                      <div className={styles.subjectsTable}>
+                        <div className={styles.tableHeader}>
+                          <div className={styles.tableCell}>Subject</div>
+                          <div className={styles.tableCell}>Marks</div>
+                          <div className={styles.tableCell}>Actions</div>
                         </div>
                         
-                        {marks && (
-                          <div className="detail-section">
-                            <h5>Marks Details</h5>
-                            <div className="marks-detail-grid">
-                              {/* Internal Tests */}
-                              <div className="marks-category">
-                                <h6>Internal Tests</h6>
-                                <div className="marks-list">
-                                  <div className="mark-item">
-                                    <span>Internal Test 1:</span>
-                                    <span className={marks.internal1 ? "filled" : "empty"}>
-                                      {marks.internal1 || "Not Entered"}
-                                    </span>
-                                  </div>
-                                  <div className="mark-item">
-                                    <span>Internal Test 2:</span>
-                                    <span className={marks.internal2 ? "filled" : "empty"}>
-                                      {marks.internal2 || "Not Entered"}
-                                    </span>
-                                  </div>
-                                  <div className="mark-item">
-                                    <span>Internal Test 3:</span>
-                                    <span className={marks.internal3 ? "filled" : "empty"}>
-                                      {marks.internal3 || "Not Entered"}
-                                    </span>
-                                  </div>
-                                  <div className="mark-item average">
-                                    <span>Internal Average:</span>
-                                    <span className="average-value">
-                                      {calculateInternalAverage(subject.id)}%
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* Semester End Exam */}
-                              <div className="marks-category">
-                                <h6>Semester End Examination</h6>
-                                <div className="marks-list">
-                                  <div className="mark-item">
-                                    <span>Marks Obtained:</span>
-                                    <span className={marks.semesterEndMarks ? "filled" : "empty"}>
-                                      {marks.semesterEndMarks || "Not Entered"}
-                                    </span>
-                                  </div>
-                                  <div className="mark-item">
-                                    <span>Grade:</span>
-                                    <span className={marks.semesterEndGrade ? "filled" : "empty"}>
-                                      {marks.semesterEndGrade || "Not Entered"}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
+                        {int.subjects?.map(sub => (
+                          <div key={sub.id} className={styles.tableRow}>
+                            <div className={styles.tableCell}>
+                              <BookOpen size={14} />
+                              {sub.name}
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
-
-              {/* Subjects List */}
-              <div className="subjects-list">
-                {currentSubjects.length === 0 ? (
-                  <div className="no-subjects">
-                    <BookOpen size={48} />
-                    <p>No subjects added for Semester {semester}</p>
-                    {!viewMode && (
-                      <button 
-                        className="add-first-subject-btn"
-                        onClick={() => setIsAddingSubject(true)}
-                      >
-                        <Plus size={16} />
-                        Add Your First Subject
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  currentSubjects.map(subject => (
-                    <div key={subject.id} className="subject-card">
-                      <div className="subject-header">
-                        <div className="subject-info">
-                          {editingSubjectId === subject.id ? (
-                            <div className="edit-subject-form">
-                              <input
-                                type="text"
-                                value={editSubjectName}
-                                onChange={(e) => setEditSubjectName(e.target.value)}
-                                placeholder="Edit subject name"
-                              />
-                              <div className="edit-actions">
-                                <button 
-                                  onClick={() => updateSubject(subject.id)}
-                                  className="save-btn"
-                                >
-                                  <Save size={14} />
-                                </button>
-                                <button 
-                                  onClick={() => {
-                                    setEditingSubjectId(null);
-                                    setEditSubjectName("");
-                                  }}
-                                  className="cancel-btn"
-                                >
-                                  <X size={14} />
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <>
-                              <div className="subject-name-row">
-                                <h4>{subject.name}</h4>
-                                <div className="subject-stats">
-                                  <span className="stat-badge">
-                                    {getSubjectStats(subject.id).completedInternals}/3 Internals
-                                  </span>
-                                  {getSubjectStats(subject.id).hasSemesterMarks && (
-                                    <span className="stat-badge success">
-                                      Semester: {subjectMarks[subject.id]?.semesterEndGrade || ""}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="subject-meta">
-                                <span className="subject-code">Code: {subject.code}</span>
-                                <span className="subject-credits">Credits: {subject.credits}</span>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        <div className="subject-actions">
-                          {viewMode ? (
-                            <button
-                              onClick={() => viewSubjectDetails(subject.id)}
-                              className="view-details-btn"
-                            >
-                              <Eye size={14} />
-                              View Details
-                            </button>
-                          ) : (
-                            editingSubjectId !== subject.id && (
-                              <>
-                                <button
-                                  onClick={() => toggleSubjectExpansion(subject.id)}
-                                  className="expand-btn"
-                                >
-                                  {expandedSubjects[subject.id] ? (
-                                    <ChevronUp size={16} />
-                                  ) : (
-                                    <ChevronDown size={16} />
-                                  )}
-                                  {expandedSubjects[subject.id] ? 'Hide Marks' : 'Enter Marks'}
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setEditingSubjectId(subject.id);
-                                    setEditSubjectName(subject.name);
-                                  }}
-                                  className="edit-btn"
-                                >
-                                  <Edit3 size={14} />
-                                </button>
-                                <button
-                                  onClick={() => deleteSubject(subject.id)}
-                                  className="delete-btn"
-                                >
-                                  <Trash2 size={14} />
-                                </button>
-                              </>
-                            )
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Expanded Marks Section (Edit Mode Only) */}
-                      {!viewMode && expandedSubjects[subject.id] && (
-                        <div className="marks-section">
-                          <div className="marks-header">
-                            <h5>Enter Marks for {subject.name}</h5>
-                          </div>
-                          
-                          {/* Internal Tests */}
-                          <div className="internal-tests-section">
-                            <h6>Internal Tests</h6>
-                            <div className="test-inputs">
-                              {[
-                                { key: 'internal1', label: 'Internal Test 1' },
-                                { key: 'internal2', label: 'Internal Test 2' },
-                                { key: 'internal3', label: 'Internal Test 3' }
-                              ].map(test => (
-                                <div key={test.key} className="test-input">
-                                  <label>{test.label}</label>
+                            <div className={styles.tableCell}>
+                              {editingSubject === sub.id ? (
+                                <div className={styles.editMarks}>
                                   <input
                                     type="number"
                                     min="0"
                                     max="100"
-                                    value={subjectMarks[subject.id]?.[test.key] || ""}
-                                    onChange={(e) => handleMarksChange(subject.id, test.key, e.target.value)}
-                                    placeholder="Marks out of 100"
+                                    value={editingMarks}
+                                    onChange={(e) => setEditingMarks(e.target.value)}
+                                    className={styles.marksInput}
                                   />
+                                  <button
+                                    className={styles.saveBtn}
+                                    onClick={() => saveEditedMarks(sub.id)}
+                                  >
+                                    <Check size={14} />
+                                  </button>
                                 </div>
-                              ))}
+                              ) : (
+                                <span className={styles.marksDisplay}>
+                                  {sub.marks || '0'} / 100
+                                </span>
+                              )}
                             </div>
-                          </div>
-
-                          {/* Semester End Exam */}
-                          <div className="semester-exam-section">
-                            <h6>Semester End Examination</h6>
-                            <div className="semester-inputs">
-                              <div className="semester-input">
-                                <label>Marks Obtained</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  value={subjectMarks[subject.id]?.semesterEndMarks || ""}
-                                  onChange={(e) => handleMarksChange(subject.id, 'semesterEndMarks', e.target.value)}
-                                  placeholder="Marks out of 100"
-                                />
-                              </div>
-                              <div className="semester-input">
-                                <label>Grade</label>
-                                <select
-                                  value={subjectMarks[subject.id]?.semesterEndGrade || ""}
-                                  onChange={(e) => handleMarksChange(subject.id, 'semesterEndGrade', e.target.value)}
+                            <div className={styles.tableCell}>
+                              <div className={styles.rowActions}>
+                                <button
+                                  className={styles.iconBtn}
+                                  onClick={() => startEditingMarks(sub.id, sub.marks)}
+                                  title="Edit Marks"
                                 >
-                                  <option value="">Select Grade</option>
-                                  <option value="A+">A+</option>
-                                  <option value="A">A</option>
-                                  <option value="B+">B+</option>
-                                  <option value="B">B</option>
-                                  <option value="C+">C+</option>
-                                  <option value="C">C</option>
-                                  <option value="D">D</option>
-                                  <option value="F">F</option>
-                                </select>
+                                  <Edit size={14} />
+                                </button>
+                                <button
+                                  className={styles.iconBtn}
+                                  onClick={() => deleteSubject(sub.id)}
+                                  title="Delete Subject"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
                               </div>
                             </div>
                           </div>
-
-                          {/* Stats and Actions */}
-                          <div className="marks-footer">
-                            <div className="marks-stats">
-                              <div className="stat">
-                                <span className="stat-label">Average:</span>
-                                <span className="stat-value">
-                                  {calculateInternalAverage(subject.id)}%
-                                </span>
-                              </div>
-                              <div className="stat">
-                                <span className="stat-label">Internals Done:</span>
-                                <span className="stat-value">
-                                  {getSubjectStats(subject.id).completedInternals}/3
-                                </span>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => saveMarksForSubject(subject.id, subject.name)}
-                              className="save-marks-btn"
-                            >
-                              <Save size={16} />
-                              Save Marks
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                        ))}
+                      </div>
                     </div>
                   ))
                 )}
               </div>
+            )}
+          </div>
+        ))}
 
-              {/* All Subjects Summary */}
-              {allSubjects.length > 0 && (
-                <div className="all-subjects-summary">
-                  <h4>All Subjects Across Semesters</h4>
-                  <div className="summary-grid">
-                    {[1,2,3,4,5,6,7,8].map(sem => {
-                      const semSubjects = allSubjects.filter(subj => subj.semester === sem);
-                      if (semSubjects.length === 0) return null;
-                      
-                      return (
-                        <div key={sem} className="semester-summary">
-                          <h5>Semester {sem}</h5>
-                          <ul>
-                            {semSubjects.map(subj => (
-                              <li key={subj.id}>
-                                <span className="subject-name">{subj.name}</span>
-                                <span className="subject-code">{subj.code}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+        {semesters.length === 0 && (
+          <div className={styles.emptyState}>
+            <GraduationCap size={48} />
+            <h3>No Academic Records</h3>
+            <p>Add your first semester to get started</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
-          {/* Final Results Tab */}
-          {activeTab === 'results' && (
-            <div className="final-results-container">
-              {/* Existing Results */}
-              {semesterResults.filter(r => r.semester === semester).length > 0 ? (
-                <div className="existing-results-section">
-                  <h3>Results for Semester {semester}</h3>
-                  {semesterResults
-                    .filter(result => result.semester === semester)
-                    .map(result => (
-                      <div key={result.id} className="result-card">
-                        <div className="result-info">
-                          <div className="result-item">
-                            <span className="result-label">Semester GPA:</span>
-                            <span className="result-value">{result.gpa}</span>
-                          </div>
-                          <div className="result-item">
-                            <span className="result-label">Grade:</span>
-                            <span className="result-value">{result.grade}</span>
-                          </div>
-                          <div className="result-item">
-                            <span className="result-label">Date:</span>
-                            <span className="result-timestamp">
-                              {new Date(result.timestamp).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => deleteSemesterResult(result.id)}
-                          className="delete-result-btn"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <div className="no-results-message">
-                  <p>No results saved for this semester yet.</p>
-                </div>
-              )}
+  /* ================= MAIN RENDER ================= */
+  return (
+    <div className={styles.container}>
+      <StudentTopBar />
+      
+      <div className={styles.mainContent}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Student Wallet</h1>
+          <p className={styles.subtitle}>Manage your certificates and academic records</p>
+        </div>
 
-              {/* Upload New Results */}
-              <div className="upload-final-results">
-                <h3>Save Final Results</h3>
-                <div className="final-results-form">
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Semester Grade</label>
-                      <input
-                        type="text"
-                        placeholder="e.g., A, B+, etc."
-                        value={semesterGrade}
-                        onChange={e => setSemesterGrade(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="form-group">
-                      <label>Semester GPA</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        max="10"
-                        placeholder="e.g., 8.5"
-                        value={semesterGPA}
-                        onChange={e => setSemesterGPA(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="form-summary">
-                    <div className="summary-item">
-                      <span>Total Subjects:</span>
-                      <span>{currentSubjects.length}</span>
-                    </div>
-                    <div className="summary-item">
-                      <span>Subjects with Marks:</span>
-                      <span>
-                        {currentSubjects.filter(subj => {
-                          const marks = subjectMarks[subj.id];
-                          return marks && (
-                            marks.internal1 || 
-                            marks.internal2 || 
-                            marks.internal3 ||
-                            marks.semesterEndMarks
-                          );
-                        }).length}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="form-actions">
-                    <button 
-                      onClick={uploadSemesterResults}
-                      className="upload-final-btn"
-                      disabled={!semesterGPA || !semesterGrade}
-                    >
-                      <Save size={18} />
-                      Save Semester Results
-                    </button>
-                  </div>
-                </div>
-              </div>
+        {/* Tabs */}
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${activeTab === 'certificates' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('certificates')}
+          >
+            <FileText size={18} />
+            Certificates
+            {certificates.length > 0 && (
+              <span className={styles.badge}>{certificates.length}</span>
+            )}
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'academics' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('academics')}
+          >
+            <GraduationCap size={18} />
+            Academics
+            {semesters.length > 0 && (
+              <span className={styles.badge}>{semesters.length}</span>
+            )}
+          </button>
+        </div>
 
-              {/* All Semester Results Summary */}
-              {semesterResults.length > 0 && (
-                <div className="all-results-summary">
-                  <h4>All Semester Results</h4>
-                  <div className="results-table">
-                    <div className="table-header">
-                      <div className="header-cell">Semester</div>
-                      <div className="header-cell">GPA</div>
-                      <div className="header-cell">Grade</div>
-                      <div className="header-cell">Date</div>
-                    </div>
-                    {semesterResults
-                      .sort((a, b) => b.semester - a.semester)
-                      .map(result => (
-                        <div key={result.id} className="table-row">
-                          <div className="cell">Semester {result.semester}</div>
-                          <div className="cell">{result.gpa}</div>
-                          <div className="cell">{result.grade}</div>
-                          <div className="cell">
-                            {new Date(result.timestamp).toLocaleDateString()}
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+        {/* Tab Content */}
+        <div className={styles.tabContent}>
+          {activeTab === 'certificates' ? renderCertificatesTab() : renderAcademicsTab()}
         </div>
       </div>
     </div>

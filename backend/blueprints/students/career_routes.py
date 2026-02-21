@@ -24,14 +24,15 @@ load_dotenv()
 # Configuration
 # PROGRESS_FILE = r"C:\Users\prave\OneDrive\Documents\maatram\progress.json"
 QUESTIONS = [
-    "What subjects do you enjoy the most in school?",
-    "What hobbies or activities do you like?",
-    "Do you prefer working with people, technology, or ideas?",
-    "Do you like creative or analytical tasks more?",
-    "What are your strengths or skills?",
-    "Do you have any career ideas in mind already?",
-    "Currently pursuing degree and course?"
+    "What subjects do you enjoy the most in school? eg: Tamil, English",
+    "What hobbies or activities do you like? eg: Painting, Football",
+    "Do you prefer working with people, technology, or ideas? eg: Technology, People",
+    "Do you like creative or analytical tasks more? eg: Creative, Analytical",
+    "What are your strengths or skills? eg: Problem-solving, Communication",
+    "Do you have any career ideas in mind already? eg: Software Engineer, Teacher",
+    "Currently pursuing degree and course? eg: B.Sc Computer Science, B.A English"
 ]
+
 
 FALLBACK_TOPICS = {
     "Research and Development Engineer": ["Materials Science", "CAD Design", "Prototyping", "Research Methods", "Python/MATLAB"],
@@ -271,6 +272,33 @@ Format your response as JSON with this structure:
 career_agent = CareerAgent()
 
 # Helper functions for progress tracking
+def is_meaningful_text(text: str) -> bool:
+    if not text or not isinstance(text, str):
+        return False
+
+    text = text.strip()
+
+    # Too short
+    if len(text) < 5:
+        return False
+
+    # Must contain letters
+    if not re.search(r"[a-zA-Z]", text):
+        return False
+
+    # Reject random gibberish (low vowel ratio)
+    letters = re.findall(r"[a-zA-Z]", text.lower())
+    if letters:
+        vowels = sum(1 for c in letters if c in "aeiou")
+        if vowels / len(letters) < 0.25:
+            return False
+
+    # Reject repeated junk like aaaaaa / asdfasdf
+    if re.fullmatch(r"(.)\1{4,}", text):
+        return False
+
+    return True
+
 def load_progress(student_id: str) -> Dict[str, Any]:
     doc = progress_collection.find_one(
         {"student_id": student_id},
@@ -295,36 +323,69 @@ def get_questions():
         "questions": QUESTIONS
     })
 
+def validate_student_responses(responses: Dict[str, str]) -> bool:
+    if not responses or not isinstance(responses, dict):
+        return False
+
+    for answer in responses.values():
+        if not is_meaningful_text(answer):
+            return False
+
+    return True
+
+
 @career_bp.route('/assess', methods=['POST'])
 def assess_career():
     try:
         data = request.json
-        student_id = data.get('student_id')
-        responses = data.get('responses')
+        student_id = data.get("student_id")
+        responses = data.get("responses")
 
         if not student_id or not responses:
-            return jsonify({"success": False, "message": "Missing data"}), 400
+            return jsonify({
+                "success": False,
+                "message": "Missing student ID or responses"
+            }), 400
 
+        # ✅ Remove validation restriction
+        # Previously, responses were validated and could fail
+        # if not validate_student_responses(responses):
+        #     return jsonify({
+        #         "success": False,
+        #         "message": "Your answers seem unclear or invalid. Please provide meaningful responses."
+        #     }), 422
+
+        # Proceed regardless of content
         recommendations = career_agent.get_career_recommendations(responses)
 
         progress_collection.update_one(
             {"student_id": student_id},
-            {"$set": {
-                "student_id": student_id,
-                "initial_assessment": {
-                    "responses": responses,
-                    "recommendations": recommendations,
-                    "assessment_date": datetime.now().isoformat()
+            {
+                "$set": {
+                    "student_id": student_id,
+                    "initial_assessment": {
+                        "responses": responses,
+                        "recommendations": recommendations,
+                        "assessment_date": datetime.now().isoformat()
+                    }
                 }
-            }},
+            },
             upsert=True
         )
 
-        return jsonify({"success": True, "data": recommendations})
+        return jsonify({
+            "success": True,
+            "data": recommendations
+        })
 
     except Exception as e:
         logger.error(e)
-        return jsonify({"success": False, "message": "Assessment failed"}), 500
+        return jsonify({
+            "success": False,
+            "message": "Assessment failed"
+        }), 500
+
+
 
 @career_bp.route('/select-career', methods=['POST'])
 def select_career():

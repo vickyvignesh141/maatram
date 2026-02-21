@@ -99,13 +99,11 @@ export default function TotalStudents() {
                   <p>{student.username}</p>
                 </div>
 
-                <div className="expansion-indicator">
-                  {expandedStudent === student.username ? "▼" : "▶"}
-                </div>
+                
               </div>
 
               {/* Actions (expandable) */}
-              {expandedStudent === student.username && (
+              { (
                 <div className="student-card-actions">
                   <Link
                     to={`/mentor/student/${student.username}/profile`}

@@ -67,7 +67,7 @@ const MentorProfile = ({ loginData }) => {
   });
 
   const [originalData, setOriginalData] = useState(null);
-  const [isEditing, setIsEditing] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
