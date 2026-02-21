@@ -120,7 +120,7 @@ const AdminDashboard = () => {
                 </span>
               </div>
 
-              {/* <div
+              <div
                 className="main-action-card"
                 onClick={() => navigate("/admin/assignments")}
               >
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
                 <span className="action-arrow">
                   <ArrowRight size={20} />
                 </span>
-              </div> */}
+              </div>
 
               <div
                 className="main-action-card"
