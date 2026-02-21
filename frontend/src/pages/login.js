@@ -20,8 +20,7 @@ import {
   Lock,
   Eye,EyeOff ,
   HelpCircle
-} from "lucide-react";
-import logo from "../imgs/logo.png"; 
+} from "lucide-react"; 
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -116,15 +115,14 @@ return (
         <div className={styles.brandLogo}>
           <div>
             {/* <h1 className="brand-title">Maatram</h1> */}
-            <img src={logo} alt="Maatram Logo" className={styles.header1Logo} />
-            <p className={styles.brandSubtitle}>Student Profiling Platform</p>
+            <p className={styles.brandSubtitle}>   </p>
           </div>
         </div>
       </div>
 
       <div className={styles.welcomeContent}>
         <h2>Welcome Back</h2>
-        <p>Sign in to continue your journey with Maatram Foundation</p>
+        <p>Sign in to continue your journey </p>
 
         <div className={styles.features}>
           <div className={styles.featureItem}>
@@ -170,14 +168,14 @@ return (
         <div className={styles.formGroup}>
           <label className={styles.formLabel}>
             <User size={16} style={{ marginRight: "8px", verticalAlign: "middle" }} />
-            Maatram ID <span>*</span>
+            Student ID <span>*</span>
           </label>
           <div className={styles.inputWithIcon}>
             <User size={20} className={styles.inputIcon} />
             <input
   type="text"
   className={styles.formInput}
-  placeholder="Enter your Maatram ID (e.g., MAA000001)"
+  placeholder="Enter your  ID (e.g., MAA000001)"
   value={username}
   onChange={(e) => {
     const value = e.target.value.toUpperCase();
@@ -187,7 +185,7 @@ return (
 
     if (detected === "INVALID") {
       setUserType("");
-      setMsg("Invalid Maatram ID. Only MAA0, MAA1, MAA2 are allowed.");
+      setMsg("Invalid  ID. Only MAA0, MAA1, MAA2 are allowed.");
     } else {
       setUserType(detected);
       setMsg("");

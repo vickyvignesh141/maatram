@@ -5,7 +5,7 @@ import { Search, ChevronLeft, ChevronRight, Building2, Users, GraduationCap } fr
 const AdminCollegeManagement = () => {
   const [activeTab] = useState("college_management");
   const [loading, setLoading] = useState(true);
-  const [colleges, setColleges] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -13,47 +13,47 @@ const AdminCollegeManagement = () => {
   useEffect(() => {
     // Simulate API call
     setTimeout(() => {
-      setColleges([
-        { id: 1, name: "Velammal Engineering College, Chennai", totalStudents: 56, batches: ["2019-2023", "2020-2024", "2021-2025", "2022-2026"] },
-        { id: 2, name: "Sri Sairam Engineering College, Chennai", totalStudents: 48, batches: ["2018-2022", "2019-2023", "2020-2024"] },
-        { id: 3, name: "Sathyabama Institute of Technology, Chennai", totalStudents: 230, batches: ["2020-2023", "2021-2024", "2022-2025"] },
-        { id: 4, name: "St.joseph's institude of technology ,chennai", totalStudents: 24, batches: ["2018-2022", "2019-2023", "2020-2024", "2021-2025"] },
-        { id: 5, name: "JJ engineering college,trichy,", totalStudents: 87, batches: ["2019-2023", "2020-2024", "2021-2025"] },
-        { id: 6, name: "Jnn engineering college,chennai", totalStudents: 68, batches: ["2019-2023", "2020-2024", "2021-2025"] },
-        { id: 7, name: "Kumaraguru engineering college, Coimbatore", totalStudents: 35, batches: ["2019-2023", "2020-2024"] },
-        { id: 8, name: "Loyolo college,chennai", totalStudents: 53, batches: ["2020-2024", "2021-2025"] },
-        { id: 9, name: "Amrita Vishwa Vidyapeetham, Coimbatore", totalStudents: 92, batches: ["2019-2023", "2020-2024", "2021-2025"] },
-        { id: 10, name: "Kumaraguru College of Technology", totalStudents: 73, batches: ["2020-2024", "2021-2025"] },
-        { id: 11, name: "Thiagarajar College of Engineering, Madurai", totalStudents: 35, batches: ["2019-2023", "2020-2024"] },
-        { id: 12, name: "Madras Institute of Technology", totalStudents: 51, batches: ["2020-2024", "2021-2025"] },
-        { id: 13, name: "Government College of Technology, Coimbatore", totalStudents: 93, batches: ["2019-2023", "2020-2024"] },
-        { id: 14, name: "R.M.K. Engineering College, Chennai", totalStudents: 45, batches: ["2020-2024", "2021-2025"] },
-        { id: 15, name: "St. Joseph's College of Engineering, Chennai", totalStudents: 71, batches: ["2020-2024"] }
+      setDepartments([
+        { id: 1, name: "Computer Science & Engineering", totalStudents: 56, batches: ["2019-2023", "2020-2024", "2021-2025", "2022-2026"] },
+        { id: 2, name: "Information Technology", totalStudents: 48, batches: ["2018-2022", "2019-2023", "2020-2024"] },
+        { id: 3, name: "Electronics & Communication", totalStudents: 230, batches: ["2020-2023", "2021-2024", "2022-2025"] },
+        { id: 4, name: "Electrical & Electronics", totalStudents: 24, batches: ["2018-2022", "2019-2023", "2020-2024", "2021-2025"] },
+        { id: 5, name: "Mechanical Engineering", totalStudents: 87, batches: ["2019-2023", "2020-2024", "2021-2025"] },
+        { id: 6, name: "Civil Engineering", totalStudents: 68, batches: ["2019-2023", "2020-2024", "2021-2025"] },
+        { id: 7, name: "Artificial Intelligence & DS", totalStudents: 35, batches: ["2019-2023", "2020-2024"] },
+        { id: 8, name: "Computer Science (AI & ML)", totalStudents: 53, batches: ["2020-2024", "2021-2025"] },
+        { id: 9, name: "Computer Science (Cyber Security)", totalStudents: 92, batches: ["2019-2023", "2020-2024", "2021-2025"] },
+        { id: 10, name: "Biomedical Engineering", totalStudents: 73, batches: ["2020-2024", "2021-2025"] },
+        { id: 11, name: "Aerospace Engineering", totalStudents: 35, batches: ["2019-2023", "2020-2024"] },
+        { id: 12, name: "Chemical Engineering", totalStudents: 51, batches: ["2020-2024", "2021-2025"] },
+        { id: 13, name: "Biotechnology", totalStudents: 93, batches: ["2019-2023", "2020-2024"] },
+        { id: 14, name: "Robotics & Automation", totalStudents: 45, batches: ["2020-2024", "2021-2025"] },
+        { id: 15, name: "Mechatronics Engineering", totalStudents: 71, batches: ["2020-2024"] }
       ]);
       setLoading(false);
     }, 500);
   }, []);
 
-  // Filter colleges based on search term
-  const filteredColleges = colleges.filter(college =>
-    college.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter departments based on search term
+  const filteredDepartments = departments.filter(dept =>
+    dept.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredColleges.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredDepartments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentColleges = filteredColleges.slice(startIndex, startIndex + itemsPerPage);
+  const currentDepartments = filteredDepartments.slice(startIndex, startIndex + itemsPerPage);
 
-  // Calculate total students across all colleges
-  const totalStudentsAllColleges = colleges.reduce((sum, college) => sum + college.totalStudents, 0);
-  const averageStudents = Math.round(totalStudentsAllColleges / colleges.length);
+  // Calculate total students across all departments
+  const totalStudentsAllDepartments = departments.reduce((sum, dept) => sum + dept.totalStudents, 0);
+  const averageStudents = Math.round(totalStudentsAllDepartments / departments.length);
 
   // Loading state
   if (loading) {
     return (
       <div className="loader-container">
         <div className="loader-spinner"></div>
-        <p>Loading college information...</p>
+        <p>Loading department information...</p>
       </div>
     );
   }
@@ -68,10 +68,10 @@ const AdminCollegeManagement = () => {
           <div className="header-content">
             <div className="title-wrapper">
               <Building2 className="header-icon" />
-              <h1 className="page-title">College Management</h1>
+              <h1 className="page-title">Department Management</h1>
             </div>
             <p className="page-subtitle">
-              Manage and view college-wise student distribution and batch details
+              Manage and view department-wise student distribution and batch details
             </p>
           </div>
           
@@ -81,7 +81,7 @@ const AdminCollegeManagement = () => {
                 <Users className="stat-icon" />
               </div>
               <div className="stat-content">
-                <div className="stat-value">{totalStudentsAllColleges.toLocaleString()}</div>
+                <div className="stat-value">{totalStudentsAllDepartments.toLocaleString()}</div>
                 <div className="stat-label">Total Students</div>
               </div>
             </div>
@@ -90,8 +90,8 @@ const AdminCollegeManagement = () => {
                 <GraduationCap className="stat-icon" />
               </div>
               <div className="stat-content">
-                <div className="stat-value">{colleges.length}</div>
-                <div className="stat-label">Colleges</div>
+                <div className="stat-value">{departments.length}</div>
+                <div className="stat-label">Departments</div>
               </div>
             </div>
           </div>
@@ -103,14 +103,14 @@ const AdminCollegeManagement = () => {
             <Search className="search-icon" />
             <input
               type="text"
-              placeholder="Search colleges by name..."
+              placeholder="Search departments by name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
           </div>
           <div className="results-info">
-            Showing {currentColleges.length} of {filteredColleges.length} colleges
+            Showing {currentDepartments.length} of {filteredDepartments.length} departments
           </div>
         </div>
 
@@ -120,38 +120,38 @@ const AdminCollegeManagement = () => {
             <table className="college-table">
               <thead>
                 <tr>
-                  <th>College Name</th>
+                  <th>Department Name</th>
                   <th>Total Students</th>
                   <th>Active Batches</th>
                 </tr>
               </thead>
               <tbody>
-                {currentColleges.length === 0 ? (
+                {currentDepartments.length === 0 ? (
                   <tr>
                     <td colSpan="3" className="empty-state">
                       <div className="empty-content">
                         <Search size={40} />
-                        <p>No colleges found matching your search</p>
+                        <p>No departments found matching your search</p>
                       </div>
                     </td>
                   </tr>
                 ) : (
-                  currentColleges.map((college) => (
-                    <tr key={college.id} className="table-row">
+                  currentDepartments.map((dept) => (
+                    <tr key={dept.id} className="table-row">
                       <td>
                         <div className="college-name-cell">
-                          <div className="college-name">{college.name}</div>
+                          <div className="college-name">{dept.name}</div>
                         </div>
                       </td>
                       <td>
                         <div className="students-cell">
-                          <div className="student-count">{college.totalStudents.toLocaleString()}</div>
+                          <div className="student-count">{dept.totalStudents.toLocaleString()}</div>
                           <div className="student-label">students</div>
                         </div>
                       </td>
                       <td>
                         <div className="batches-cell">
-                          {college.batches.map((batch, index) => (
+                          {dept.batches.map((batch, index) => (
                             <span key={index} className="batch-tag">
                               {batch}
                             </span>
@@ -167,7 +167,7 @@ const AdminCollegeManagement = () => {
         </div>
 
         {/* Pagination */}
-        {filteredColleges.length > 0 && (
+        {filteredDepartments.length > 0 && (
           <div className="pagination-section">
             <button
               className={`pagination-btn prev-btn ${currentPage === 1 ? 'disabled' : ''}`}
@@ -180,7 +180,7 @@ const AdminCollegeManagement = () => {
             
             <div className="page-info">
               Page {currentPage} of {totalPages}
-              <span className="total-info"> • {filteredColleges.length} colleges</span>
+              <span className="total-info"> • {filteredDepartments.length} departments</span>
             </div>
             
             <button

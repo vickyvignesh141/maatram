@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import baseurl from "../../baseurl";
 import { User, ChevronDown, Bell, Settings, LogOut } from "lucide-react";
-import logo from "../../imgs/logo.png";
 import "./Admintop.css"; // Create this CSS file
 
 export default function Admintop() {
@@ -45,7 +44,6 @@ export default function Admintop() {
     <div className="Admin-topbar">
       {/* Logo Section */}
       <div className="topbar-logo-section">
-        <img src={logo} alt="Maatram Logo" className="topbar-logo" />
         <div className="logo-text">
           <h2 className="app-name">Admin Dashboard</h2>
           {/* <p className="app-subtitle">Admin Dashboard</p> */}

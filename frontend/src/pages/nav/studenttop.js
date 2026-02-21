@@ -8,7 +8,6 @@ import {
   Trash2, 
   CheckCircle 
 } from "lucide-react";
-import logo from "../../imgs/logo.png";
 import BASE_URL from "../../baseurl";
 import "./StudentTopBar.css"; // Changed from styles import
 
@@ -67,7 +66,6 @@ export default function StudentTopBar() {
     <div className="topbar">
       {/* Logo Section */}
       <div className="logoSection">
-        <img src={logo} alt="Logo" className="logo" />
         <h2 className="appName">Student Dashboard</h2>
       </div>
 
